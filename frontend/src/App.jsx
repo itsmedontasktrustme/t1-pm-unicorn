@@ -1,4 +1,5 @@
 import { useState } from "react";
+import logo from "./assets/homekeeper-logo.png";
 
 const pages = {
   overview: {
@@ -18,7 +19,10 @@ function App() {
   return (
     <div className="app-shell">
       <header className="topbar">
-        <h1>Welcome to Homekeeper, the best app on the internet!</h1>
+        <div className="brand">
+          <img src={logo} alt="Homekeeper logo" className="brand-logo" />
+          <h1>Homekeeper, the best app on the internet!</h1>
+        </div>
       </header>
 
       <div className="main-layout">
