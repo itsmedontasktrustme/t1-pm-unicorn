@@ -1,13 +1,89 @@
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  background: #f3f4f6;
+  color: #1f2937;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+button {
+  font: inherit;
 }
+
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  background: #111827;
+  color: white;
+  padding: 1rem 1.5rem;
+  box-shadow: 0 2px 4px rgba(17, 24, 39, 0.1);
+}
+
+.topbar h1 {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+
+.main-layout {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.sidebar {
+  width: 220px;
+  background: #e5e7eb;
+  padding: 1rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.nav-button {
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #1f2937;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.nav-button:hover {
+  background: #d1d5db;
+}
+
+.nav-button.active {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.page-panel {
+  flex: 1;
+  padding: 2rem;
+  background: #ffffff;
+}
+
+.page-panel h2 {
+  margin: 0 0 1rem;
+  font-size: 2rem;
+}
+
+.page-panel p {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+

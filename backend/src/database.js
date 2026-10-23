@@ -1,4 +1,4 @@
-const knex = require('knex');
+wconst knex = require('knex');
 const { database } = require('./config');
 
 module.exports = knex({
