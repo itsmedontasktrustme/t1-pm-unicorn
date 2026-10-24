@@ -1,0 +1,23 @@
+{
+  "name": "t1-pm-unicorn",
+  "version": "1.0.0",
+  "description": "Project structure: ``` . ├── backend │   ├── Dockerfile │   ... ├── db │   └── password.txt ├── compose.yaml ├── frontend │   ├── ... │   └── Dockerfile └── README.md ```",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/itsmedontasktrustme/t1-pm-unicorn.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/itsmedontasktrustme/t1-pm-unicorn/issues"
+  },
+  "homepage": "https://github.com/itsmedontasktrustme/t1-pm-unicorn#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "@types/node": "^26.6.5"
+  }
+}
