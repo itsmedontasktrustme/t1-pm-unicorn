@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Homekeeper",
+  "name": "Homekeeper, the best app on the internet!",
   "icons": [
     {
       "src": "favicon.ico",
