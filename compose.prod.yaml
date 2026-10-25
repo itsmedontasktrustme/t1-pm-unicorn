@@ -43,6 +43,8 @@ services:
     build:
       context: frontend
       # Uses the final nginx stage by default
+      args:
+        - REACT_APP_CLERK_PUBLISHABLE_KEY=${REACT_APP_CLERK_PUBLISHABLE_KEY}
     ports:
       - "80:80"
       - "443:443"

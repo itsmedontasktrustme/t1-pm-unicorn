@@ -49,6 +49,9 @@ services:
     build:
       context: frontend
       target: development
+    command: sh -c 'export REACT_APP_CLERK_PUBLISHABLE_KEY="$(printenv VITE_CLERK_PUBLISHABLE_KEY)" && npm start'
+    env_file:
+      - ./frontend/.env.local
     environment:
       - PORT=80
     ports:

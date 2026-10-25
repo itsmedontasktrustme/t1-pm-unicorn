@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { SignInButton, SignUpButton, UserButton, useUser } from "@clerk/react";
 import logo from "./assets/homekeeper-logo.png";
 
 const pages = {
@@ -14,6 +15,7 @@ const pages = {
 
 function App() {
   const [activePage, setActivePage] = useState("overview");
+  const { isLoaded, isSignedIn } = useUser();
   const page = pages[activePage];
 
   return (
@@ -22,6 +24,19 @@ function App() {
         <div className="brand">
           <img src={logo} alt="Homekeeper logo" className="brand-logo" />
           <h1>Homekeeper, the best app on the internet!</h1>
+        </div>
+
+        <div className="auth-controls">
+          {!isLoaded ? (
+            <span>Loading…</span>
+          ) : isSignedIn ? (
+            <UserButton afterSignOutUrl="/" />
+          ) : (
+            <>
+              <SignInButton mode="modal" />
+              <SignUpButton mode="modal" />
+            </>
+          )}
         </div>
       </header>
 

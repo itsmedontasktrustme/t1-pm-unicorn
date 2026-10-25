@@ -16,7 +16,8 @@ COPY . /code
 CMD [ "npm", "start" ]
 
 FROM development AS builder
-
+ARG REACT_APP_CLERK_PUBLISHABLE_KEY
+ENV REACT_APP_CLERK_PUBLISHABLE_KEY=${REACT_APP_CLERK_PUBLISHABLE_KEY}
 RUN npm run build
 
 FROM development as dev-envs

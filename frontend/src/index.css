@@ -26,12 +26,23 @@ button {
   color: white;
   padding: 1rem 1.5rem;
   box-shadow: 0 2px 4px rgba(17, 24, 39, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
 }
 
 .brand {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+}
+
+.auth-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
 .brand-logo {

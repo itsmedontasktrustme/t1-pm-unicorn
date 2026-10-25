@@ -1,14 +1,23 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
+import { ClerkProvider } from '@clerk/react';
 import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 
-ReactDOM.render(
+const publishableKey =
+  process.env.REACT_APP_CLERK_PUBLISHABLE_KEY ||
+  process.env.VITE_CLERK_PUBLISHABLE_KEY ||
+  process.env.CLERK_PUBLISHABLE_KEY;
+
+const root = createRoot(document.getElementById('root'));
+
+root.render(
   <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
+    <ClerkProvider publishableKey={publishableKey}>
+      <App />
+    </ClerkProvider>
+  </React.StrictMode>
 );
 
 // If you want your app to work offline and load faster, you can change
