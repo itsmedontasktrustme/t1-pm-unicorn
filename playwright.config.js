@@ -72,7 +72,7 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: 'npm.cmd --prefix frontend start',
+    command: 'npm --prefix frontend start',
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
   },
