@@ -97,3 +97,21 @@ Removing react-express-mysql_db_1       ... done
 Removing network react-express-mysql_default
 
 ```
+
+## Linting
+
+The frontend project includes a basic ESLint setup for the React app.
+
+From the `frontend` directory, run:
+
+```bash
+npm run lint
+```
+
+To auto-fix simple issues:
+
+```bash
+npm run lint:fix
+```
+
+This checks the app source under `frontend/src` and helps catch common code-quality issues before committing.
