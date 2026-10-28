@@ -97,3 +97,60 @@ Removing react-express-mysql_db_1       ... done
 Removing network react-express-mysql_default
 
 ```
+
+## Testing
+
+This repository includes a small Playwright smoke test suite to validate the frontend starts correctly and that the basic navigation flow works.
+
+### Prerequisites
+
+- Node.js 18+
+- npm
+
+### Install dependencies
+
+From the repository root:
+
+```bash
+npm install
+npm --prefix frontend install
+```
+
+If this is your first time running Playwright locally, install the browser binaries once:
+
+```bash
+npx playwright install --with-deps
+```
+
+### Run the tests
+
+```bash
+npx playwright test
+```
+
+Run only Chromium for faster iteration:
+
+```bash
+npx playwright test --project=chromium
+```
+
+Open the generated HTML report:
+
+```bash
+npx playwright show-report
+```
+
+### What the tests cover right now
+
+The current smoke tests verify:
+
+- the app loads successfully at `/`
+- the Overview page is visible on first load
+- clicking the Tasks button shows the Tasks page
+- clicking Overview returns to the Overview page
+
+These checks live in `tests/example.spec.js` and are configured in `playwright.config.js`.
+
+### CI
+
+The repository includes a GitHub Actions workflow at `.github/workflows/playwright.yml` that runs the same suite on pushes and pull requests. It installs both the root and frontend dependencies, installs Playwright browsers, runs the tests, and uploads the HTML report as an artifact when the run completes.
