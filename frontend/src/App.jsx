@@ -1,6 +1,11 @@
 import { SignInButton, UserButton, useUser } from "@clerk/react";
 import { Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import logo from "./assets/homekeeper-logo.png";
+import cookieIcon from "./assets/cookie.svg";
+import homeIcon from "./assets/home-green.svg";
+import tasksIcon from "./assets/tasks-green.svg";
+import peopleIcon from "./assets/members-green.svg";
+import settingsIcon from "./assets/settings-green.svg";
 import HomePage from "./pages/HomePage";
 import TaskBoardPage from "./pages/TaskBoardPage";
 import PeoplePage from "./pages/PeoplePage";
@@ -8,10 +13,10 @@ import SettingsPage from "./pages/SettingsPage";
 import "./App.css";
 
 const navItems = [
-  { id: "home", path: "/home", label: "Home", glyph: "⌂" },
-  { id: "tasks", path: "/tasks", label: "Tasks", glyph: "☰" },
-  { id: "people", path: "/people", label: "People", glyph: "◌" },
-  { id: "settings", path: "/settings", label: "Settings", glyph: "⚙" }
+  { id: "home", path: "/home", label: "Home", icon: homeIcon },
+  { id: "tasks", path: "/tasks", label: "Tasks", icon: tasksIcon },
+  { id: "people", path: "/people", label: "People", icon: peopleIcon },
+  { id: "settings", path: "/settings", label: "Settings", icon: settingsIcon }
 ];
 
 function App() {
@@ -36,7 +41,9 @@ function App() {
 
         <div className="header-actions">
           <div className="points-pill" aria-label="Score">
-            <span className="points-avatar">◉</span>
+            <span className="points-avatar">
+              <img src={cookieIcon} alt="Cookie score icon" />
+            </span>
             <span>120</span>
           </div>
 
@@ -71,7 +78,7 @@ function App() {
             className={activePage === item.id ? "nav-button active" : "nav-button"}
             onClick={() => navigate(item.path)}
           >
-            <span className="nav-icon" aria-hidden="true">{item.glyph}</span>
+            <img className="nav-icon-img" src={item.icon} alt={item.label} />
             <span>{item.label}</span>
           </button>
         ))}

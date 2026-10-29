@@ -82,12 +82,20 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
-  background: #e4b66c;
+  background: transparent;
   color: #fff;
   font-size: 0.7rem;
+  overflow: hidden;
+}
+
+.points-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .user-widget {
@@ -316,9 +324,16 @@
   color: #16492f;
 }
 
-.nav-icon {
-  font-size: 2rem;
-  line-height: 1;
+.nav-icon-img {
+  display: block;
+  width: 2rem;
+  height: 2rem;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 0 rgba(10, 70, 48, 0.15));
+}
+
+.nav-button.active .nav-icon-img {
+  filter: drop-shadow(0 1px 0 rgba(10, 70, 48, 0.3));
 }
 
 .placeholder-page {
