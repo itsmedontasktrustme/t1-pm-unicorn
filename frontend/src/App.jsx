@@ -1,36 +1,24 @@
-import { useState } from "react";
 import { SignInButton, UserButton, useUser } from "@clerk/react";
+import { Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import logo from "./assets/homekeeper-logo.png";
+import HomePage from "./pages/HomePage";
+import TaskBoardPage from "./pages/TaskBoardPage";
+import PeoplePage from "./pages/PeoplePage";
+import SettingsPage from "./pages/SettingsPage";
 import "./App.css";
 
-const pages = {
-  home: { title: "Home Overview", text: "This is a placeholder page for the home overview section." },
-  detail: { title: "TASK DETAIL", text: "This task detail page is a placeholder for now." },
-  tasks: { title: "Tasks", text: "This is a placeholder page for the task list." },
-  people: { title: "People", text: "This is a placeholder page for household members." },
-  settings: { title: "Settings", text: "This is a placeholder page for app settings." }
-};
-
 const navItems = [
-  { id: "home", label: "Home", glyph: "⌂" },
-  { id: "tasks", label: "Tasks", glyph: "☰" },
-  { id: "people", label: "People", glyph: "◌" },
-  { id: "settings", label: "Settings", glyph: "⚙" }
+  { id: "home", path: "/home", label: "Home", glyph: "⌂" },
+  { id: "tasks", path: "/tasks", label: "Tasks", glyph: "☰" },
+  { id: "people", path: "/people", label: "People", glyph: "◌" },
+  { id: "settings", path: "/settings", label: "Settings", glyph: "⚙" }
 ];
 
-const task = {
-  name: "Make roast for dinner",
-  detail: "Don't forget the dessert",
-  assignee: "Harry P.",
-  due: "xx/yy/2022",
-  reward: "2",
-  status: "In progress"
-};
-
 function App() {
-  const [activePage, setActivePage] = useState("detail");
   const { isLoaded, isSignedIn } = useUser();
-  const page = pages[activePage];
+  const navigate = useNavigate();
+  const location = useLocation();
+  const activePage = location.pathname.replace("/", "") || "home";
 
   return (
     <div className="homekeeper-app">
@@ -65,54 +53,14 @@ function App() {
       </header>
 
       <main className="content-panel">
-        {activePage === "detail" ? (
-          <section className="task-detail" aria-label="Task details">
-            <h2>TASK DETAIL</h2>
-
-            <div className="task-form">
-              <div className="field-row">
-                <label htmlFor="task-name">Task name:</label>
-                <input id="task-name" type="text" value={task.name} readOnly />
-              </div>
-
-              <div className="field-row">
-                <label htmlFor="task-detail">Task detail:</label>
-                <input id="task-detail" type="text" value={task.detail} readOnly />
-              </div>
-
-              <div className="field-row">
-                <label htmlFor="task-assignee">Assignee:</label>
-                <input id="task-assignee" type="text" value={task.assignee} readOnly />
-              </div>
-
-              <div className="field-row">
-                <label htmlFor="task-due">Due:</label>
-                <input id="task-due" type="text" value={task.due} readOnly />
-              </div>
-
-              <div className="field-row">
-                <label htmlFor="task-reward">Reward:</label>
-                <input id="task-reward" type="text" value={task.reward} readOnly />
-              </div>
-
-              <div className="field-row">
-                <label htmlFor="task-status">Status:</label>
-                <input id="task-status" type="text" value={task.status} readOnly />
-              </div>
-            </div>
-
-            <div className="action-stack">
-              <button type="button" className="primary-action">Mark as done</button>
-              <button type="button" className="secondary-action">Unassign</button>
-              <button type="button" className="tertiary-action">Edit</button>
-            </div>
-          </section>
-        ) : (
-          <section className="placeholder-page" aria-label={page.title}>
-            <h2>{page.title}</h2>
-            <p>{page.text}</p>
-          </section>
-        )}
+        <Routes>
+          <Route path="/" element={<Navigate to="/home" replace />} />
+          <Route path="/home" element={<HomePage />} />
+          <Route path="/tasks" element={<TaskBoardPage />} />
+          <Route path="/task" element={<Navigate to="/tasks" replace />} />
+          <Route path="/people" element={<PeoplePage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+        </Routes>
       </main>
 
       <nav className="bottom-nav" aria-label="Main navigation">
@@ -121,7 +69,7 @@ function App() {
             key={item.id}
             type="button"
             className={activePage === item.id ? "nav-button active" : "nav-button"}
-            onClick={() => setActivePage(item.id)}
+            onClick={() => navigate(item.path)}
           >
             <span className="nav-icon" aria-hidden="true">{item.glyph}</span>
             <span>{item.label}</span>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
 import { ClerkProvider } from '@clerk/react';
 import './index.css';
 import App from './App';
@@ -14,9 +15,11 @@ const root = createRoot(document.getElementById('root'));
 
 root.render(
   <React.StrictMode>
-    <ClerkProvider publishableKey={publishableKey}>
-      <App />
-    </ClerkProvider>
+    <BrowserRouter>
+      <ClerkProvider publishableKey={publishableKey}>
+        <App />
+      </ClerkProvider>
+    </BrowserRouter>
   </React.StrictMode>
 );
 
