@@ -6,17 +6,20 @@ import homeIcon from "./assets/home-green.svg";
 import tasksIcon from "./assets/tasks-green.svg";
 import peopleIcon from "./assets/members-green.svg";
 import settingsIcon from "./assets/settings-green.svg";
+import historyIcon from "./assets/book-green.svg";
 import HomePage from "./pages/HomePage";
 import TaskBoardPage from "./pages/TaskBoardPage";
 import PeoplePage from "./pages/PeoplePage";
 import SettingsPage from "./pages/SettingsPage";
+import HistoryPage from "./pages/HistoryPage";
 import "./App.css";
 
 const navItems = [
   { id: "home", path: "/home", label: "Home", icon: homeIcon },
   { id: "tasks", path: "/tasks", label: "Tasks", icon: tasksIcon },
   { id: "people", path: "/people", label: "People", icon: peopleIcon },
-  { id: "settings", path: "/settings", label: "Settings", icon: settingsIcon }
+  { id: "history", path: "/history", label: "History", icon: historyIcon },
+  { id: "settings", path: "/settings", label: "Settings", icon: settingsIcon },
 ];
 
 function App() {
@@ -66,11 +69,12 @@ function App() {
           <Route path="/tasks" element={<TaskBoardPage />} />
           <Route path="/task" element={<Navigate to="/tasks" replace />} />
           <Route path="/people" element={<PeoplePage />} />
+          <Route path="/history" element={<HistoryPage />} />
           <Route path="/settings" element={<SettingsPage />} />
         </Routes>
       </main>
 
-      <nav className="bottom-nav" aria-label="Main navigation">
+      <nav className="bottom-nav nav-with-history" aria-label="Main navigation">
         {navItems.map((item) => (
           <button
             key={item.id}

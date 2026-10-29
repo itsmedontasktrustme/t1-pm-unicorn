@@ -304,6 +304,10 @@
   border-top: 2px solid rgba(121, 68, 25, 0.15);
 }
 
+.nav-with-history {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
 .nav-button {
   display: flex;
   flex-direction: column;
@@ -350,6 +354,38 @@
 .placeholder-page p {
   font-size: 1.1rem;
   line-height: 1.6;
+}
+
+.history-page {
+  max-width: 820px;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin-top: 1.25rem;
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  background: #f5ead0;
+  border: 2px solid #e7b36b;
+  border-radius: 14px;
+  padding: 0.9rem 1rem;
+  color: #214d3a;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.history-dot {
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 50%;
+  background: #1b7b53;
+  box-shadow: 0 0 0 4px rgba(27, 123, 83, 0.15);
 }
 
 @media (max-width: 720px) {
