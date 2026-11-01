@@ -4,14 +4,6 @@ Placeholder for history management, for now it logs the current user actions.
 
 import { formatTimestamp } from "./TimeTools";
 
-const recentActionKeys = new Map();
-const ACTION_DEDUP_TTL_MS = 2500;
-
-function getActionKey(component, user, action) {
-  const userId = user?.id || user?.userId || "unknown";
-  return `${component}|${userId}|${action}`;
-}
-
 function logTrackedAction(message) {
   console.log(message);
 }
@@ -35,16 +27,6 @@ async function sendTrackedActionToBackend(component, user, action) {
 }
 
 function trackAction(component, user, action) {
-  const now = Date.now();
-  const actionKey = getActionKey(component, user, action);
-  const lastSeen = recentActionKeys.get(actionKey);
-
-  if (lastSeen && now - lastSeen < ACTION_DEDUP_TTL_MS) {
-    return;
-  }
-
-  recentActionKeys.set(actionKey, now);
-
   const username = user?.fullName || user?.firstName || user?.name || "unauthenticated";
   const userId = user?.id || user?.userId || "unknown";
   const timestamp = formatTimestamp();

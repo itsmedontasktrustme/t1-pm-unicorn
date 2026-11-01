@@ -1,19 +1,10 @@
-import { useEffect, useRef } from "react";
 import { useUser } from "@clerk/react";
-import { trackAction } from "../logic/HistoryTracker";
+import usePageLoadTracking from "../logic/usePageLoadTracking";
 
 function HomePage() {
   const { user } = useUser();
-  const hasTrackedLoad = useRef(false);
 
-  useEffect(() => {
-    if (hasTrackedLoad.current) {
-      return;
-    }
-
-    hasTrackedLoad.current = true;
-    trackAction("HomePage", user, "load");
-  }, [user]);
+  usePageLoadTracking("HomePage", user);
 
   return (
     <section className="placeholder-page" aria-label="Home Overview">

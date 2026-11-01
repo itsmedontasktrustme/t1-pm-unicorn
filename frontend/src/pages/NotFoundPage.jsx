@@ -1,20 +1,11 @@
 import cookieImage from "../assets/haveAcookie.jpg";
 import { useUser } from "@clerk/react";
-import { useEffect, useRef } from "react";
-import { trackAction } from "../logic/HistoryTracker";
+import usePageLoadTracking from "../logic/usePageLoadTracking";
 
 function NotFoundPage() {
     const { user } = useUser();
-    const hasTrackedLoad = useRef(false);
 
-    useEffect(() => {
-        if (hasTrackedLoad.current) {
-            return;
-        }
-
-        hasTrackedLoad.current = true;
-        trackAction("NotFoundPage", user, "got lost");
-    }, [user]);
+    usePageLoadTracking("NotFoundPage", user, "got lost");
 
     return (
     <section className="placeholder-page not-found-page" aria-label="Page not found">

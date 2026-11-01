@@ -1,11 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useUser } from "@clerk/react";
 import stopBearImage from "../assets/stopBear.jpg";
-import { trackAction } from "../logic/HistoryTracker";
+import usePageLoadTracking from "../logic/usePageLoadTracking";
 
 function HistoryPage() {
   const { user, isSignedIn, isLoaded } = useUser();
-  const hasTrackedLoad = useRef(false);
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
@@ -13,14 +12,7 @@ function HistoryPage() {
   const [hasPreviousPage, setHasPreviousPage] = useState(false);
   const [hasNextPage, setHasNextPage] = useState(false);
 
-  useEffect(() => {
-    if (hasTrackedLoad.current) {
-      return;
-    }
-
-    hasTrackedLoad.current = true;
-    trackAction("HistoryPage", user, "load");
-  }, [user]);
+  usePageLoadTracking("HistoryPage", user);
 
   useEffect(() => {
     if (!isLoaded || !isSignedIn || !user?.id) {
