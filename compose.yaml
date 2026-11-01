@@ -14,9 +14,9 @@ services:
       - NODE_ENV=development
       - PORT=81
     ports:
-      - 81:81
-      - 9229:9229
-      - 9230:9230
+      - "81:81"
+      - "9229:9229"
+      - "9230:9230"
     secrets:
       - db-password
     volumes:
@@ -56,7 +56,7 @@ services:
     environment:
       - PORT=80
     ports:
-      - 80:80
+      - "80:80"
     volumes:
       - ./frontend/src:/code/src
       - /code/node_modules

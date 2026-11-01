@@ -10,6 +10,9 @@ services:
       - DATABASE_PASSWORD=/run/secrets/db-password
       - DATABASE_HOST=db
       - NODE_ENV=production
+      - PORT=81
+    ports:
+      - "81:81"
     secrets:
       - db-password
     networks:
