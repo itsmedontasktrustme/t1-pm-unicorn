@@ -11,23 +11,8 @@ function normalizeUserId(user) {
   return String(rawUserId);
 }
 
-async function ensureHistoryTable() {
-  const hasHistoryTable = await database.schema.hasTable("history");
-
-  if (!hasHistoryTable) {
-    await database.schema.createTable("history", (table) => {
-      table.increments("id").primary();
-      table.string("component", 255).notNullable();
-      table.string("user_id", 255).nullable();
-      table.string("action", 255).notNullable();
-      table.timestamp("create_dt").defaultTo(database.fn.now());
-    });
-  }
-}
 
 async function saveHistoryEntry({ component, user, action }) {
-  await ensureHistoryTable();
-
   await database("history").insert({
     component,
     user_id: normalizeUserId(user),
@@ -36,8 +21,6 @@ async function saveHistoryEntry({ component, user, action }) {
 }
 
 async function fetchHistoryEntriesForUser(userId) {
-  await ensureHistoryTable();
-
   const query = database("history")
     .select("id", "component", "user_id", "action", "create_dt")
     .orderBy("create_dt", "desc");
