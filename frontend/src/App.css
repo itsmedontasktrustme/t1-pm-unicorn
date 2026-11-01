@@ -413,6 +413,26 @@
   box-shadow: 0 0 0 4px rgba(27, 123, 83, 0.15);
 }
 
+.history-loading-item {
+  justify-content: flex-start;
+}
+
+.history-spinner {
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 3px solid rgba(27, 123, 83, 0.2);
+  border-top-color: #1b7b53;
+  border-radius: 50%;
+  display: inline-block;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @media (max-width: 720px) {
   .topbar {
     flex-direction: column;

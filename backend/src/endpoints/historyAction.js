@@ -1,7 +1,82 @@
+const database = require("../database");
 const { writeHistoryLog } = require("../logic/historyLogger");
 
+function normalizeUserId(user) {
+  const rawUserId = user?.id ?? user?.userId ?? null;
+
+  if (rawUserId === null || rawUserId === undefined) {
+    return null;
+  }
+
+  return String(rawUserId);
+}
+
+async function ensureHistoryTable() {
+  const hasHistoryTable = await database.schema.hasTable("history");
+
+  if (!hasHistoryTable) {
+    await database.schema.createTable("history", (table) => {
+      table.increments("id").primary();
+      table.string("component", 255).notNullable();
+      table.string("user_id", 255).nullable();
+      table.string("action", 255).notNullable();
+      table.timestamp("create_dt").defaultTo(database.fn.now());
+    });
+  }
+}
+
+async function saveHistoryEntry({ component, user, action }) {
+  await ensureHistoryTable();
+
+  await database("history").insert({
+    component,
+    user_id: normalizeUserId(user),
+    action
+  });
+}
+
+async function fetchHistoryEntriesForUser(userId) {
+  await ensureHistoryTable();
+
+  const query = database("history")
+    .select("id", "component", "user_id", "action", "create_dt")
+    .orderBy("create_dt", "desc");
+
+  if (userId) {
+    query.where("user_id", String(userId));
+  }
+
+  const rows = await query;
+
+  return rows.map((row) => ({
+    id: row.id,
+    component: row.component,
+    userId: row.user_id,
+    action: row.action,
+    createdAt: row.create_dt
+  }));
+}
+
 function registerHistoryActionEndpoint(app) {
-  app.post("/api/history/action", function(req, res) {
+  app.get("/api/history/action/:userId", async function(req, res) {
+    try {
+      const rows = await fetchHistoryEntriesForUser(req.params.userId);
+
+      return res.status(200).json({
+        ok: true,
+        data: rows
+      });
+    } catch (error) {
+      console.error("Unable to fetch history actions for user", error);
+
+      return res.status(500).json({
+        ok: false,
+        error: "Unable to fetch history actions for user"
+      });
+    }
+  });
+
+  app.post("/api/history/action", async function(req, res) {
     const { component, user, action } = req.body || {};
 
     if (!component || !action) {
@@ -12,10 +87,24 @@ function registerHistoryActionEndpoint(app) {
 
     const message = writeHistoryLog({ component, user, action });
 
-    return res.status(200).json({
-      ok: true,
-      message
-    });
+    try {
+      await saveHistoryEntry({ component, user, action });
+
+      return res.status(200).json({
+        ok: true,
+        persisted: true,
+        message
+      });
+    } catch (error) {
+      console.error("Unable to persist history action to database", error);
+
+      return res.status(200).json({
+        ok: true,
+        persisted: false,
+        message,
+        warning: "History message was logged locally, but the database insert failed."
+      });
+    }
   });
 }
 
