@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useUser } from "@clerk/react";
 import { trackAction } from "../logic/HistoryTracker";
 
@@ -12,8 +12,14 @@ const historyEntries = [
 
 function HistoryPage() {
   const { user } = useUser();
+  const hasTrackedLoad = useRef(false);
 
   useEffect(() => {
+    if (hasTrackedLoad.current) {
+      return;
+    }
+
+    hasTrackedLoad.current = true;
     trackAction("HistoryPage", user, "load");
   }, [user]);
 
