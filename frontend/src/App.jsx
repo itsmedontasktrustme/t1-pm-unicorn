@@ -13,6 +13,7 @@ import TaskBoardPage from "./pages/TaskBoardPage";
 import PeoplePage from "./pages/PeoplePage";
 import SettingsPage from "./pages/SettingsPage";
 import HistoryPage from "./pages/HistoryPage";
+import NotFoundPage from "./pages/NotFoundPage";
 import { subscribeSessionToken } from "./logic/SessionToken";
 import "./App.css";
 
@@ -32,8 +33,7 @@ function App() {
   const activePage = location.pathname.replace("/", "") || "home";
 
   useEffect(() => {
-    const unsubscribe = subscribeSessionToken(getToken, { isLoaded, isSignedIn }, () => {});
-    return unsubscribe;
+    return subscribeSessionToken(getToken, { isLoaded, isSignedIn }, () => {});
   }, [getToken, isLoaded, isSignedIn]);
 
 
@@ -80,6 +80,7 @@ function App() {
           <Route path="/people" element={<PeoplePage />} />
           <Route path="/history" element={<HistoryPage />} />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>
 
