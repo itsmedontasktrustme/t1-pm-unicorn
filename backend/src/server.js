@@ -13,7 +13,7 @@ const morgan = require("morgan");
 // do app logging to files in containers.
 
 const database = require("./database");
-const { registerHistoryActionEndpoint } = require("./endpoints/historyAction");
+const { registerHistoryActionEndpoint } = require("./endpoints/history");
 
 function logServerError(context, error, extra = {}) {
   const details = {

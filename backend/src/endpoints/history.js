@@ -1,53 +1,17 @@
-const database = require("../database");
-const { writeHistoryLog } = require("../logic/historyLogger");
-
-function normalizeUserId(user) {
-  const rawUserId = user?.id ?? user?.userId ?? null;
-
-  if (rawUserId === null || rawUserId === undefined) {
-    return null;
-  }
-
-  return String(rawUserId);
-}
-
-
-async function saveHistoryEntry({ component, user, action }) {
-  await database("history").insert({
-    component,
-    user_id: normalizeUserId(user),
-    action
-  });
-}
-
-async function fetchHistoryEntriesForUser(userId) {
-  const query = database("history")
-    .select("id", "component", "user_id", "action", "create_dt")
-    .orderBy("create_dt", "desc");
-
-  if (userId) {
-    query.where("user_id", String(userId));
-  }
-
-  const rows = await query;
-
-  return rows.map((row) => ({
-    id: row.id,
-    component: row.component,
-    userId: row.user_id,
-    action: row.action,
-    createdAt: row.create_dt
-  }));
-}
+const {
+  fetchHistoryEntriesForUser,
+  saveHistoryEntry,
+  writeHistoryLog
+} = require("../logic/history");
 
 function registerHistoryActionEndpoint(app) {
   app.get("/api/history/action/:userId", async function(req, res) {
     try {
-      const rows = await fetchHistoryEntriesForUser(req.params.userId);
+      const result = await fetchHistoryEntriesForUser(req.params.userId, req.query.page, req.query.limit);
 
       return res.status(200).json({
         ok: true,
-        data: rows
+        ...result
       });
     } catch (error) {
       console.error("Unable to fetch history actions for user", error);
