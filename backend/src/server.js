@@ -13,11 +13,24 @@ const morgan = require("morgan");
 // do app logging to files in containers.
 
 const database = require("./database");
+const { registerHistoryActionEndpoint } = require("./endpoints/historyAction");
 
 // Appi
 const app = express();
 
+app.use(express.json());
 app.use(morgan("common"));
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(204);
+  }
+
+  return next();
+});
 
 app.get("/", function(req, res, next) {
   database.raw('select VERSION() version')
@@ -32,5 +45,7 @@ app.get("/healthz", function(req, res) {
   // if you want, you should be able to restrict this to localhost (include ipv4 and ipv6)
   res.send("I am happy and healthy\n");
 });
+
+registerHistoryActionEndpoint(app);
 
 module.exports = app;
