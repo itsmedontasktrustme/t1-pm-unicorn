@@ -15,7 +15,7 @@ function emitTrackedAction(message) {
 }
 
 async function sendTrackedActionToBackend(component, user, action) {
-  const backendUrl = process.env.REACT_APP_HISTORY_API_URL || "/api/history/action";
+  const backendUrl = "http://backend:81/api/history/action";
 
   try {
     await fetch(backendUrl, {
