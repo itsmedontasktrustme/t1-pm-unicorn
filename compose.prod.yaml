@@ -52,6 +52,8 @@ services:
     ports:
       - "80:80"
       - "443:443"
+    environment:
+      - PORT=81
     volumes:
       - /etc/letsencrypt:/etc/letsencrypt:ro
     networks:
