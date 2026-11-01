@@ -15,6 +15,17 @@ const morgan = require("morgan");
 const database = require("./database");
 const { registerHistoryActionEndpoint } = require("./endpoints/historyAction");
 
+function logServerError(context, error, extra = {}) {
+  const details = {
+    context,
+    message: error?.message || String(error),
+    stack: error?.stack,
+    ...extra
+  };
+
+  console.error("[Backend error]", JSON.stringify(details, null, 2));
+}
+
 // Appi
 const app = express();
 
@@ -47,5 +58,30 @@ app.get("/healthz", function(req, res) {
 });
 
 registerHistoryActionEndpoint(app);
+
+app.use(function(err, req, res) {
+  logServerError("Express middleware", err, {
+    method: req.method,
+    url: req.originalUrl,
+    body: req.body
+  });
+
+  const status = err.status || 500;
+
+  return res.status(status).json({
+    ok: false,
+    error: "Internal server error",
+    details: err.message || "Unknown error"
+  });
+});
+
+process.on("uncaughtException", (error) => {
+  logServerError("uncaughtException", error);
+  process.exit(1);
+});
+
+process.on("unhandledRejection", (reason) => {
+  logServerError("unhandledRejection", reason instanceof Error ? reason : new Error(String(reason)));
+});
 
 module.exports = app;

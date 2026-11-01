@@ -10,6 +10,9 @@ services:
       - DATABASE_PASSWORD=/run/secrets/db-password
       - DATABASE_HOST=db
       - NODE_ENV=production
+      - PORT=81
+    ports:
+      - "81:81"
     secrets:
       - db-password
     networks:
@@ -49,6 +52,10 @@ services:
     ports:
       - "80:80"
       - "443:443"
+    environment:
+      - PORT=81
+      - REACT_APP_BACKEND_URL=http://t1-pm-unicorn.cloud:81
+      - REACT_APP_HISTORY_API_URL=/api/history/action
     volumes:
       - /etc/letsencrypt:/etc/letsencrypt:ro
     networks:
