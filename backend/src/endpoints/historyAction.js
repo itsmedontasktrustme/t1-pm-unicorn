@@ -11,8 +11,35 @@ function normalizeUserId(user) {
   return String(rawUserId);
 }
 
+async function ensureHistoryTable() {
+  const hasHistoryTable = await database.schema.hasTable("history");
+
+  if (!hasHistoryTable) {
+    await database.schema.createTable("history", (table) => {
+      table.increments("id").primary();
+      table.string("component", 255).notNullable();
+      table.string("user_id", 255).nullable();
+      table.string("action", 255).notNullable();
+      table.timestamp("create_dt").defaultTo(database.fn.now());
+    });
+
+    return;
+  }
+
+  const schemaRows = await database("information_schema.COLUMNS")
+    .select("COLUMN_NAME", "DATA_TYPE")
+    .where({ TABLE_SCHEMA: process.env.DATABASE_DB || "homekeeper", TABLE_NAME: "history" });
+
+  const userIdColumn = schemaRows.find((column) => column.COLUMN_NAME === "user_id");
+
+  if (userIdColumn && userIdColumn.DATA_TYPE !== "varchar") {
+    await database.raw("ALTER TABLE history MODIFY COLUMN user_id VARCHAR(255) NULL");
+  }
+}
 
 async function saveHistoryEntry({ component, user, action }) {
+  await ensureHistoryTable();
+
   await database("history").insert({
     component,
     user_id: normalizeUserId(user),
