@@ -73,7 +73,7 @@ app.use(function(req, res) {
   });
 });
 
-app.use(function(err, req, res, next) {
+app.use(function(err, req, res, _next) {
   logServerError("Express middleware", err, {
     method: req.method,
     url: req.originalUrl,

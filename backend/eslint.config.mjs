@@ -14,5 +14,8 @@ export default defineConfig([
       },
       sourceType: "commonjs",
     },
+    rules: {
+      "no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
+    },
   },
 ]);
