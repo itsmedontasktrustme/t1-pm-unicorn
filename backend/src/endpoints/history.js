@@ -45,8 +45,8 @@ function registerHistoryActionEndpoint(app) {
     } catch (error) {
       console.error("Unable to persist history action to database", error);
 
-      return res.status(200).json({
-        ok: true,
+      return res.status(500).json({
+        ok: false,
         persisted: false,
         message,
         warning: "History message was logged locally, but the database insert failed."

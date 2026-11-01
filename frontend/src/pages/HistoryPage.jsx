@@ -23,6 +23,14 @@ function HistoryPage() {
   }, [user]);
 
   useEffect(() => {
+    setEntries([]);
+    setPage(1);
+    setTotalPages(1);
+    setHasPreviousPage(false);
+    setHasNextPage(false);
+  }, [user?.id]);
+
+  useEffect(() => {
     if (!isLoaded || !isSignedIn || !user?.id) {
       setEntries([]);
       setLoading(false);
