@@ -54,6 +54,8 @@ services:
       - "443:443"
     environment:
       - PORT=81
+      - REACT_APP_BACKEND_URL=http://backend:81
+      - REACT_APP_HISTORY_API_URL=/api/history/action
     volumes:
       - /etc/letsencrypt:/etc/letsencrypt:ro
     networks:

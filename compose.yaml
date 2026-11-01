@@ -55,6 +55,8 @@ services:
       - ./frontend/.env.local
     environment:
       - PORT=80
+      - REACT_APP_BACKEND_URL=http://backend:81
+      - REACT_APP_HISTORY_API_URL=/api/history/action
     ports:
       - "80:80"
     volumes:
