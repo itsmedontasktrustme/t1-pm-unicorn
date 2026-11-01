@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { ClerkProvider } from '@clerk/react';
 import './index.css';
 import App from './App';
+import ErrorBoundary from './components/ErrorBoundary';
 import * as serviceWorker from './serviceWorker';
 
 const publishableKey =
@@ -13,11 +14,30 @@ const publishableKey =
 
 const root = createRoot(document.getElementById('root'));
 
+window.addEventListener('error', (event) => {
+  console.error('[Frontend global error]', {
+    message: event.message,
+    filename: event.filename,
+    lineno: event.lineno,
+    colno: event.colno,
+    stack: event.error?.stack
+  });
+});
+
+window.addEventListener('unhandledrejection', (event) => {
+  console.error('[Frontend unhandled promise rejection]', {
+    reason: event.reason,
+    stack: event.reason?.stack
+  });
+});
+
 root.render(
   <React.StrictMode>
     <BrowserRouter>
       <ClerkProvider publishableKey={publishableKey}>
-        <App />
+        <ErrorBoundary>
+          <App />
+        </ErrorBoundary>
       </ClerkProvider>
     </BrowserRouter>
   </React.StrictMode>
