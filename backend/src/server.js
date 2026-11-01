@@ -59,7 +59,21 @@ app.get("/healthz", function(req, res) {
 
 registerHistoryActionEndpoint(app);
 
-app.use(function(err, req, res) {
+app.use(function(req, res) {
+  logServerError("Route not found", new Error(`Unhandled route: ${req.method} ${req.originalUrl}`), {
+    method: req.method,
+    url: req.originalUrl,
+    body: req.body
+  });
+
+  return res.status(404).json({
+    ok: false,
+    error: "Not found",
+    path: req.originalUrl
+  });
+});
+
+app.use(function(err, req, res, next) {
   logServerError("Express middleware", err, {
     method: req.method,
     url: req.originalUrl,
