@@ -1,3 +1,7 @@
+import { useEffect } from "react";
+import { useUser } from "@clerk/react";
+import { trackAction } from "../logic/HistoryTracker";
+
 const historyEntries = [
   "Andrea created a task #7",
   "Ondrej completed task #12",
@@ -7,6 +11,12 @@ const historyEntries = [
 ];
 
 function HistoryPage() {
+  const { user } = useUser();
+
+  useEffect(() => {
+    trackAction("HistoryPage", user, "load");
+  }, [user]);
+
   return (
     <div className="placeholder-page history-page">
       <h2>History</h2>

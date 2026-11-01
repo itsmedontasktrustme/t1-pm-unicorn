@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useUser } from "@clerk/react";
+import { trackAction } from "../logic/HistoryTracker";
 
 const tasks = [
   {
@@ -57,8 +59,13 @@ const taskDetail = {
 };
 
 function TaskBoardPage() {
+  const { user } = useUser();
   const [selectedTaskId, setSelectedTaskId] = useState(2);
   const selectedTask = tasks.find((task) => task.id === selectedTaskId) || tasks[0];
+
+  useEffect(() => {
+    trackAction("TaskBoardPage", user, "load");
+  }, [user]);
 
   return (
     <div className="task-board-layout">
@@ -77,7 +84,10 @@ function TaskBoardPage() {
                 <button
                   type="button"
                   className={selectedTaskId === taskItem.id ? "task-badge active" : "task-badge"}
-                  onClick={() => setSelectedTaskId(taskItem.id)}
+                  onClick={() => {
+                    setSelectedTaskId(taskItem.id);
+                    trackAction("TaskBoardPage", user, `select task ${taskItem.id}`);
+                  }}
                 >
                   {taskItem.badge}
                 </button>
@@ -93,7 +103,10 @@ function TaskBoardPage() {
             <button
               type="button"
               className="task-detail-button"
-              onClick={() => setSelectedTaskId(taskItem.id)}
+              onClick={() => {
+                setSelectedTaskId(taskItem.id);
+                trackAction("TaskBoardPage", user, `open task ${taskItem.id}`);
+              }}
             >
               {taskItem.action}
             </button>

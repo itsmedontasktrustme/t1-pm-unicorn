@@ -1,4 +1,5 @@
-import { SignInButton, UserButton, useUser } from "@clerk/react";
+import { useEffect } from "react";
+import { SignInButton, UserButton, useAuth, useUser } from "@clerk/react";
 import { Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import logo from "./assets/homekeeper-logo.png";
 import cookieIcon from "./assets/cookie.svg";
@@ -12,6 +13,7 @@ import TaskBoardPage from "./pages/TaskBoardPage";
 import PeoplePage from "./pages/PeoplePage";
 import SettingsPage from "./pages/SettingsPage";
 import HistoryPage from "./pages/HistoryPage";
+import { subscribeSessionToken } from "./logic/SessionToken";
 import "./App.css";
 
 const navItems = [
@@ -24,9 +26,16 @@ const navItems = [
 
 function App() {
   const { isLoaded, isSignedIn } = useUser();
+  const { getToken } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const activePage = location.pathname.replace("/", "") || "home";
+
+  useEffect(() => {
+    const unsubscribe = subscribeSessionToken(getToken, { isLoaded, isSignedIn }, () => {});
+    return unsubscribe;
+  }, [getToken, isLoaded, isSignedIn]);
+
 
   return (
     <div className="homekeeper-app">

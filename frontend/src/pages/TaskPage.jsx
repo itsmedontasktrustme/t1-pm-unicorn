@@ -1,3 +1,7 @@
+import { useEffect } from "react";
+import { useUser } from "@clerk/react";
+import { trackAction } from "../logic/HistoryTracker";
+
 const task = {
   name: "Make roast for dinner",
   detail: "Don't forget the dessert",
@@ -8,6 +12,12 @@ const task = {
 };
 
 function TaskPage() {
+  const { user } = useUser();
+
+  useEffect(() => {
+    trackAction("TaskPage", user, "load");
+  }, [user]);
+
   return (
     <section className="task-detail" aria-label="Task details">
       <h2>TASK DETAIL</h2>
