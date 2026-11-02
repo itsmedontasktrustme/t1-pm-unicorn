@@ -6,12 +6,13 @@ import { useCurrentHousehold } from "../../logic/CurrentHousehold";
 import usePageLoadTracking from "../../logic/usePageLoadTracking";
 import useResident from "../../logic/useResident";
 import InviteSheet from "./InviteSheet";
+import RoleSheet from "./RoleSheet";
 
 /*
  * People tab (design HK-47 / HK-50):
  * - HK-48 Manage invitations (US2) — owner: pending invitations + Invite resident;
  *   everybody else: "Only the owner can invite residents to this household" (US2 5a).
- * - HK-51 Manage roles (US4) — see the Change role actions.
+ * - HK-51 Manage roles (US4) — owner: "Change role" on every housemate (RoleSheet).
  */
 
 const ROLE_LABELS = { owner: "Owner", manager: "Manager", housemate: "Housemate" };
@@ -142,6 +143,7 @@ function PeoplePage() {
   const [reloadKey, setReloadKey] = useState(0);
   const [inviteOpen, setInviteOpen] = useState(false);
   const [toast, setToast] = useState(null);
+  const [roleMemberId, setRoleMemberId] = useState(null);
   const currentId = current?.id;
 
   usePageLoadTracking("PeoplePage", user);
@@ -149,6 +151,7 @@ function PeoplePage() {
   const reload = useCallback(() => setReloadKey((key) => key + 1), []);
   const closeToast = useCallback(() => setToast(null), []);
   const closeInvite = useCallback(() => setInviteOpen(false), []);
+  const closeRole = useCallback(() => setRoleMemberId(null), []);
 
   useEffect(() => {
     if (!currentId || !user) {
@@ -208,7 +211,25 @@ function PeoplePage() {
       <p className="hk-people__lead">Housemates of {household.name} and their roles.</p>
 
       <div className="hk-people__grid">
-        <Housemates household={household} userId={user?.id} isOwner={isOwner} />
+        <Housemates
+          household={household}
+          userId={user?.id}
+          isOwner={isOwner}
+          renderAction={
+            isOwner
+              ? (member) => (
+                  <button
+                    type="button"
+                    className="hk-link-btn"
+                    aria-label={`Change role of ${member.name}`}
+                    onClick={() => setRoleMemberId(member.id)}
+                  >
+                    Change role
+                  </button>
+                )
+              : null
+          }
+        />
         {isOwner ? (
           <Invitations invitations={invitations} onInvite={() => setInviteOpen(true)} onCopy={copy} />
         ) : (
@@ -218,6 +239,21 @@ function PeoplePage() {
 
       {isOwner && (
         <InviteSheet open={inviteOpen} householdId={household.id} onClose={closeInvite} onCreated={reload} onCopy={copy} />
+      )}
+      {isOwner && (
+        <RoleSheet
+          open={Boolean(roleMemberId)}
+          member={household.members.find((member) => member.id === roleMemberId)}
+          isSelf={roleMemberId === user?.id}
+          householdId={household.id}
+          householdName={household.name}
+          onClose={closeRole}
+          onChanged={(message) => {
+            setRoleMemberId(null);
+            setToast(message);
+            reload();
+          }}
+        />
       )}
       <Toast message={toast} onClose={closeToast} />
     </div>

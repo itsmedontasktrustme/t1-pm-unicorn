@@ -188,6 +188,7 @@ export async function getHousehold(user, householdId) {
 }
 
 const ONLY_OWNER_INVITES = "Only the owner can invite residents to this household.";
+const ONLY_OWNER_ROLES = "Only the owner can change roles.";
 const CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
 function randomCode() {
@@ -255,6 +256,51 @@ export async function createInvitation(user, householdId, kind) {
   data.invitations.push(invitation);
   save(data);
   return delay(toPending(invitation));
+}
+
+function withRole(roles, role) {
+  const next = roles.filter((item) => item !== "housemate");
+  return next.includes(role) ? next : [...next, role];
+}
+
+function withoutRole(roles, role) {
+  const next = roles.filter((item) => item !== role);
+  return next.length > 0 ? next : ["housemate"];
+}
+
+/**
+ * US4: change a housemate's role. Owner only.
+ * action: "grant-manager" | "remove-manager" | "hand-over-owner"
+ * Rules: the owner is always a manager (6a); there is always exactly one owner (6b);
+ * after a hand-over the new owner is also a manager and the previous owner becomes a housemate.
+ */
+export async function changeRole(user, householdId, memberId, action) {
+  const { data, household, me } = ownerContext(user, householdId, ONLY_OWNER_ROLES);
+  const target = household.members.find((member) => member.id === memberId);
+
+  if (!target) {
+    throw new ApiError("not-found", "Housemate not found.");
+  }
+
+  if (action === "grant-manager") {
+    target.roles = withRole(target.roles, "manager");
+  } else if (action === "remove-manager") {
+    if (target.roles.includes("owner")) {
+      throw new ApiError("owner-must-be-manager", "The owner must always be a manager.");
+    }
+    target.roles = withoutRole(target.roles, "manager");
+  } else if (action === "hand-over-owner") {
+    if (target.id === me.id) {
+      throw new ApiError("hand-over-first", "Hand over the owner role to another housemate first.");
+    }
+    target.roles = ["owner", "manager"];
+    me.roles = ["housemate"];
+  } else {
+    throw new ApiError("unknown-action", `Unknown role change: ${action}`);
+  }
+
+  save(data);
+  return delay(household);
 }
 
 /** Development helper: forget all placeholder data. */
