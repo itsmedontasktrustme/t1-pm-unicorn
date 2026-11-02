@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { ClerkProvider } from '@clerk/react';
 import './styles/tokens.css';
 import './index.css';
+import './styles/ui.css';
 import App from './App';
 import ErrorBoundary from './components/ErrorBoundary';
 import * as serviceWorker from './serviceWorker';

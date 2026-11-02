@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
 import { useUser } from "@clerk/react";
 import stopBearImage from "../assets/stopBear.jpg";
+import historyIcon from "../assets/book-green.svg";
 import usePageLoadTracking from "../logic/usePageLoadTracking";
+import { EmptyState, ErrorState, LoadingState } from "../components/states";
 
 function HistoryPage() {
   const { user, isSignedIn, isLoaded } = useUser();
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [reloadKey, setReloadKey] = useState(0);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [hasPreviousPage, setHasPreviousPage] = useState(false);
@@ -18,6 +22,7 @@ function HistoryPage() {
     if (!isLoaded || !isSignedIn || !user?.id) {
       setEntries([]);
       setLoading(false);
+      setError(null);
       setPage(1);
       setTotalPages(1);
       setHasPreviousPage(false);
@@ -27,12 +32,15 @@ function HistoryPage() {
 
     async function fetchHistory() {
       setLoading(true);
+      setError(null);
 
       try {
         const response = await fetch(`/api/history/action/${encodeURIComponent(user.id)}?page=${page}&limit=12`);
 
         if (!response.ok) {
-          throw new Error("Unable to load history");
+          const failure = new Error("Unable to load history");
+          failure.status = response.status;
+          throw failure;
         }
 
         const payload = await response.json();
@@ -42,27 +50,23 @@ function HistoryPage() {
         setTotalPages(Number(payload?.totalPages) || 1);
         setHasPreviousPage(Boolean(payload?.hasPreviousPage));
         setHasNextPage(Boolean(payload?.hasNextPage));
-      } catch (error) {
-        console.error("Unable to fetch history entries", error);
+      } catch (fetchError) {
+        console.error("Unable to fetch history entries", fetchError);
         setEntries([]);
+        setError({ status: fetchError.status });
       } finally {
         setLoading(false);
       }
     }
 
     fetchHistory();
-  }, [isLoaded, isSignedIn, user?.id, page]);
+  }, [isLoaded, isSignedIn, user?.id, page, reloadKey]);
 
   if (!isLoaded || loading) {
     return (
-      <div className="placeholder-page history-page" aria-live="polite">
+      <div className="placeholder-page history-page">
         <h2>History</h2>
-        <div className="history-list">
-          <div className="history-item history-loading-item">
-            <span className="history-spinner" aria-hidden="true" />
-            <span>Loading history...</span>
-          </div>
-        </div>
+        <LoadingState label="Loading history…" variant="rows" count={5} />
       </div>
     );
   }
@@ -77,26 +81,45 @@ function HistoryPage() {
     );
   }
 
+  if (error) {
+    return (
+      <div className="placeholder-page history-page">
+        <h2>History</h2>
+        <ErrorState
+          text="We couldn’t load your history. Check your connection and try again."
+          onRetry={() => setReloadKey((key) => key + 1)}
+          code={error.status}
+        />
+      </div>
+    );
+  }
+
+  if (entries.length === 0 && page === 1) {
+    return (
+      <div className="placeholder-page history-page">
+        <h2>History</h2>
+        <EmptyState
+          iconSrc={historyIcon}
+          title="Nothing here yet"
+          text="Once you and your housemates start completing tasks, the activity will show up here."
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="placeholder-page history-page">
       <h2>History</h2>
       <div className="history-list" aria-label="Activity history">
-        {entries.length === 0 ? (
-          <div className="history-item">
+        {entries.map((entry) => (
+          <div key={entry.id} className="history-item">
             <span className="history-dot" aria-hidden="true" />
-            <span>No activity recorded yet.</span>
+            <span>
+              {entry.component}: {entry.action}
+              {entry.createdAt ? ` (${new Date(entry.createdAt).toLocaleString()})` : ""}
+            </span>
           </div>
-        ) : (
-          entries.map((entry) => (
-            <div key={entry.id} className="history-item">
-              <span className="history-dot" aria-hidden="true" />
-              <span>
-                {entry.component}: {entry.action}
-                {entry.createdAt ? ` (${new Date(entry.createdAt).toLocaleString()})` : ""}
-              </span>
-            </div>
-          ))
-        )}
+        ))}
       </div>
 
       <div className="pagination-controls" aria-label="History pagination">

@@ -14,6 +14,7 @@ import PeoplePage from "./pages/PeoplePage";
 import SettingsPage from "./pages/SettingsPage";
 import HistoryPage from "./pages/HistoryPage";
 import NotFoundPage from "./pages/NotFoundPage";
+import UiStatesPage from "./pages/UiStatesPage";
 import { subscribeSessionToken } from "./logic/SessionToken";
 import "./App.css";
 
@@ -80,6 +81,7 @@ function App() {
           <Route path="/people" element={<PeoplePage />} />
           <Route path="/history" element={<HistoryPage />} />
           <Route path="/settings" element={<SettingsPage />} />
+          {process.env.NODE_ENV !== "production" && <Route path="/ui-states" element={<UiStatesPage />} />}
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>
