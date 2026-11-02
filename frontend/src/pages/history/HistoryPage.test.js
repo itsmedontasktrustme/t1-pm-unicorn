@@ -1,5 +1,6 @@
 import React from "react";
 import { act, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 
 import HistoryPage from "./HistoryPage";
@@ -51,4 +52,18 @@ test("US10 3a: a household without completed tasks says so", async () => {
   await renderHistory(household.id);
 
   expect(screen.getByText("There are no completed tasks in this household yet")).toBeInTheDocument();
+});
+
+test("US10 2a-2b: Mine shows own cookies across households and own completed tasks", async () => {
+  await renderHistory("hh-private-drive");
+
+  userEvent.click(screen.getByRole("button", { name: "Mine" }));
+  await settle();
+
+  expect(screen.getByText("104")).toBeInTheDocument();
+  expect(screen.getByText("64 · Private Drive No. 4")).toBeInTheDocument();
+  expect(screen.getByText("40 · Gryffindor Tower")).toBeInTheDocument();
+  expect(screen.getByText("Mow the lawn")).toBeInTheDocument();
+  expect(screen.getByText("Sweep the common room")).toBeInTheDocument();
+  expect(screen.getByText("marked done by Ron W.")).toBeInTheDocument();
 });
