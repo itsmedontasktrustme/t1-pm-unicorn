@@ -1,13 +1,19 @@
 import React from "react";
+import StatePanel from "./states/StatePanel";
 
+/*
+ * Last-resort screen when the app crashes while rendering (HK-93).
+ * Uses the shared error state; the technical details go to the console only, never to the user.
+ * The links reload the page on purpose: a crashed React tree cannot recover by client-side navigation.
+ */
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { hasError: false, errorMessage: "" };
+    this.state = { hasError: false };
   }
 
-  static getDerivedStateFromError(error) {
-    return { hasError: true, errorMessage: error.message || "Something went wrong." };
+  static getDerivedStateFromError() {
+    return { hasError: true };
   }
 
   componentDidCatch(error, errorInfo) {
@@ -21,11 +27,26 @@ class ErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return (
-        <section className="placeholder-page not-found-page" aria-live="assertive">
-          <h2>Something went wrong</h2>
-          <p>{this.state.errorMessage}</p>
-          <p>Please refresh the page and try again.</p>
-        </section>
+        <main className="hk-crash">
+          <StatePanel
+            tone="danger"
+            role="alert"
+            icon="!"
+            title="Oops, something went wrong"
+            text="This page stopped working. Reload it to try again."
+            actions={
+              <>
+                <button type="button" className="hk-btn hk-btn--primary" onClick={() => window.location.reload()}>
+                  Reload page
+                </button>
+                <a href="/home" className="hk-btn hk-btn--secondary">
+                  Go to Home
+                </a>
+              </>
+            }
+            note="If it keeps happening, tell the household owner."
+          />
+        </main>
       );
     }
 

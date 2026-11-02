@@ -216,6 +216,13 @@
   }
 }
 
+/* Crash screen (ErrorBoundary): shown without the app shell, so it brings its own page padding. */
+.hk-crash {
+  min-height: 100vh;
+  padding: var(--space-4);
+  background: var(--color-bg);
+}
+
 /* ---------- Forms & validation ---------- */
 
 .hk-form {
