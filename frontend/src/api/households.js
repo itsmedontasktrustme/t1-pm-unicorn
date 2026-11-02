@@ -6,6 +6,8 @@
  * Replace the bodies with fetch() calls when the endpoints exist:
  *   HK-64 Web-Backend Connection — Create / join household view
  *   HK-61 Web-Backend Connection — Household view
+ *   HK-49 Web-Backend Connection — Manage invitations
+ *   HK-52 Web-Backend Connection — Manage roles
  * Keep the function names, arguments and return shapes so the screens do not change.
  *
  * Shapes:
@@ -13,9 +15,10 @@
  *   Member     { id, name, roles: ("owner"|"manager"|"housemate")[], cookies }
  *   TaskSummary{ id, title, assigneeName|null, due: ISO date, status: "available"|"assigned"|"done" }
  *   Invitation { code, householdId, householdName, invitedBy, memberCount, expiresAt }
+ *   PendingInvitation { code, kind: "link"|"code", link, expiresAt }
  */
 
-const STORAGE_KEY = "homekeeper.placeholder.households.v1";
+const STORAGE_KEY = "homekeeper.placeholder.households.v2";
 // Simulated network latency so loading states are visible; none in tests.
 const LATENCY_MS = process.env.NODE_ENV === "test" ? 0 : 350;
 const INVITATION_VALID_DAYS = 7;
@@ -52,12 +55,24 @@ function demoData() {
           { id: "t3", title: "Vacuum the 1st floor", assigneeName: "Harry Potter", due: daysFromNow(3), status: "assigned" },
           { id: "t4", title: "Repaint the shed", assigneeName: null, due: daysFromNow(6), status: "available" }
         ]
+      },
+      {
+        // The demo resident is the owner here, to try owner-only screens (invitations, roles).
+        id: "hh-gryffindor",
+        name: "Gryffindor Tower",
+        members: [
+          { id: "dev-demo-resident", name: "Harry Potter", roles: ["owner", "manager"], cookies: 40 },
+          { id: "demo-ron", name: "Ron W.", roles: ["manager"], cookies: 22 },
+          { id: "demo-hermione", name: "Hermione G.", roles: ["housemate"], cookies: 58 }
+        ],
+        tasks: [{ id: "g1", title: "Tidy the common room", assigneeName: null, due: daysFromNow(2), status: "available" }]
       }
     ],
     invitations: [
       // Demo codes to try the join flow: one valid, one expired (US3 3a).
       { code: "HK-7K2M-5P", householdId: "hh-private-drive", invitedBy: "Vernon D.", expiresAt: daysFromNow(INVITATION_VALID_DAYS) },
-      { code: "HK-4F9Q-2B", householdId: "hh-private-drive", invitedBy: "Vernon D.", expiresAt: daysFromNow(-2) }
+      { code: "HK-4F9Q-2B", householdId: "hh-private-drive", invitedBy: "Vernon D.", expiresAt: daysFromNow(-2) },
+      { code: "HK-Q3T8-1X", kind: "code", householdId: "hh-gryffindor", invitedBy: "Harry Potter", expiresAt: daysFromNow(2) }
     ]
   };
 }
@@ -170,6 +185,76 @@ export async function getHousehold(user, householdId) {
     throw new ApiError("not-found", "Household not found.");
   }
   return delay(household);
+}
+
+const ONLY_OWNER_INVITES = "Only the owner can invite residents to this household.";
+const CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+function randomCode() {
+  const pick = (length) =>
+    Array.from({ length }, () => CODE_ALPHABET[Math.floor(Math.random() * CODE_ALPHABET.length)]).join("");
+  return `HK-${pick(4)}-${pick(2)}`;
+}
+
+export function invitationLink(code) {
+  return `${window.location.origin}/household/join?code=${encodeURIComponent(code)}`;
+}
+
+function ownerContext(user, householdId, deniedMessage) {
+  const { id } = residentOf(user);
+  const data = load();
+  const household = data.households.find((item) => item.id === householdId);
+  const me = household?.members.find((member) => member.id === id);
+
+  if (!household || !me) {
+    throw new ApiError("not-found", "Household not found.");
+  }
+  if (!me.roles.includes("owner")) {
+    throw new ApiError("not-owner", deniedMessage);
+  }
+  return { data, household, me };
+}
+
+function toPending(invitation) {
+  return {
+    code: invitation.code,
+    kind: invitation.kind || "code",
+    link: invitationLink(invitation.code),
+    expiresAt: invitation.expiresAt
+  };
+}
+
+/** US2 step 8: pending (not expired) invitations of a household. Owner only. */
+export async function listInvitations(user, householdId) {
+  const { data } = ownerContext(user, householdId, ONLY_OWNER_INVITES);
+  const now = new Date();
+  return delay(
+    data.invitations
+      .filter((item) => item.householdId === householdId && new Date(item.expiresAt) > now)
+      .sort((a, b) => new Date(b.expiresAt) - new Date(a.expiresAt))
+      .map(toPending)
+  );
+}
+
+/** US2 steps 3–6: create a link or code invitation valid for 7 days. Owner only (5a). */
+export async function createInvitation(user, householdId, kind) {
+  const { data, me } = ownerContext(user, householdId, ONLY_OWNER_INVITES);
+  const usedCodes = new Set(data.invitations.map((item) => item.code));
+  let code = randomCode();
+  while (usedCodes.has(code)) {
+    code = randomCode();
+  }
+
+  const invitation = {
+    code,
+    kind: kind === "link" ? "link" : "code",
+    householdId,
+    invitedBy: me.name,
+    expiresAt: daysFromNow(INVITATION_VALID_DAYS)
+  };
+  data.invitations.push(invitation);
+  save(data);
+  return delay(toPending(invitation));
 }
 
 /** Development helper: forget all placeholder data. */

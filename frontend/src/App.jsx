@@ -10,7 +10,7 @@ import settingsIcon from "./assets/settings-green.svg";
 import historyIcon from "./assets/book-green.svg";
 import HouseholdPage from "./pages/household/HouseholdPage";
 import TaskBoardPage from "./pages/TaskBoardPage";
-import PeoplePage from "./pages/PeoplePage";
+import PeoplePage from "./pages/people/PeoplePage";
 import SettingsPage from "./pages/SettingsPage";
 import HistoryPage from "./pages/HistoryPage";
 import NotFoundPage from "./pages/NotFoundPage";
@@ -24,6 +24,7 @@ import { subscribeSessionToken } from "./logic/SessionToken";
 import "./App.css";
 import "./styles/auth.css";
 import "./styles/household.css";
+import "./styles/people.css";
 
 const navItems = [
   { id: "home", path: "/home", label: "Home", icon: homeIcon },
