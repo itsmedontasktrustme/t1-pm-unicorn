@@ -343,6 +343,26 @@ textarea.hk-field__control {
   color: var(--color-danger);
 }
 
+.hk-banner--info {
+  background: var(--color-surface-soft);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.hk-info-dot {
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: var(--hk-white);
+  font-size: 12px;
+  font-weight: var(--font-weight-bold);
+  line-height: 1;
+}
+
 /* ---------- Toast ---------- */
 
 .hk-toast {

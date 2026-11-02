@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { SignInButton, UserButton, useAuth, useUser } from "@clerk/react";
+import { UserButton, useAuth, useUser } from "@clerk/react";
 import { Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import logo from "./assets/homekeeper-logo.png";
 import cookieIcon from "./assets/cookie.svg";
@@ -15,8 +15,11 @@ import SettingsPage from "./pages/SettingsPage";
 import HistoryPage from "./pages/HistoryPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import UiStatesPage from "./pages/UiStatesPage";
+import SignInPage from "./pages/auth/SignInPage";
+import SsoCallbackPage from "./pages/auth/SsoCallbackPage";
 import { subscribeSessionToken } from "./logic/SessionToken";
 import "./App.css";
+import "./styles/auth.css";
 
 const navItems = [
   { id: "home", path: "/home", label: "Home", icon: homeIcon },
@@ -25,6 +28,11 @@ const navItems = [
   { id: "history", path: "/history", label: "History", icon: historyIcon },
   { id: "settings", path: "/settings", label: "Settings", icon: settingsIcon },
 ];
+
+// Screens shown before the user is in the app: no header, no bottom navigation.
+const GUEST_PATHS = ["/sign-in", "/sso-callback"];
+// Development-only pages that must work without signing in.
+const DEV_PUBLIC_PATHS = process.env.NODE_ENV !== "production" ? ["/ui-states"] : [];
 
 function App() {
   const { isLoaded, isSignedIn } = useUser();
@@ -37,6 +45,19 @@ function App() {
     return subscribeSessionToken(getToken, { isLoaded, isSignedIn }, () => {});
   }, [getToken, isLoaded, isSignedIn]);
 
+  if (GUEST_PATHS.includes(location.pathname)) {
+    return (
+      <Routes>
+        <Route path="/sign-in" element={<SignInPage />} />
+        <Route path="/sso-callback" element={<SsoCallbackPage />} />
+      </Routes>
+    );
+  }
+
+  // Guests are sent to the sign-in page; the app shell is for signed-in residents only.
+  if (isLoaded && !isSignedIn && !DEV_PUBLIC_PATHS.includes(location.pathname)) {
+    return <Navigate to="/sign-in" replace />;
+  }
 
   return (
     <div className="homekeeper-app">
@@ -63,10 +84,8 @@ function App() {
           <div className="user-widget">
             {!isLoaded ? (
               <span className="auth-loading">Loading…</span>
-            ) : isSignedIn ? (
-              <UserButton afterSignOutUrl="/" />
             ) : (
-              <SignInButton mode="modal" />
+              isSignedIn && <UserButton afterSignOutUrl="/sign-in" />
             )}
           </div>
         </div>
