@@ -1,6 +1,6 @@
 import { useUser } from "@clerk/react";
 import { Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
-import logo from "./assets/homekeeper-logo.png";
+import wordmark from "./assets/wordmark.svg";
 import homeIcon from "./assets/home-green.svg";
 import tasksIcon from "./assets/tasks-green.svg";
 import peopleIcon from "./assets/members-green.svg";
@@ -107,13 +107,9 @@ function AppContent() {
   return (
     <div className="homekeeper-app">
       <header className="topbar">
-        <div className="brand-block" aria-label="Homekeeper brand">
-          <div className="brand-mark">
-            <img src={logo} alt="Homekeeper logo" className="brand-logo" />
-          </div>
-
+        <div className="brand-block">
           <div className="brand-copy">
-            <div className="brand-title">HomeKeeper</div>
+            <img src={wordmark} alt="HomeKeeper" className="brand-wordmark" />
             <HouseholdSwitcher />
           </div>
         </div>

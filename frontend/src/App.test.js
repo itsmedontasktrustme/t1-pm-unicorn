@@ -53,7 +53,7 @@ test("signed-in resident sees the app shell", () => {
   mockClerk.isSignedIn = true;
   renderAt("/tasks");
 
-  expect(screen.getByText(/HomeKeeper/i)).toBeInTheDocument();
+  expect(screen.getByRole("img", { name: "HomeKeeper" })).toBeInTheDocument();
   expect(screen.getByRole("navigation", { name: /Main navigation/i })).toBeInTheDocument();
 });
 
