@@ -98,6 +98,7 @@
 
   /* ---------- Layout ---------- */
   --content-max-width: 1200px;
+  --sidebar-width: 264px;
   --content-narrow-width: 760px;
   --tap-target-min: 44px;
 }

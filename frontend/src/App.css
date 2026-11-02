@@ -11,7 +11,7 @@
 
 .topbar {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: space-between;
   padding: var(--space-4) var(--space-6) var(--space-3);
@@ -23,6 +23,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-3);
+  min-width: 0;
 }
 
 .brand-mark {
@@ -45,6 +46,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
+  min-width: 0;
 }
 
 .brand-title {
@@ -62,48 +64,85 @@
 .header-actions {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--space-2);
+  flex-shrink: 0;
 }
 
+/* Own cookies in the current household (HK-264); a link to History → Mine. */
 .points-pill {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  min-width: 86px;
-  padding: var(--space-2) var(--space-3);
+  min-height: var(--tap-target-min);
+  padding: 0 var(--space-3);
   background: var(--color-surface-soft);
   border-radius: var(--radius-md);
   color: var(--color-text);
   font-size: var(--font-size-label);
   font-weight: var(--font-weight-bold);
+  text-decoration: none;
+  white-space: nowrap;
 }
 
-.points-avatar {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+.points-icon {
   width: 22px;
   height: 22px;
-  border-radius: 50%;
-  overflow: hidden;
-}
-
-.points-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
   display: block;
 }
 
-.user-widget {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.points-label {
+  display: none;
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-muted);
 }
 
-.auth-loading {
+/* Own avatar → /profile (HK-264). Name and "Your profile" only in the desktop sidebar. */
+.profile-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--color-text);
+  text-decoration: none;
+  border-radius: var(--radius-md);
+}
+
+.profile-link__avatar {
+  display: inline-grid;
+  place-items: center;
+  width: var(--tap-target-min);
+  height: var(--tap-target-min);
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--hk-lime);
+  color: var(--hk-ink);
   font-size: var(--font-size-small);
-  color: var(--color-text-muted);
+  font-weight: var(--font-weight-bold);
+  flex-shrink: 0;
+}
+
+.profile-link__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-link__text {
+  display: none;
+  min-width: 0;
+  line-height: 1.25;
+}
+
+.profile-link__text b,
+.profile-link__text small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile-link__text small {
+  font-size: var(--font-size-small);
 }
 
 .content-panel {
@@ -365,6 +404,110 @@
 @media (max-width: 1023px) {
   .task-board-layout {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Desktop: the header and bottom bar become one orange sidebar on the left (HK-264).
+   The header box dissolves (display: contents) so brand, navigation and own links
+   stack in the first grid column; the page scrolls inside the content column. */
+@media (min-width: 1024px) {
+  .homekeeper-app {
+    display: grid;
+    grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(0, 1fr);
+    height: 100vh;
+    overflow: hidden;
+    background: linear-gradient(to right, var(--color-nav-bg) var(--sidebar-width), var(--color-bg) var(--sidebar-width));
+  }
+
+  .topbar {
+    display: contents;
+  }
+
+  .brand-block {
+    grid-column: 1;
+    grid-row: 1;
+    padding: var(--space-5) var(--space-5) var(--space-5) var(--space-6);
+  }
+
+  .brand-mark {
+    width: 48px;
+    height: 48px;
+    padding: 6px;
+    background: var(--color-bg);
+  }
+
+  .brand-block .brand-subtitle,
+  .brand-block .brand-switcher {
+    color: var(--color-text);
+  }
+
+  .bottom-nav,
+  .nav-with-history {
+    grid-column: 1;
+    grid-row: 2;
+    position: static;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-1);
+    padding: 0 var(--space-4);
+    background: transparent;
+  }
+
+  .nav-button {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: var(--space-3);
+    min-height: 48px;
+    padding: 0 var(--space-3);
+    font-size: var(--font-size-label);
+  }
+
+  .nav-button.active {
+    background: var(--color-bg);
+  }
+
+  .nav-icon-img {
+    width: 28px;
+    height: 28px;
+  }
+
+  .header-actions {
+    grid-column: 1;
+    grid-row: 3;
+    align-self: end;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-3);
+    padding: var(--space-4);
+  }
+
+  .points-pill {
+    background: var(--color-bg);
+  }
+
+  .points-label {
+    display: inline;
+  }
+
+  .profile-link {
+    padding: var(--space-1) var(--space-2);
+  }
+
+  .profile-link:hover {
+    background: rgba(255, 247, 239, 0.35);
+  }
+
+  .profile-link__text {
+    display: block;
+  }
+
+  .content-panel {
+    grid-column: 2;
+    grid-row: 1 / -1;
+    overflow-y: auto;
+    max-width: none;
+    margin: 0;
+    padding: var(--space-6) max(var(--space-8), calc((100% - var(--content-max-width)) / 2)) var(--space-8);
   }
 }
 

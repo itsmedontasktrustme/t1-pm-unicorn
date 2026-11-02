@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
 import App from "./App";
@@ -7,7 +7,6 @@ import App from "./App";
 const mockClerk = { isLoaded: true, isSignedIn: false };
 
 jest.mock("@clerk/react", () => ({
-  UserButton: () => <button type="button">Google user</button>,
   HandleSSOCallback: () => null,
   useUser: () => ({ isLoaded: mockClerk.isLoaded, isSignedIn: mockClerk.isSignedIn, user: null }),
   useAuth: () => ({ getToken: () => Promise.resolve(null) }),
@@ -22,7 +21,17 @@ function renderAt(path) {
   );
 }
 
+jest.mock("./logic/HistoryTracker", () => ({ trackAction: () => {} }));
+
+async function settle(rounds = 4) {
+  for (let i = 0; i < rounds; i += 1) {
+    // eslint-disable-next-line no-await-in-loop
+    await act(() => new Promise((resolve) => setTimeout(resolve, 20)));
+  }
+}
+
 beforeEach(() => {
+  window.localStorage.clear();
   mockClerk.isLoaded = true;
   mockClerk.isSignedIn = false;
 });
@@ -46,4 +55,15 @@ test("signed-in resident sees the app shell", () => {
 
   expect(screen.getByText(/HomeKeeper/i)).toBeInTheDocument();
   expect(screen.getByRole("navigation", { name: /Main navigation/i })).toBeInTheDocument();
+});
+
+test("HK-264: header shows own cookies in the current household and links to own profile", async () => {
+  mockClerk.isSignedIn = true;
+  window.localStorage.setItem("homekeeper.currentHouseholdId", "hh-private-drive");
+  renderAt("/tasks");
+  await settle();
+
+  const cookies = screen.getByRole("link", { name: /Your cookies in Private Drive No\. 4: 64/ });
+  expect(cookies).toHaveAttribute("href", "/history?view=mine");
+  expect(screen.getByRole("link", { name: "Your profile" })).toHaveAttribute("href", "/profile");
 });

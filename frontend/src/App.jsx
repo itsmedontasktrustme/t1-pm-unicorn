@@ -1,8 +1,7 @@
 import { useEffect } from "react";
-import { UserButton, useAuth, useUser } from "@clerk/react";
+import { useAuth, useUser } from "@clerk/react";
 import { Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import logo from "./assets/homekeeper-logo.png";
-import cookieIcon from "./assets/cookie.svg";
 import homeIcon from "./assets/home-green.svg";
 import tasksIcon from "./assets/tasks-green.svg";
 import peopleIcon from "./assets/members-green.svg";
@@ -23,6 +22,8 @@ import WelcomePage from "./pages/auth/WelcomePage";
 import HouseholdStartPage from "./pages/household/HouseholdStartPage";
 import { CurrentHouseholdProvider, useCurrentHousehold } from "./logic/CurrentHousehold";
 import { subscribeSessionToken } from "./logic/SessionToken";
+import CookieCounter from "./components/shell/CookieCounter";
+import ProfileLink from "./components/shell/ProfileLink";
 import "./App.css";
 import "./styles/auth.css";
 import "./styles/household.css";
@@ -125,20 +126,8 @@ function AppContent() {
         </div>
 
         <div className="header-actions">
-          <div className="points-pill" aria-label="Score">
-            <span className="points-avatar">
-              <img src={cookieIcon} alt="Cookie score icon" />
-            </span>
-            <span>120</span>
-          </div>
-
-          <div className="user-widget">
-            {!isLoaded ? (
-              <span className="auth-loading">Loading…</span>
-            ) : (
-              isSignedIn && <UserButton afterSignOutUrl="/sign-in" />
-            )}
-          </div>
+          <CookieCounter />
+          <ProfileLink />
         </div>
       </header>
 

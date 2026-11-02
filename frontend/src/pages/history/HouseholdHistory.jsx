@@ -43,7 +43,7 @@ function HouseholdHistory({ user, householdId }) {
 
   const lead = (
     <p className="hk-history__lead">
-      Completed tasks and cookies in <strong>{data.householdName}</strong>. Switch the household in the header.
+      Completed tasks and cookies in <strong>{data.householdName}</strong>. Switch the household next to the logo.
     </p>
   );
 
