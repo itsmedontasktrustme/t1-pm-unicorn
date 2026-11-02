@@ -116,6 +116,10 @@
   background: var(--color-surface-soft);
 }
 
+.hk-auth-card .hk-loading__hint {
+  justify-content: center;
+}
+
 .hk-auth-card .hk-form {
   /* Auto margins would shrink a grid item to its content width. */
   width: 100%;
