@@ -331,7 +331,7 @@ textarea.hk-field__control {
   font-weight: var(--font-weight-bold);
 }
 
-.hk-banner__body {
+.hk-banner .hk-banner__body {
   margin: 0;
   font-size: var(--font-size-small);
   color: var(--color-text);
