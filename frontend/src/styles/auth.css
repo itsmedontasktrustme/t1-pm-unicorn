@@ -78,8 +78,49 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: var(--space-8) var(--space-6);
+  /* Phones: content starts at the top, like any mobile screen. */
+  justify-content: flex-start;
+  position: relative;
+  padding: var(--space-8) var(--space-4) var(--space-10);
+}
+
+/* Room for the Back link in the top-left corner */
+.hk-guest__main--with-back {
+  padding-top: calc(var(--tap-target-min) + var(--space-6));
+}
+
+@media (min-width: 1024px) {
+  .hk-guest__main {
+    /* Desktop: the form sits in the middle of the right column. */
+    justify-content: center;
+    padding: var(--space-8) var(--space-6);
+  }
+}
+
+.hk-guest__back {
+  position: absolute;
+  top: var(--space-2);
+  left: var(--space-2);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: var(--tap-target-min);
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-md);
+  color: var(--color-primary);
+  font-weight: var(--font-weight-bold);
+  text-decoration: none;
+}
+
+.hk-guest__back:hover {
+  background: var(--color-surface-soft);
+}
+
+.hk-auth-card .hk-form {
+  /* Auto margins would shrink a grid item to its content width. */
+  width: 100%;
+  max-width: none;
+  margin: 0;
 }
 
 .hk-auth-card {
