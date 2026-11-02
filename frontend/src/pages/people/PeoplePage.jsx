@@ -63,7 +63,9 @@ function Housemates({ household, userId, isOwner, renderAction }) {
                 </span>
               </Link>
             ) : (
-              <span className="hk-member__name">{member.name}</span>
+              <Link to={`/people/${member.id}`} className="hk-member-link">
+                <span className="hk-member__name">{member.name}</span>
+              </Link>
             )}
             <span className="hk-member__roles">
               {member.roles.map((role) => (

@@ -73,7 +73,7 @@ function demoData() {
         members: [
           { id: "dev-demo-resident", name: "Harry Potter", roles: ["owner", "manager"], cookies: 40 },
           { id: "demo-ron", name: "Ron W.", roles: ["manager"], cookies: 22 },
-          { id: "demo-hermione", name: "Hermione G.", roles: ["housemate"], cookies: 58 }
+          { id: "demo-hermione", name: "Hermione G.", roles: ["housemate"], cookies: 0 }
         ],
         tasks: [
           { id: "g1", title: "Tidy the common room", assigneeName: null, due: daysFromNow(2), status: "available" },
@@ -329,7 +329,7 @@ export async function listMyMemberships(user) {
   return delay(memberships);
 }
 
-/** Housemate profile (HK-69): member, current tasks, recently completed and counts. */
+/** Housemate profile (HK-69): member, current tasks, recently completed, counts and whether the viewer is the owner. */
 export async function getMemberProfile(user, householdId, memberId) {
   const { id } = residentOf(user);
   const household = load().households.find((item) => item.id === householdId);
@@ -348,8 +348,11 @@ export async function getMemberProfile(user, householdId, memberId) {
     .filter((task) => task.status === "assigned" && task.assigneeName === member.name)
     .sort((a, b) => new Date(a.due) - new Date(b.due));
 
+  const viewer = household.members.find((item) => item.id === id);
+
   return delay({
     member,
+    viewerIsOwner: Boolean(viewer?.roles.includes("owner")),
     currentTasks,
     completed: completed.slice(0, 5),
     stats: {

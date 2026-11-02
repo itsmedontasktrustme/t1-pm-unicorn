@@ -12,6 +12,7 @@ import HouseholdPage from "./pages/household/HouseholdPage";
 import TaskBoardPage from "./pages/TaskBoardPage";
 import PeoplePage from "./pages/people/PeoplePage";
 import ProfilePage from "./pages/profile/ProfilePage";
+import HousemateProfilePage from "./pages/profile/HousemateProfilePage";
 import SettingsPage from "./pages/SettingsPage";
 import HistoryPage from "./pages/HistoryPage";
 import NotFoundPage from "./pages/NotFoundPage";
@@ -148,6 +149,7 @@ function AppContent() {
           <Route path="/task" element={<Navigate to="/tasks" replace />} />
           <Route path="/people" element={<PeoplePage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/people/:memberId" element={<HousemateProfilePage />} />
           <Route path="/history" element={<HistoryPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           {process.env.NODE_ENV !== "production" && <Route path="/ui-states" element={<UiStatesPage />} />}
