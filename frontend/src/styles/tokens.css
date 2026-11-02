@@ -1,0 +1,98 @@
+/*
+ * Homekeeper design tokens.
+ * Source: Brand Kit — Homekeeper-Colour-Palette.xlsx, HomeKeeper-Typography.xlsx (HK-220).
+ *
+ * Breakpoints (CSS variables cannot be used inside @media, keep these in sync):
+ *   mobile  < 768px  (default, mobile-first)
+ *   tablet  >= 768px
+ *   desktop >= 1024px
+ */
+
+:root {
+  /* ---------- Brand palette ---------- */
+  --hk-forest: #006736;
+  --hk-lime: #8cc63f;
+  --hk-orange: #ff931d;
+  --hk-cream: #fff7ef;
+  --hk-peach: #ffe2c1;
+  --hk-ink: #24382c;
+  --hk-sage-grey: #595f57;
+  --hk-biscuit: #8c6238;
+  --hk-chocolate: #603812;
+  --hk-white: #ffffff;
+
+  /* ---------- Semantic colours ---------- */
+  --color-bg: var(--hk-cream);
+  --color-surface: var(--hk-white);
+  --color-surface-soft: var(--hk-peach);
+
+  --color-text: var(--hk-ink);
+  --color-text-muted: var(--hk-sage-grey);
+  --color-text-on-primary: var(--hk-white);
+  /* White text fails contrast on lime/orange — always use ink there. */
+  --color-text-on-accent: var(--hk-ink);
+
+  --color-primary: var(--hk-forest);
+  --color-primary-hover: #00552d;
+  --color-accent: var(--hk-lime);
+  --color-reward: var(--hk-orange);
+
+  --color-border: var(--hk-peach);
+  --color-border-strong: var(--hk-lime);
+  --color-focus: var(--hk-forest);
+
+  --color-nav-bg: var(--hk-orange);
+  --color-nav-active-bg: var(--hk-peach);
+
+  --color-cookie: var(--hk-biscuit);
+  --color-cookie-detail: var(--hk-chocolate);
+
+  /* ---------- Typography ---------- */
+  --font-ui: "Oxygen", "Segoe UI", system-ui, sans-serif;
+  --font-hand: "Handlee", "Segoe Print", cursive;
+
+  --font-weight-regular: 400;
+  --font-weight-bold: 700;
+
+  --font-size-page-title: 1.75rem;      /* 28px, Oxygen 700 */
+  --font-size-section-title: 1.5rem;    /* 24px, Oxygen 700 */
+  --font-size-task-title: 1.125rem;     /* 18px, Oxygen 700 */
+  --font-size-label: 1rem;              /* 16px, Oxygen 700 — labels, buttons */
+  --font-size-body: 1rem;               /* 16px, Oxygen 400 — navigation, system text */
+  --font-size-small: 0.875rem;          /* 14px, Oxygen 400 — supporting info */
+  --font-size-hand: 1.125rem;           /* 18px, Handlee — task content, input values (min) */
+  --font-size-hand-large: 1.5rem;       /* 24px, Handlee — welcome / celebration */
+
+  --line-height-page-title: 1.25;
+  --line-height-section-title: 1.3;
+  --line-height-task-title: 1.4;
+  --line-height-body: 1.5;
+  --line-height-hand-large: 1.4;
+
+  /* ---------- Spacing (4px scale) ---------- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+
+  /* ---------- Shape ---------- */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+
+  --border-width: 2px;
+
+  --shadow-card: 0 1px 2px rgba(36, 56, 44, 0.08);
+  --shadow-raised: 0 4px 12px rgba(36, 56, 44, 0.12);
+
+  /* ---------- Layout ---------- */
+  --content-max-width: 1200px;
+  --content-narrow-width: 760px;
+  --tap-target-min: 44px;
+}
