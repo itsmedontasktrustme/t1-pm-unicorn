@@ -18,10 +18,12 @@ import UiStatesPage from "./pages/UiStatesPage";
 import SignInPage from "./pages/auth/SignInPage";
 import SsoCallbackPage from "./pages/auth/SsoCallbackPage";
 import WelcomePage from "./pages/auth/WelcomePage";
-import HouseholdStartPlaceholder from "./pages/auth/HouseholdStartPlaceholder";
+import HouseholdStartPage from "./pages/household/HouseholdStartPage";
+import { CurrentHouseholdProvider } from "./logic/CurrentHousehold";
 import { subscribeSessionToken } from "./logic/SessionToken";
 import "./App.css";
 import "./styles/auth.css";
+import "./styles/household.css";
 
 const navItems = [
   { id: "home", path: "/home", label: "Home", icon: homeIcon },
@@ -38,7 +40,7 @@ const ONBOARDING_PATHS = ["/welcome", "/household/new", "/household/join"];
 // Development-only pages that must work without signing in.
 const DEV_PUBLIC_PATHS = process.env.NODE_ENV !== "production" ? ["/ui-states"] : [];
 
-function App() {
+function AppContent() {
   const { isLoaded, isSignedIn } = useUser();
   const { getToken } = useAuth();
   const navigate = useNavigate();
@@ -67,8 +69,8 @@ function App() {
     return (
       <Routes>
         <Route path="/welcome" element={<WelcomePage />} />
-        <Route path="/household/new" element={<HouseholdStartPlaceholder mode="create" />} />
-        <Route path="/household/join" element={<HouseholdStartPlaceholder mode="join" />} />
+        <Route path="/household/new" element={<HouseholdStartPage mode="create" />} />
+        <Route path="/household/join" element={<HouseholdStartPage mode="join" />} />
       </Routes>
     );
   }
@@ -133,6 +135,14 @@ function App() {
         ))}
       </nav>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <CurrentHouseholdProvider>
+      <AppContent />
+    </CurrentHouseholdProvider>
   );
 }
 
