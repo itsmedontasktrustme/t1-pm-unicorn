@@ -17,6 +17,8 @@ import NotFoundPage from "./pages/NotFoundPage";
 import UiStatesPage from "./pages/UiStatesPage";
 import SignInPage from "./pages/auth/SignInPage";
 import SsoCallbackPage from "./pages/auth/SsoCallbackPage";
+import WelcomePage from "./pages/auth/WelcomePage";
+import HouseholdStartPlaceholder from "./pages/auth/HouseholdStartPlaceholder";
 import { subscribeSessionToken } from "./logic/SessionToken";
 import "./App.css";
 import "./styles/auth.css";
@@ -31,6 +33,8 @@ const navItems = [
 
 // Screens shown before the user is in the app: no header, no bottom navigation.
 const GUEST_PATHS = ["/sign-in", "/sso-callback"];
+// Signed-in screens before the resident is in a household: also without the app shell.
+const ONBOARDING_PATHS = ["/welcome", "/household/new", "/household/join"];
 // Development-only pages that must work without signing in.
 const DEV_PUBLIC_PATHS = process.env.NODE_ENV !== "production" ? ["/ui-states"] : [];
 
@@ -57,6 +61,16 @@ function App() {
   // Guests are sent to the sign-in page; the app shell is for signed-in residents only.
   if (isLoaded && !isSignedIn && !DEV_PUBLIC_PATHS.includes(location.pathname)) {
     return <Navigate to="/sign-in" replace />;
+  }
+
+  if (ONBOARDING_PATHS.includes(location.pathname)) {
+    return (
+      <Routes>
+        <Route path="/welcome" element={<WelcomePage />} />
+        <Route path="/household/new" element={<HouseholdStartPlaceholder mode="create" />} />
+        <Route path="/household/join" element={<HouseholdStartPlaceholder mode="join" />} />
+      </Routes>
+    );
   }
 
   return (

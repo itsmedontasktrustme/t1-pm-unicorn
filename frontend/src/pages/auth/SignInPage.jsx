@@ -16,7 +16,7 @@ import { FormBanner } from "../../components/forms";
  */
 
 const SSO_CALLBACK_PATH = "/sso-callback";
-const AFTER_SIGN_IN_PATH = "/home";
+const AFTER_SIGN_IN_PATH = "/welcome";
 
 function StatusBanner({ status, email, failed }) {
   if (failed) {
@@ -59,7 +59,7 @@ function SignInPage() {
   const hasNotice = Boolean(status) || failed;
 
   if (isLoaded && isSignedIn) {
-    return <Navigate to="/home" replace />;
+    return <Navigate to="/welcome" replace />;
   }
 
   const handleGoogle = async () => {

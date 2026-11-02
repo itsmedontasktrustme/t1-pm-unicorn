@@ -24,7 +24,7 @@ function SsoCallbackPage() {
       <section className="hk-auth-card">
         <LoadingState label="Signing you in…" count={0} />
         <HandleSSOCallback
-          navigateToApp={({ decorateUrl }) => goTo(navigate, decorateUrl("/home"))}
+          navigateToApp={({ decorateUrl }) => goTo(navigate, decorateUrl("/welcome"))}
           // Sign-in could not finish (e.g. cancelled at Google, US0 4a).
           navigateToSignIn={() => goTo(navigate, "/sign-in?status=cancelled")}
           // Sign-up needs more data than Google provides — not expected with Google-only sign-in.
