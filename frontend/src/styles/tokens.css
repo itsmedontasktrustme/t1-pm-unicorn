@@ -44,6 +44,11 @@
   --color-nav-bg: var(--hk-orange);
   --color-nav-active-bg: var(--hk-peach);
 
+  /* Error / danger — not in Brand Kit, introduced with the HK-92 error-state design.
+     Always pair with an icon and text, never colour alone. */
+  --color-danger: #b42318;
+  --color-danger-soft: #fdecea;
+
   --color-cookie: var(--hk-biscuit);
   --color-cookie-detail: var(--hk-chocolate);
 
