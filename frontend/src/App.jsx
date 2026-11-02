@@ -14,7 +14,7 @@ import PeoplePage from "./pages/people/PeoplePage";
 import ProfilePage from "./pages/profile/ProfilePage";
 import HousemateProfilePage from "./pages/profile/HousemateProfilePage";
 import SettingsPage from "./pages/SettingsPage";
-import HistoryPage from "./pages/HistoryPage";
+import HistoryPage from "./pages/history/HistoryPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import UiStatesPage from "./pages/UiStatesPage";
 import SignInPage from "./pages/auth/SignInPage";
@@ -28,6 +28,7 @@ import "./styles/auth.css";
 import "./styles/household.css";
 import "./styles/people.css";
 import "./styles/profile.css";
+import "./styles/history.css";
 
 const navItems = [
   { id: "home", path: "/home", label: "Home", icon: homeIcon },

@@ -9,6 +9,7 @@
  *   HK-49 Web-Backend Connection — Manage invitations
  *   HK-52 Web-Backend Connection — Manage roles
  *   HK-67 / HK-70 Web-Backend Connection — Resident / Housemate profile view
+ *   HK-88 / HK-91 Web-Backend Connection — Resident / Household history view
  * Keep the function names, arguments and return shapes so the screens do not change.
  *
  * Shapes:
@@ -18,10 +19,10 @@
  *   Invitation { code, householdId, householdName, invitedBy, memberCount, expiresAt }
  *   PendingInvitation { code, kind: "link"|"code", link, expiresAt }
  *   Membership { id, name, roles, cookies }  — one per household of the resident
- *   CompletedTask { id, title, memberId, completedAt: ISO, cookies }
+ *   CompletedTask { id, title, memberId, markedById, completedAt: ISO, cookies }
  */
 
-const STORAGE_KEY = "homekeeper.placeholder.households.v3";
+const STORAGE_KEY = "homekeeper.placeholder.households.v4";
 // Simulated network latency so loading states are visible; none in tests.
 const LATENCY_MS = process.env.NODE_ENV === "test" ? 0 : 350;
 const INVITATION_VALID_DAYS = 7;
@@ -59,11 +60,11 @@ function demoData() {
           { id: "t4", title: "Repaint the shed", assigneeName: null, due: daysFromNow(6), status: "available" }
         ],
         completed: [
-          { id: "c1", title: "Water the plants", memberId: "demo-petunia", completedAt: daysFromNow(-1), cookies: 2 },
-          { id: "c2", title: "Clean the kitchen", memberId: "demo-petunia", completedAt: daysFromNow(-2), cookies: 4 },
-          { id: "c3", title: "Take out the bins", memberId: "demo-petunia", completedAt: daysFromNow(-5), cookies: 1 },
-          { id: "c4", title: "Mow the lawn", memberId: "dev-demo-resident", completedAt: daysFromNow(-3), cookies: 5 },
-          { id: "c5", title: "Wash the car", memberId: "demo-dudley", completedAt: daysFromNow(-12), cookies: 3 }
+          { id: "c1", title: "Water the plants", memberId: "demo-petunia", markedById: "demo-petunia", completedAt: daysFromNow(-1), cookies: 2 },
+          { id: "c2", title: "Clean the kitchen", memberId: "demo-petunia", markedById: "demo-vernon", completedAt: daysFromNow(-2), cookies: 4 },
+          { id: "c3", title: "Take out the bins", memberId: "demo-petunia", markedById: "demo-petunia", completedAt: daysFromNow(-5), cookies: 1 },
+          { id: "c4", title: "Mow the lawn", memberId: "dev-demo-resident", markedById: "dev-demo-resident", completedAt: daysFromNow(-3), cookies: 5 },
+          { id: "c5", title: "Wash the car", memberId: "demo-dudley", markedById: "demo-petunia", completedAt: daysFromNow(-12), cookies: 3 }
         ]
       },
       {
@@ -79,7 +80,10 @@ function demoData() {
           { id: "g1", title: "Tidy the common room", assigneeName: null, due: daysFromNow(2), status: "available" },
           { id: "g2", title: "Feed the owls", assigneeName: "Ron W.", due: daysFromNow(1), status: "assigned" }
         ],
-        completed: [{ id: "gc1", title: "Sort the library books", memberId: "demo-ron", completedAt: daysFromNow(-1), cookies: 3 }]
+        completed: [
+          { id: "gc1", title: "Sort the library books", memberId: "demo-ron", markedById: "demo-ron", completedAt: daysFromNow(-1), cookies: 3 },
+          { id: "gc2", title: "Sweep the common room", memberId: "dev-demo-resident", markedById: "demo-ron", completedAt: daysFromNow(-6), cookies: 3 }
+        ]
       }
     ],
     invitations: [
@@ -360,6 +364,68 @@ export async function getMemberProfile(user, householdId, memberId) {
       done: completed.length,
       doneThisWeek: completed.filter((task) => new Date(task.completedAt).getTime() >= weekAgo).length
     }
+  });
+}
+
+function nameOf(household, memberId) {
+  return household.members.find((member) => member.id === memberId)?.name || "Former housemate";
+}
+
+/**
+ * US10 steps 2–5 (HK-90): completed tasks of one household, newest first, with assignee,
+ * who marked it done and cookies, plus every housemate's total cookies.
+ */
+export async function listHouseholdHistory(user, householdId) {
+  const { id } = residentOf(user);
+  const household = load().households.find((item) => item.id === householdId);
+
+  if (!household || !isMember(household, id)) {
+    await delay();
+    throw new ApiError("not-found", "Household not found.");
+  }
+
+  const completed = (household.completed || [])
+    .map((task) => ({
+      ...task,
+      assigneeName: nameOf(household, task.memberId),
+      markedByName: nameOf(household, task.markedById || task.memberId)
+    }))
+    .sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt));
+
+  const totals = household.members
+    .map((member) => ({ id: member.id, name: member.name, cookies: member.cookies }))
+    .sort((a, b) => b.cookies - a.cookies);
+
+  return delay({ householdName: household.name, completed, totals });
+}
+
+/** US10 2a–2b (HK-87): the resident's own completed tasks and cookies across all households. */
+export async function listMyHistory(user) {
+  const { id } = residentOf(user);
+  const households = load().households.filter((household) => isMember(household, id));
+
+  const perHousehold = households.map((household) => ({
+    id: household.id,
+    name: household.name,
+    cookies: household.members.find((member) => member.id === id).cookies
+  }));
+
+  const completed = households
+    .flatMap((household) =>
+      (household.completed || [])
+        .filter((task) => task.memberId === id)
+        .map((task) => ({
+          ...task,
+          householdName: household.name,
+          markedByName: nameOf(household, task.markedById || task.memberId)
+        }))
+    )
+    .sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt));
+
+  return delay({
+    totalCookies: perHousehold.reduce((sum, item) => sum + item.cookies, 0),
+    perHousehold,
+    completed
   });
 }
 
