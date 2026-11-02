@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { getHousehold, listInvitations } from "../../api/households";
 import { ErrorState, LoadingState } from "../../components/states";
 import { Toast } from "../../components/forms";
@@ -55,9 +56,15 @@ function Housemates({ household, userId, isOwner, renderAction }) {
             {initials(member.name)}
           </span>
           <div>
-            <span className="hk-member__name">
-              {member.name} {member.id === userId && <span className="hk-member__you">(you)</span>}
-            </span>
+            {member.id === userId ? (
+              <Link to="/profile" className="hk-member-link" aria-label={`${member.name} (you) — your profile`}>
+                <span className="hk-member__name">
+                  {member.name} <span className="hk-member__you">(you)</span>
+                </span>
+              </Link>
+            ) : (
+              <span className="hk-member__name">{member.name}</span>
+            )}
             <span className="hk-member__roles">
               {member.roles.map((role) => (
                 <span key={role} className={`hk-chip hk-chip--${role}`}>

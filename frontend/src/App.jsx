@@ -11,6 +11,7 @@ import historyIcon from "./assets/book-green.svg";
 import HouseholdPage from "./pages/household/HouseholdPage";
 import TaskBoardPage from "./pages/TaskBoardPage";
 import PeoplePage from "./pages/people/PeoplePage";
+import ProfilePage from "./pages/profile/ProfilePage";
 import SettingsPage from "./pages/SettingsPage";
 import HistoryPage from "./pages/HistoryPage";
 import NotFoundPage from "./pages/NotFoundPage";
@@ -25,6 +26,7 @@ import "./App.css";
 import "./styles/auth.css";
 import "./styles/household.css";
 import "./styles/people.css";
+import "./styles/profile.css";
 
 const navItems = [
   { id: "home", path: "/home", label: "Home", icon: homeIcon },
@@ -74,7 +76,9 @@ function AppContent() {
   const { getToken } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const activePage = location.pathname.replace("/", "") || "home";
+  // First path segment decides the active tab; profiles live under People.
+  const section = location.pathname.split("/")[1] || "home";
+  const activePage = section === "profile" ? "people" : section;
 
   useEffect(() => {
     return subscribeSessionToken(getToken, { isLoaded, isSignedIn }, () => {});
@@ -143,6 +147,7 @@ function AppContent() {
           <Route path="/tasks" element={<TaskBoardPage />} />
           <Route path="/task" element={<Navigate to="/tasks" replace />} />
           <Route path="/people" element={<PeoplePage />} />
+          <Route path="/profile" element={<ProfilePage />} />
           <Route path="/history" element={<HistoryPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           {process.env.NODE_ENV !== "production" && <Route path="/ui-states" element={<UiStatesPage />} />}
