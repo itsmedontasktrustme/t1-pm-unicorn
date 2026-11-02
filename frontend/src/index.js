@@ -9,10 +9,8 @@ import App from './App';
 import ErrorBoundary from './components/ErrorBoundary';
 import * as serviceWorker from './serviceWorker';
 
-const publishableKey =
-  process.env.REACT_APP_CLERK_PUBLISHABLE_KEY ||
-  process.env.VITE_CLERK_PUBLISHABLE_KEY ||
-  process.env.CLERK_PUBLISHABLE_KEY;
+// Create React App only passes REACT_APP_* variables to the browser.
+const publishableKey = process.env.REACT_APP_CLERK_PUBLISHABLE_KEY;
 
 const root = createRoot(document.getElementById('root'));
 

@@ -15,11 +15,7 @@ const DEMO_RESIDENT = {
   imageUrl: null
 };
 
-const USE_DEMO_RESIDENT =
-  process.env.NODE_ENV !== "production" &&
-  !process.env.REACT_APP_CLERK_PUBLISHABLE_KEY &&
-  !process.env.VITE_CLERK_PUBLISHABLE_KEY &&
-  !process.env.CLERK_PUBLISHABLE_KEY;
+const USE_DEMO_RESIDENT = process.env.NODE_ENV !== "production" && !process.env.REACT_APP_CLERK_PUBLISHABLE_KEY;
 
 function useResident() {
   const { isLoaded, isSignedIn, user } = useUser();

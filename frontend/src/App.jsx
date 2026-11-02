@@ -1,5 +1,4 @@
-import { useEffect } from "react";
-import { useAuth, useUser } from "@clerk/react";
+import { useUser } from "@clerk/react";
 import { Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import logo from "./assets/homekeeper-logo.png";
 import homeIcon from "./assets/home-green.svg";
@@ -21,7 +20,6 @@ import SsoCallbackPage from "./pages/auth/SsoCallbackPage";
 import WelcomePage from "./pages/auth/WelcomePage";
 import HouseholdStartPage from "./pages/household/HouseholdStartPage";
 import { CurrentHouseholdProvider, useCurrentHousehold } from "./logic/CurrentHousehold";
-import { subscribeSessionToken } from "./logic/SessionToken";
 import CookieCounter from "./components/shell/CookieCounter";
 import ProfileLink from "./components/shell/ProfileLink";
 import "./App.css";
@@ -76,16 +74,11 @@ function HouseholdSwitcher() {
 
 function AppContent() {
   const { isLoaded, isSignedIn } = useUser();
-  const { getToken } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   // First path segment decides the active tab; profiles live under People.
   const section = location.pathname.split("/")[1] || "home";
   const activePage = section === "profile" ? "people" : section;
-
-  useEffect(() => {
-    return subscribeSessionToken(getToken, { isLoaded, isSignedIn }, () => {});
-  }, [getToken, isLoaded, isSignedIn]);
 
   if (GUEST_PATHS.includes(location.pathname)) {
     return (
