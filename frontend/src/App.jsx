@@ -8,7 +8,7 @@ import tasksIcon from "./assets/tasks-green.svg";
 import peopleIcon from "./assets/members-green.svg";
 import settingsIcon from "./assets/settings-green.svg";
 import historyIcon from "./assets/book-green.svg";
-import HomePage from "./pages/HomePage";
+import HouseholdPage from "./pages/household/HouseholdPage";
 import TaskBoardPage from "./pages/TaskBoardPage";
 import PeoplePage from "./pages/PeoplePage";
 import SettingsPage from "./pages/SettingsPage";
@@ -19,7 +19,7 @@ import SignInPage from "./pages/auth/SignInPage";
 import SsoCallbackPage from "./pages/auth/SsoCallbackPage";
 import WelcomePage from "./pages/auth/WelcomePage";
 import HouseholdStartPage from "./pages/household/HouseholdStartPage";
-import { CurrentHouseholdProvider } from "./logic/CurrentHousehold";
+import { CurrentHouseholdProvider, useCurrentHousehold } from "./logic/CurrentHousehold";
 import { subscribeSessionToken } from "./logic/SessionToken";
 import "./App.css";
 import "./styles/auth.css";
@@ -39,6 +39,34 @@ const GUEST_PATHS = ["/sign-in", "/sso-callback"];
 const ONBOARDING_PATHS = ["/welcome", "/household/new", "/household/join"];
 // Development-only pages that must work without signing in.
 const DEV_PUBLIC_PATHS = process.env.NODE_ENV !== "production" ? ["/ui-states"] : [];
+
+// Current household under the app name; a switcher when the resident is in several (HK-60).
+function HouseholdSwitcher() {
+  const { households, current, select } = useCurrentHousehold();
+
+  if (!current) {
+    return <div className="brand-subtitle">&nbsp;</div>;
+  }
+
+  if (households.length < 2) {
+    return <div className="brand-subtitle">{current.name}</div>;
+  }
+
+  return (
+    <select
+      className="brand-switcher"
+      aria-label="Switch household"
+      value={current.id}
+      onChange={(event) => select(event.target.value)}
+    >
+      {households.map((household) => (
+        <option key={household.id} value={household.id}>
+          {household.name}
+        </option>
+      ))}
+    </select>
+  );
+}
 
 function AppContent() {
   const { isLoaded, isSignedIn } = useUser();
@@ -85,7 +113,7 @@ function AppContent() {
 
           <div className="brand-copy">
             <div className="brand-title">HomeKeeper</div>
-            <div className="brand-subtitle">Private Drive No. 4</div>
+            <HouseholdSwitcher />
           </div>
         </div>
 
@@ -110,7 +138,7 @@ function AppContent() {
       <main className="content-panel">
         <Routes>
           <Route path="/" element={<Navigate to="/home" replace />} />
-          <Route path="/home" element={<HomePage />} />
+          <Route path="/home" element={<HouseholdPage />} />
           <Route path="/tasks" element={<TaskBoardPage />} />
           <Route path="/task" element={<Navigate to="/tasks" replace />} />
           <Route path="/people" element={<PeoplePage />} />

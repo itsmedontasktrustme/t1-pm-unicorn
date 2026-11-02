@@ -16,7 +16,8 @@
  */
 
 const STORAGE_KEY = "homekeeper.placeholder.households.v1";
-const LATENCY_MS = 350;
+// Simulated network latency so loading states are visible; none in tests.
+const LATENCY_MS = process.env.NODE_ENV === "test" ? 0 : 350;
 const INVITATION_VALID_DAYS = 7;
 
 export class ApiError extends Error {
@@ -41,12 +42,14 @@ function demoData() {
         members: [
           { id: "demo-vernon", name: "Vernon D.", roles: ["owner", "manager"], cookies: 120 },
           { id: "demo-petunia", name: "Petunia D.", roles: ["manager"], cookies: 95 },
-          { id: "demo-dudley", name: "Dudley D.", roles: ["housemate"], cookies: 3 }
+          { id: "demo-dudley", name: "Dudley D.", roles: ["housemate"], cookies: 3 },
+          // Development demo resident (see logic/useResident.js) is a housemate here.
+          { id: "dev-demo-resident", name: "Harry Potter", roles: ["housemate"], cookies: 64 }
         ],
         tasks: [
           { id: "t1", title: "Make roast for dinner", assigneeName: "Petunia D.", due: daysFromNow(0), status: "assigned" },
           { id: "t2", title: "Clean the toy room", assigneeName: null, due: daysFromNow(1), status: "available" },
-          { id: "t3", title: "Vacuum the 1st floor", assigneeName: "Dudley D.", due: daysFromNow(3), status: "assigned" },
+          { id: "t3", title: "Vacuum the 1st floor", assigneeName: "Harry Potter", due: daysFromNow(3), status: "assigned" },
           { id: "t4", title: "Repaint the shed", assigneeName: null, due: daysFromNow(6), status: "available" }
         ]
       }
