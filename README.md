@@ -51,6 +51,30 @@ Make sure port 3000 on the host is not already being in use.
 
 ```
 $ docker compose up -d
+```
+
+## Database migrations
+
+Database setup scripts live in `db/schema` and are loaded once during the initial database creation.
+
+Runtime database changes live in `db/migrations` and are executed on each DB startup by the container command.
+
+To add a new migration:
+
+1. Create a new SQL file in `db/migrations` using a numeric prefix, for example:
+   ```bash
+   db/migrations/0002_add_users_table.sql
+   ```
+2. Keep the file name ordered alphabetically so it runs in sequence.
+3. Make the SQL safe to re-run, for example with `CREATE TABLE IF NOT EXISTS` or `INSERT ... ON DUPLICATE KEY UPDATE`.
+4. Restart the database container:
+   ```bash
+   docker compose up -d --no-deps --force-recreate db
+   ```
+
+The migration runner executes all `.sql` files in `db/migrations` in alphabetical order after MariaDB is ready.
+
+```
 Creating network "react-express-mysql_default" with the default driver
 Building backend
 Step 1/16 : FROM node:10
