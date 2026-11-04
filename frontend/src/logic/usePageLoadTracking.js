@@ -18,7 +18,7 @@ function usePageLoadTracking(pageName, user, action = "load") {
     return () => {
       trackedLoads.delete(trackingKey);
     };
-  }, [pageName, userId, action, user]);
+  }, [pageName, trackingKey, action, user]);
 }
 
 export default usePageLoadTracking;

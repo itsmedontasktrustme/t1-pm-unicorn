@@ -2,15 +2,15 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { ClerkProvider } from '@clerk/react';
+import './styles/tokens.css';
 import './index.css';
+import './styles/ui.css';
 import App from './App';
 import ErrorBoundary from './components/ErrorBoundary';
 import * as serviceWorker from './serviceWorker';
 
-const publishableKey =
-  process.env.REACT_APP_CLERK_PUBLISHABLE_KEY ||
-  process.env.VITE_CLERK_PUBLISHABLE_KEY ||
-  process.env.CLERK_PUBLISHABLE_KEY;
+// Create React App only passes REACT_APP_* variables to the browser.
+const publishableKey = process.env.REACT_APP_CLERK_PUBLISHABLE_KEY;
 
 const root = createRoot(document.getElementById('root'));
 
