@@ -1,0 +1,226 @@
+/* Group 5 — History (US10): household view (HK-90) and own view (HK-87). */
+
+.hk-history__switch {
+  display: inline-grid;
+  grid-template-columns: 1fr 1fr;
+  min-width: 260px;
+  margin-bottom: var(--space-4);
+  padding: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-soft);
+}
+
+.hk-history__switch button {
+  padding: var(--space-2) var(--space-4);
+  border: none;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+}
+
+.hk-history__switch button[aria-pressed="true"] {
+  background: var(--color-surface);
+  color: var(--color-primary);
+  box-shadow: var(--shadow-card);
+}
+
+.hk-history__lead {
+  margin: 0 0 var(--space-4);
+  color: var(--color-text-muted);
+}
+
+.hk-history__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-5);
+}
+
+@media (min-width: 1024px) {
+  .hk-history__grid {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .hk-history__totals {
+    order: 2;
+  }
+}
+
+.hk-history__day {
+  margin: var(--space-3) 0 var(--space-1);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.hk-history__day:first-of-type {
+  margin-top: 0;
+}
+
+.hk-done {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  margin: 0;
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--color-border);
+  list-style: none;
+}
+
+.hk-done:last-child {
+  border-bottom: none;
+}
+
+.hk-done > div {
+  min-width: 0;
+}
+
+.hk-done__title {
+  display: block;
+  font-weight: var(--font-weight-bold);
+}
+
+.hk-done__who {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin-top: 2px;
+  font-size: var(--font-size-small);
+  color: var(--color-text-muted);
+}
+
+.hk-done__who .hk-avatar {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  font-size: 10px;
+}
+
+.hk-done__who > span:last-child {
+  min-width: 0;
+  padding-top: 2px;
+}
+
+.hk-done__cookies {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  font-weight: var(--font-weight-bold);
+  white-space: nowrap;
+}
+
+.hk-done__cookies img {
+  width: 18px;
+  height: 18px;
+}
+
+.hk-hh-tag {
+  flex-shrink: 0;
+  padding: 1px 8px;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-soft);
+  color: var(--hk-ink);
+  font-size: 12px;
+  font-weight: var(--font-weight-bold);
+}
+
+.hk-day-list {
+  margin: 0;
+  padding: 0;
+}
+
+/* Cookies by housemate */
+.hk-bar-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+}
+
+.hk-bar-row__name {
+  display: block;
+  font-weight: var(--font-weight-bold);
+}
+
+.hk-bar {
+  height: 10px;
+  margin-top: 4px;
+  overflow: hidden;
+  border-radius: 5px;
+  background: var(--color-surface-soft);
+}
+
+.hk-bar span {
+  display: block;
+  height: 100%;
+  border-radius: 5px;
+  background: var(--hk-orange);
+}
+
+.hk-bar-row__cookies {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: var(--font-weight-bold);
+}
+
+.hk-bar-row__cookies img {
+  width: 18px;
+  height: 18px;
+}
+
+/* Mine: total */
+.hk-mine-total {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-4);
+  text-align: center;
+}
+
+.hk-mine-total__value {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 2.2rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--hk-ink);
+}
+
+.hk-mine-total__value img {
+  width: 36px;
+  height: 36px;
+}
+
+.hk-mine-total__label {
+  color: var(--color-text-muted);
+}
+
+.hk-mine-total__split {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.hk-mine-total__split span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-soft);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-bold);
+}
+
+.hk-mine-total__split img {
+  width: 16px;
+  height: 16px;
+}

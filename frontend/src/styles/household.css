@@ -1,0 +1,387 @@
+/* Group 2 — create / join household (HK-63) and household view (HK-60). */
+
+/* ---------- Create | Join switch ---------- */
+.hk-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-soft);
+}
+
+.hk-tabs__tab {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-pill);
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-bold);
+  text-align: center;
+  text-decoration: none;
+}
+
+.hk-tabs__tab[aria-current="page"] {
+  background: var(--color-surface);
+  color: var(--color-primary);
+  box-shadow: var(--shadow-card);
+}
+
+.hk-auth-card--left {
+  text-align: left;
+}
+
+.hk-note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  font-size: var(--font-size-small);
+  color: var(--color-text-muted);
+}
+
+.hk-note img {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+}
+
+.hk-actions {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.hk-actions .hk-btn {
+  width: 100%;
+}
+
+/* ---------- Invitation preview ---------- */
+.hk-invite {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+  padding: var(--space-6) var(--space-4);
+  border: var(--border-width) solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  text-align: center;
+}
+
+.hk-invite__icon {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--color-surface-soft);
+}
+
+.hk-invite__icon img {
+  width: 40px;
+  height: 40px;
+}
+
+.hk-invite__name {
+  margin: 0;
+  font-family: var(--font-hand);
+  font-size: var(--font-size-hand-large);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-primary);
+}
+
+.hk-invite__from,
+.hk-invite__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-small);
+  color: var(--color-text-muted);
+}
+
+.hk-invite__role {
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-soft);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-bold);
+}
+
+/* ---------- Avatars & role chips ---------- */
+.hk-avatar {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--color-surface-soft);
+  color: var(--hk-ink);
+  font-weight: var(--font-weight-bold);
+}
+
+.hk-avatar--small {
+  width: 28px;
+  height: 28px;
+  font-size: 12px;
+}
+
+.hk-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: var(--font-weight-bold);
+}
+
+.hk-chip--owner {
+  background: var(--hk-forest);
+  color: var(--hk-white);
+}
+
+.hk-chip--manager {
+  background: var(--hk-lime);
+  color: var(--hk-ink);
+}
+
+.hk-chip--housemate {
+  background: var(--color-surface-soft);
+  color: var(--hk-ink);
+}
+
+/* ---------- Household view ---------- */
+.hk-household {
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+}
+
+.hk-household__ready {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border-left: 4px solid var(--hk-lime);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-soft);
+}
+
+.hk-household__ready strong {
+  display: block;
+  color: var(--color-primary);
+}
+
+.hk-household__ready p {
+  margin: 0;
+  font-size: var(--font-size-small);
+}
+
+.hk-household__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.hk-household__head h2 {
+  margin: 0;
+}
+
+.hk-household__grid {
+  display: grid;
+  gap: var(--space-5);
+}
+
+@media (min-width: 1024px) {
+  .hk-household__grid {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+.hk-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.hk-stat {
+  padding: var(--space-3);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.hk-stat__value {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 1.75rem;
+  font-weight: var(--font-weight-bold);
+  line-height: 1.1;
+  color: var(--color-primary);
+}
+
+.hk-stat__value img {
+  width: 22px;
+  height: 22px;
+}
+
+.hk-stat__label {
+  font-size: var(--font-size-small);
+  color: var(--color-text-muted);
+}
+
+.hk-stat--cookies {
+  border-color: var(--color-surface-soft);
+  background: var(--color-surface-soft);
+}
+
+.hk-stat--cookies .hk-stat__value {
+  color: var(--hk-ink);
+}
+
+.hk-card {
+  padding: var(--space-4);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.hk-card__title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 0 var(--space-3);
+  font-size: var(--font-size-task-title);
+}
+
+.hk-card__title a {
+  font-size: var(--font-size-small);
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.hk-due {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hk-due li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.hk-due li:last-child {
+  border-bottom: none;
+}
+
+.hk-due__title {
+  font-weight: var(--font-weight-bold);
+}
+
+.hk-due__who {
+  display: block;
+  font-family: var(--font-hand);
+  color: var(--color-text-muted);
+}
+
+.hk-due__when {
+  margin-left: auto;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-soft);
+  font-size: 12px;
+  font-weight: var(--font-weight-bold);
+  white-space: nowrap;
+}
+
+.hk-due__when--today {
+  background: var(--hk-orange);
+  color: var(--hk-ink);
+}
+
+.hk-members {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hk-member {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+}
+
+.hk-member__name {
+  display: block;
+  font-weight: var(--font-weight-bold);
+}
+
+.hk-member__you {
+  font-weight: var(--font-weight-regular);
+  font-size: var(--font-size-small);
+  color: var(--color-text-muted);
+}
+
+.hk-member__roles {
+  display: flex;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.hk-member__cookies {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  font-weight: var(--font-weight-bold);
+}
+
+.hk-member__cookies img {
+  width: 18px;
+  height: 18px;
+}
+
+.hk-card__actions {
+  display: grid;
+  margin-top: var(--space-4);
+}
+
+.hk-lonely {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-2);
+  padding-top: var(--space-4);
+  text-align: center;
+}
+
+.hk-lonely p {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.hk-lonely__hello {
+  font-family: var(--font-hand);
+  font-size: var(--font-size-hand-large);
+  color: var(--color-primary);
+}
+
+/* Household switcher in the header */
+.brand-switcher {
+  max-width: 220px;
+  padding: 0 18px 0 0;
+  border: none;
+  background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23595f57'/%3E%3C/svg%3E") no-repeat right center;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-bold);
+  appearance: none;
+  cursor: pointer;
+}

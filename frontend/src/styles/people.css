@@ -1,0 +1,274 @@
+/* Group 3 — People: invitations (HK-48) and roles (HK-51). */
+
+.hk-people__lead {
+  margin: 0 0 var(--space-4);
+  color: var(--color-text-muted);
+}
+
+.hk-people__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-5);
+}
+
+@media (min-width: 1024px) {
+  .hk-people__grid {
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+.hk-member-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.hk-member-row:last-child {
+  border-bottom: none;
+}
+
+.hk-member-row > div {
+  min-width: 0;
+}
+
+.hk-link-btn {
+  min-height: var(--tap-target-min);
+  margin-left: auto;
+  padding: var(--space-2);
+  border: none;
+  background: none;
+  color: var(--color-primary);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+}
+
+.hk-muted {
+  margin: var(--space-3) 0 0;
+  font-size: var(--font-size-small);
+  color: var(--color-text-muted);
+}
+
+/* Pending invitations */
+.hk-inv {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.hk-inv:last-of-type {
+  border-bottom: none;
+}
+
+.hk-inv__kind {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--color-surface-soft);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+}
+
+.hk-inv__main {
+  min-width: 0;
+}
+
+.hk-inv__value {
+  display: block;
+  overflow: hidden;
+  font-family: ui-monospace, Consolas, monospace;
+  font-weight: var(--font-weight-bold);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hk-inv__meta {
+  font-size: var(--font-size-small);
+  color: var(--color-text-muted);
+}
+
+.hk-inv .hk-btn {
+  margin-left: auto;
+}
+
+/* Link | Code choice */
+.hk-choice-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.hk-choice-pair legend {
+  margin-bottom: var(--space-2);
+}
+
+.hk-choice-pair label {
+  display: grid;
+  gap: 2px;
+  padding: var(--space-3);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  cursor: pointer;
+}
+
+.hk-choice-pair label:has(input:checked) {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 1px var(--color-primary);
+}
+
+.hk-choice-pair input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.hk-choice-pair label:has(input:focus-visible) {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.hk-choice-pair strong {
+  color: var(--color-primary);
+}
+
+.hk-choice-pair span {
+  font-size: var(--font-size-small);
+  color: var(--color-text-muted);
+}
+
+/* Created invitation */
+.hk-share {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.hk-share__box {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border: var(--border-width) dashed var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.hk-share__value {
+  flex: 1 1 100%;
+  overflow: hidden;
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 1.4rem;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.06em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hk-share__value--small {
+  font-size: var(--font-size-small);
+  letter-spacing: 0;
+}
+
+.hk-share__box .hk-btn {
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .hk-share__value {
+    flex: 1 1 auto;
+  }
+
+  .hk-share__box .hk-btn {
+    width: auto;
+    margin-left: auto;
+  }
+}
+
+.hk-share__expiry {
+  font-size: var(--font-size-small);
+  color: var(--color-text-muted);
+}
+
+/* Role options */
+.hk-sheet__who {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.hk-sheet__who strong {
+  display: block;
+}
+
+.hk-options {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.hk-option {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 2px var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: var(--border-width) solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.hk-option__icon {
+  display: grid;
+  place-items: center;
+  grid-row: span 2;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--color-surface-soft);
+  color: var(--color-primary);
+  font-weight: var(--font-weight-bold);
+}
+
+.hk-option strong {
+  color: var(--color-primary);
+}
+
+.hk-option__desc {
+  font-size: var(--font-size-small);
+  color: var(--color-text-muted);
+}
+
+.hk-option:disabled {
+  border-color: var(--color-border);
+  background: transparent;
+  cursor: not-allowed;
+}
+
+.hk-option:disabled strong,
+.hk-option:disabled .hk-option__icon {
+  color: var(--color-text-muted);
+}
+
+.hk-warn {
+  display: flex;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-soft);
+  font-size: var(--font-size-small);
+}
