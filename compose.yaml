@@ -34,12 +34,27 @@ services:
     image: mariadb:10.6.4-focal
     # If you really want to use MySQL, uncomment the following line
     #image: mysql:8.0.27
-    command: '--default-authentication-plugin=mysql_native_password'
+    command:
+      - /bin/bash
+      - -c
+      - |
+        set -e
+        /usr/local/bin/docker-entrypoint.sh mysqld &
+        mysql_pid=$!
+        until mysqladmin ping -h 127.0.0.1 -u root --password="$$(cat /run/secrets/db-password)" --silent; do
+          sleep 1
+        done
+        /usr/local/bin/run-migrations.sh
+        if [ -n "$${mysql_pid:-}" ] && kill -0 "$${mysql_pid}" 2>/dev/null; then
+          wait "$${mysql_pid}"
+        fi
     restart: always
     secrets:
       - db-password
     volumes:
       - ./db/schema:/docker-entrypoint-initdb.d:ro
+      - ./db/migrations:/docker-entrypoint-startdb.d:ro
+      - ./db/migrations/run-migrations.sh:/usr/local/bin/run-migrations.sh:ro
       - db-data:/var/lib/mysql
     networks:
       - private
