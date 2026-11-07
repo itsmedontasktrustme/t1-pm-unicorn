@@ -1221,8 +1221,6 @@
       "Housemate": {
         "type": "object",
         "required": [
-          "householdId",
-          "residentId",
           "roles"
         ],
         "properties": {
@@ -1231,10 +1229,12 @@
             "readOnly": true
           },
           "householdId": {
-            "type": "string"
+            "type": "string",
+            "readOnly": true
           },
           "residentId": {
-            "type": "string"
+            "type": "string",
+            "readOnly": true
           },
           "roles": {
             "type": "array",
