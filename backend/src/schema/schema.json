@@ -29,6 +29,11 @@
       "description": "Operations for managing household's residents (housemates)"
     }
   ],
+  "security": [
+    {
+      "clerkSessionToken": []
+    }
+  ],
   "paths": {
     "/household": {
       "post": {
@@ -46,8 +51,7 @@
               },
               "example": {
                 "name": "Pařezová chaloupka",
-                "description": "Chaloupka v mechu a kapradí",
-                "ownerId": "1b9d0396e5d8d09daf5db6bc51526e2b"
+                "description": "Chaloupka v mechu a kapradí"
               }
             }
           }
@@ -63,40 +67,22 @@
                 "example": {
                   "id": "08c6cb279ed6d63dfa05ddf99a8b3a96",
                   "name": "Pařezová chaloupka",
-                  "description": "Chaloupka v mechu a kapradí",
-                  "ownerId": "1b9d0396e5d8d09daf5db6bc51526e2b"
+                  "description": "Chaloupka v mechu a kapradí"
                 }
               }
             }
           },
           "400": {
-            "description": "Validation error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorValidation"
-                },
-                "example": {
-                  "code": "requestIsNotValid",
-                  "message": "Request is not valid",
-                  "validationError": "must not have additional properties"
-                }
-              }
-            }
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
           },
           "500": {
-            "description": "Server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                },
-                "example": {
-                  "code": "internalServerError",
-                  "message": "An unexpected error occurred on the server while processing your request."
-                }
-              }
-            }
+            "$ref": "#/components/responses/ServerError"
           }
         }
       }
@@ -129,26 +115,19 @@
                 "example": {
                   "id": "08c6cb279ed6d63dfa05ddf99a8b3a96",
                   "name": "Pařezová chaloupka",
-                  "description": "Chaloupka v mechu a kapradí",
-                  "ownerId": "1b9d0396e5d8d09daf5db6bc51526e2b"
+                  "description": "Chaloupka v mechu a kapradí"
                 }
               }
             }
           },
           "400": {
-            "description": "Request is not valid",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorValidation"
-                },
-                "example": {
-                  "code": "requestIsNotValid",
-                  "message": "Request is not valid",
-                  "validationError": "must not have additional properties"
-                }
-              }
-            }
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
           },
           "404": {
             "description": "Household not found",
@@ -165,18 +144,7 @@
             }
           },
           "500": {
-            "description": "Server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                },
-                "example": {
-                  "code": "internalServerError",
-                  "message": "An unexpected error occurred on the server while processing your request."
-                }
-              }
-            }
+            "$ref": "#/components/responses/ServerError"
           }
         }
       },
@@ -195,8 +163,7 @@
               },
               "example": {
                 "name": "Pařezová chaloupka",
-                "description": "Chaloupka v mechu a kapradí",
-                "ownerId": "1b9d0396e5d8d09daf5db6bc51526e2b"
+                "description": "Chaloupka v mechu a kapradí"
               }
             }
           }
@@ -212,26 +179,19 @@
                 "example": {
                   "id": "08c6cb279ed6d63dfa05ddf99a8b3a96",
                   "name": "Pařezová chaloupka",
-                  "description": "Chaloupka v mechu a kapradí",
-                  "ownerId": "1b9d0396e5d8d09daf5db6bc51526e2b"
+                  "description": "Chaloupka v mechu a kapradí"
                 }
               }
             }
           },
           "400": {
-            "description": "Validation error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorValidation"
-                },
-                "example": {
-                  "code": "requestIsNotValid",
-                  "message": "Request is not valid",
-                  "validationError": "must not have additional properties"
-                }
-              }
-            }
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
           },
           "404": {
             "description": "Household not found",
@@ -248,18 +208,7 @@
             }
           },
           "500": {
-            "description": "Server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                },
-                "example": {
-                  "code": "internalServerError",
-                  "message": "An unexpected error occurred on the server while processing your request."
-                }
-              }
-            }
+            "$ref": "#/components/responses/ServerError"
           }
         }
       },
@@ -272,6 +221,18 @@
         "responses": {
           "204": {
             "description": "Household deleted"
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
           }
         }
       }
@@ -364,33 +325,16 @@
             }
           },
           "400": {
-            "description": "Request is not valid",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorValidation"
-                },
-                "example": {
-                  "code": "requestIsNotValid",
-                  "message": "Request is not valid",
-                  "validationError": "must not have additional properties"
-                }
-              }
-            }
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
           },
           "500": {
-            "description": "Server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                },
-                "example": {
-                  "code": "internalServerError",
-                  "message": "An unexpected error occurred on the server while processing your request."
-                }
-              }
-            }
+            "$ref": "#/components/responses/ServerError"
           }
         }
       }
@@ -431,33 +375,16 @@
             }
           },
           "400": {
-            "description": "Validation error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorValidation"
-                },
-                "example": {
-                  "code": "requestIsNotValid",
-                  "message": "Request is not valid",
-                  "validationError": "must not have additional properties"
-                }
-              }
-            }
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
           },
           "500": {
-            "description": "Server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                },
-                "example": {
-                  "code": "internalServerError",
-                  "message": "An unexpected error occurred on the server while processing your request."
-                }
-              }
-            }
+            "$ref": "#/components/responses/ServerError"
           }
         }
       }
@@ -495,19 +422,13 @@
             }
           },
           "400": {
-            "description": "Request is not valid",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorValidation"
-                },
-                "example": {
-                  "code": "requestIsNotValid",
-                  "message": "Request is not valid",
-                  "validationError": "must not have additional properties"
-                }
-              }
-            }
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
           },
           "404": {
             "description": "Resident not found",
@@ -524,18 +445,7 @@
             }
           },
           "500": {
-            "description": "Server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                },
-                "example": {
-                  "code": "internalServerError",
-                  "message": "An unexpected error occurred on the server while processing your request."
-                }
-              }
-            }
+            "$ref": "#/components/responses/ServerError"
           }
         }
       },
@@ -572,6 +482,18 @@
                 }
               }
             }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
           }
         }
       },
@@ -584,6 +506,18 @@
         "responses": {
           "204": {
             "description": "Resident deleted"
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
           }
         }
       }
@@ -654,14 +588,12 @@
                     {
                       "id": "08c6cb279ed6d63dfa05ddf99a8b3a96",
                       "name": "Pařezová chaloupka",
-                      "description": "Chaloupka v mechu a kapradí",
-                      "ownerId": "1b9d0396e5d8d09daf5db6bc51526e2b"
+                      "description": "Chaloupka v mechu a kapradí"
                     },
                     {
                       "id": "59abbcd291fefce69c54e895c81940d1",
                       "name": "Rybníček Brčálník",
-                      "description": "Rybníček Brčálník za mlhou, která by se dala krájet",
-                      "ownerId": "1b9d0396e5d8d09daf5db6bc51526e2b"
+                      "description": "Rybníček Brčálník za mlhou, která by se dala krájet"
                     }
                   ],
                   "pageInfo": {
@@ -673,6 +605,18 @@
                 }
               }
             }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
           }
         }
       }
@@ -710,7 +654,10 @@
                 "$ref": "#/components/schemas/Housemate"
               },
               "example": {
-                "roles": ["manager"]
+                "roles": [
+                  "manager",
+                  "owner"
+                ]
               }
             }
           }
@@ -726,25 +673,22 @@
                 "example": {
                   "householdId": "08c6cb279ed6d63dfa05ddf99a8b3a96",
                   "residentId": "1b9d0396e5d8d09daf5db6bc51526e2b",
-                  "roles": ["manager"]
+                  "roles": [
+                    "manager",
+                    "owner"
+                  ]
                 }
               }
             }
           },
           "400": {
-            "description": "Validation error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorValidation"
-                },
-                "example": {
-                  "code": "requestIsNotValid",
-                  "message": "Request is not valid",
-                  "validationError": "must not have additional properties"
-                }
-              }
-            }
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
           },
           "404": {
             "description": "Household or resident not found",
@@ -771,18 +715,7 @@
             }  
           },
           "500": {
-            "description": "Server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                },
-                "example": {
-                  "code": "internalServerError",
-                  "message": "An unexpected error occurred on the server while processing your request."
-                }
-              }
-            }
+            "$ref": "#/components/responses/ServerError"
           }
         }
       },
@@ -803,25 +736,22 @@
                 "example": {
                   "householdId": "08c6cb279ed6d63dfa05ddf99a8b3a96",
                   "residentId": "1b9d0396e5d8d09daf5db6bc51526e2b",
-                  "roles": ["manager"]
+                  "roles": [
+                    "manager",
+                    "owner"
+                  ]
                 }
               }
             }
           },
           "400": {
-            "description": "Validation error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorValidation"
-                },
-                "example": {
-                  "code": "requestIsNotValid",
-                  "message": "Request is not valid",
-                  "validationError": "must not have additional properties"
-                }
-              }
-            }
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
           },
           "404": {
             "description": "Housemate not found",
@@ -838,14 +768,7 @@
             }  
           },
           "500": {
-            "description": "Server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
+            "$ref": "#/components/responses/ServerError"
           }
         }
       },
@@ -863,7 +786,9 @@
                 "$ref": "#/components/schemas/Housemate"
               },
                 "example": {
-                  "roles": ["manager"]
+                  "roles": [
+                    "manager"
+                  ]
                 }
             }
           }
@@ -879,25 +804,21 @@
                 "example": {
                   "householdId": "08c6cb279ed6d63dfa05ddf99a8b3a96",
                   "residentId": "1b9d0396e5d8d09daf5db6bc51526e2b",
-                  "roles": ["manager"]
+                  "roles": [
+                    "manager"
+                  ]
                 }
               }
             }
           },
           "400": {
-            "description": "Validation error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorValidation"
-                },
-                "example": {
-                  "code": "requestIsNotValid",
-                  "message": "Request is not valid",
-                  "validationError": "must not have additional properties"
-                }
-              }
-            }
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
           },
           "404": {
             "description": "Housemate not found",
@@ -914,18 +835,7 @@
             }  
           },
           "500": {
-            "description": "Server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                },
-                "example": {
-                  "code": "internalServerError",
-                  "message": "An unexpected error occurred on the server while processing your request."
-                }
-              }
-            }
+            "$ref": "#/components/responses/ServerError"
           }
         }
       },
@@ -940,19 +850,13 @@
             "description": "Deleted successfully"
           },
           "400": {
-            "description": "Request is not valid",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorValidation"
-                },
-                "example": {
-                  "code": "requestIsNotValid",
-                  "message": "Request is not valid",
-                  "validationError": "must not have additional properties"
-                }
-              }
-            }
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
           },
           "404": {
             "description": "Housemate not found",
@@ -969,30 +873,99 @@
             }
           },
           "500": {
-            "description": "Server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                },
-                "example": {
-                  "code": "internalServerError",
-                  "message": "An unexpected error occurred on the server while processing your request."
-                }
-              }
-            }
+            "$ref": "#/components/responses/ServerError"
           }
         }
       }
     }
   },
   "components": {
+    "securitySchemes": {
+      "clerkSessionToken": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Clerk session token returned by useAuth().getToken() from @clerk/react. Send it as Authorization: Bearer <token>."
+      }
+    },
+    "responses": {
+      "ValidationError": {
+        "description": "The request is not valid. The request body or parameters do not conform to the expected schema.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorValidation"
+            },
+            "example": {
+              "code": "requestIsNotValid",
+              "message": "Request is not valid",
+              "validationError": "must not have additional properties"
+            }
+          }
+        }
+      },
+      "ServerError": {
+        "description": "An unexpected error occurred on the server while processing your request.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "code": "internalServerError",
+              "message": "An unexpected error occurred on the server while processing your request."
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "Authentication is required. The Clerk session token is missing, invalid, or expired.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "examples": {
+              "missingToken": {
+                "value": {
+                  "code": "unauthorized",
+                  "message": "A valid Clerk session token is required."
+                }
+              },
+              "invalidOrExpiredToken": {
+                "value": {
+                  "code": "unauthorized",
+                  "message": "The Clerk session token is invalid or expired."
+                }
+              }
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "The authenticated user does not have permission to perform this operation.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "examples": {
+              "insufficientPermissions": {
+                "value": {
+                  "code": "forbidden",
+                  "message": "You do not have permission to perform this operation."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "schemas": {
       "Household": {
         "type": "object",
         "required": [
-          "name",
-          "ownerId"
+          "name"
         ],
         "properties": {
           "id": {
@@ -1004,9 +977,6 @@
           },
           "description": {
             "type": ["string", "null"]
-          },
-          "ownerId": {
-            "type": "string"
           }
         }
       },
@@ -1026,20 +996,18 @@
           "roles": {
             "type": "array",
             "items": {
-              "type": "string"
-            },
-            "enum": [
-              "manager",
-              "owner"
-            ]
+              "type": "string",
+              "enum": [
+                "manager",
+                "owner"
+              ]
+            }
           }
         }
       },
       "Housemate": {
         "type": "object",
         "required": [
-          "householdId",
-          "residentId",
           "roles"
         ],
         "properties": {
@@ -1048,20 +1016,22 @@
             "readOnly": true
           },
           "householdId": {
-            "type": "string"
+            "type": "string",
+            "readOnly": true
           },
           "residentId": {
-            "type": "string"
+            "type": "string",
+            "readOnly": true
           },
           "roles": {
             "type": "array",
             "items": {
-              "type": "string"
-            },
-            "enum": [
-              "manager",
-              "owner"
-            ]
+              "type": "string",
+              "enum": [
+                "manager",
+                "owner"
+              ]
+            }
           }
         }
       },
