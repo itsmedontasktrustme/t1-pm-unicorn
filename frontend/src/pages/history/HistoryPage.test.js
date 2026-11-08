@@ -67,3 +67,45 @@ test("US10 2a-2b: Mine shows own cookies across households and own completed tas
   expect(screen.getByText("Sweep the common room")).toBeInTheDocument();
   expect(screen.getByText("marked done by Ron W.")).toBeInTheDocument();
 });
+
+test("US10 2c: Audit loads the user's activity log with pagination", async () => {
+  const fetchMock = jest.fn()
+    .mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        page: 1,
+        totalPages: 2,
+        hasNextPage: true,
+        hasPreviousPage: false,
+        data: [{ id: 1, component: "HomePage", action: "view", userId: "dev-demo-resident", createdAt: "2024-01-01T00:00:00.000Z" }]
+      })
+    })
+    .mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        page: 2,
+        totalPages: 2,
+        hasNextPage: false,
+        hasPreviousPage: true,
+        data: [{ id: 2, component: "TaskBoard", action: "complete", userId: "dev-demo-resident", createdAt: "2024-01-02T00:00:00.000Z" }]
+      })
+    });
+
+  global.fetch = fetchMock;
+  await renderHistory("hh-private-drive");
+
+  await userEvent.click(screen.getByRole("button", { name: "Audit" }));
+  await settle();
+
+  expect(fetchMock).toHaveBeenCalledTimes(1);
+  expect(fetchMock.mock.calls[0][0]).toContain("/api/history/action/dev-demo-resident?page=1&limit=20");
+  expect(screen.getByText("Page 1 of 2")).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "2" })).toBeInTheDocument();
+
+  await userEvent.click(screen.getByRole("button", { name: "2" }));
+  await settle();
+
+  expect(fetchMock).toHaveBeenCalledTimes(2);
+  expect(fetchMock.mock.calls[1][0]).toContain("page=2");
+  expect(screen.getByText("Page 2 of 2")).toBeInTheDocument();
+});

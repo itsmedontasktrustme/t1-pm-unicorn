@@ -6,6 +6,7 @@
  */
 
 import { formatTimestamp } from "./TimeTools";
+import { getClerkToken } from "./auth";
 
 const IS_DEVELOPMENT = process.env.NODE_ENV === "development";
 
@@ -22,11 +23,15 @@ function actorOf(user) {
 
 async function sendTrackedActionToBackend(component, actor, action) {
   const backendUrl = process.env.REACT_APP_HISTORY_API_URL || "/api/history/action";
+  const token = await getClerkToken();
 
   try {
     await fetch(backendUrl, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: "Bearer " + token } : {})
+      },
       body: JSON.stringify({ component, action, user: actor })
     });
   } catch (error) {

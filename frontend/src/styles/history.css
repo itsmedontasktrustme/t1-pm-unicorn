@@ -2,8 +2,8 @@
 
 .hk-history__switch {
   display: inline-grid;
-  grid-template-columns: 1fr 1fr;
-  min-width: 260px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  min-width: 360px;
   margin-bottom: var(--space-4);
   padding: 4px;
   border-radius: var(--radius-pill);
@@ -223,4 +223,77 @@
 .hk-mine-total__split img {
   width: 16px;
   height: 16px;
+}
+
+.hk-audit-list {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.hk-audit-item {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.hk-audit-item__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.hk-audit-item__component {
+  font-weight: var(--font-weight-bold);
+}
+
+.hk-audit-item__action {
+  color: var(--color-text-muted);
+}
+
+.hk-audit-item__details {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-2);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+}
+
+.hk-audit-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+
+.hk-audit-pagination button {
+  min-width: 42px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--hk-ink);
+  cursor: pointer;
+}
+
+.hk-audit-pagination button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.hk-audit-pagination__number[aria-pressed="true"] {
+  background: var(--color-primary-soft);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.hk-audit-page {
+  margin-top: var(--space-3);
+  text-align: center;
 }

@@ -98,7 +98,9 @@ f3e1183e709e        react-express-mysql_frontend   "docker-entrypoint.s…"   8 
 a434bce6d2be        mysql:8.0.19                   "docker-entrypoint.s…"   8 minutes ago       Up 8 minutes             3306/tcp, 33060/tcp                                    react-express-mysql_db_1
 ```
 
-After the application starts, navigate to `http://localhost:3000` in your web browser.
+After the application starts, open `http://localhost` in your web browser. In Docker Compose, the frontend is exposed on port 80, not 3000.
+
+If you run the React app directly with `npm start` in the `frontend` directory, it will still default to `http://localhost:3000`.
 
 ![page](./output.png)
 

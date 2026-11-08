@@ -3,11 +3,26 @@ const {
   saveHistoryEntry,
   writeHistoryLog
 } = require("../logic/history");
+const {
+  assertAuthenticatedUserMatches,
+  getAuthenticatedUserId,
+  normalizeUserId
+} = require("../logic/auth");
 
 function registerHistoryActionEndpoint(app) {
   app.get("/api/history/action/:userId", async function(req, res) {
+    const requestedUserId = req.params.userId;
+    const authCheck = assertAuthenticatedUserMatches(req, requestedUserId);
+
+    if (authCheck) {
+      return res.status(authCheck.status).json({
+        ok: false,
+        error: authCheck.error
+      });
+    }
+
     try {
-      const result = await fetchHistoryEntriesForUser(req.params.userId, req.query.page, req.query.limit);
+      const result = await fetchHistoryEntriesForUser(requestedUserId, req.query.page, req.query.limit);
 
       return res.status(200).json({
         ok: true,
@@ -32,10 +47,21 @@ function registerHistoryActionEndpoint(app) {
       });
     }
 
-    const message = writeHistoryLog({ component, user, action });
+    const requestUserId = normalizeUserId(user) || getAuthenticatedUserId(req);
+    const authCheck = assertAuthenticatedUserMatches(req, requestUserId);
+
+    if (authCheck) {
+      return res.status(authCheck.status).json({
+        ok: false,
+        error: authCheck.error
+      });
+    }
+
+    const effectiveUser = { ...(user || {}), id: requestUserId };
+    const message = writeHistoryLog({ component, user: effectiveUser, action });
 
     try {
-      await saveHistoryEntry({ component, user, action });
+      await saveHistoryEntry({ component, user: effectiveUser, action });
 
       return res.status(200).json({
         ok: true,
