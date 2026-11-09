@@ -14,6 +14,8 @@ const morgan = require("morgan");
 
 const database = require("./database");
 const { registerHistoryActionEndpoint } = require("./endpoints/history");
+const { registerAuthEndpoints } = require("./endpoints/auth");
+const { isAuthConfigured } = require("./logic/auth");
 
 function logServerError(context, error, extra = {}) {
   const details = {
@@ -28,6 +30,14 @@ function logServerError(context, error, extra = {}) {
 
 // Appi
 const app = express();
+
+// The backend runs behind nginx / the dev proxy (Docker networks), so req.ip is taken
+// from X-Forwarded-For set by those private-network proxies only.
+app.set("trust proxy", "loopback, linklocal, uniquelocal");
+
+if (!isAuthConfigured() && process.env.NODE_ENV !== "test") {
+  console.warn("[Auth] CLERK_SECRET_KEY or CLERK_JWT_KEY is not set: every protected /api endpoint will answer 401.");
+}
 
 app.use(express.json());
 app.use(morgan("common"));
@@ -57,6 +67,7 @@ app.get("/healthz", function(req, res) {
   res.send("I am happy and healthy\n");
 });
 
+registerAuthEndpoints(app);
 registerHistoryActionEndpoint(app);
 
 app.use(function(req, res) {

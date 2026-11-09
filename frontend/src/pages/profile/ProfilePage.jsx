@@ -6,6 +6,7 @@ import homeIcon from "../../assets/home-green.svg";
 import { listMyMemberships } from "../../api/households";
 import { ErrorState, LoadingState } from "../../components/states";
 import { useCurrentHousehold } from "../../logic/CurrentHousehold";
+import { logSignOut } from "../../logic/authEvents";
 import usePageLoadTracking from "../../logic/usePageLoadTracking";
 import useResident from "../../logic/useResident";
 
@@ -67,9 +68,11 @@ function ProfilePage() {
       navigate("/sign-in");
       return;
     }
+    // Log first: after signOut() there is no token to prove who signed out.
+    await logSignOut(user);
     await clerk.signOut();
     navigate("/sign-in", { replace: true });
-  }, [clerk, isDemo, navigate]);
+  }, [clerk, isDemo, navigate, user]);
 
   if (error) {
     return <ErrorState text="We couldn’t load your profile. Check your connection and try again." onRetry={() => setReloadKey((key) => key + 1)} homePath={null} />;

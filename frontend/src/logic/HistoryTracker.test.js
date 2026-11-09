@@ -1,6 +1,6 @@
 import { trackAction } from "./HistoryTracker";
 
-test("HK-265: only the user's id and name are sent to the activity log", () => {
+test("HK-265: only the user's id and name are sent to the activity log", async () => {
   const fetchMock = jest.fn(() => Promise.resolve({ ok: true }));
   global.fetch = fetchMock;
 
@@ -14,6 +14,8 @@ test("HK-265: only the user's id and name are sent to the activity log", () => {
     },
     "load"
   );
+  // The request is sent after the (async) session token lookup.
+  await new Promise((resolve) => setTimeout(resolve, 0));
 
   const body = JSON.parse(fetchMock.mock.calls[0][1].body);
   expect(body).toEqual({
