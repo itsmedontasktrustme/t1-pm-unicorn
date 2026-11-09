@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { EmptyState, ErrorState, LoadingState } from "../../components/states";
-import { getClerkToken } from "../../logic/auth";
+import { authHeaders } from "../../logic/auth";
 
 const PAGE_SIZE = 9;
 
@@ -37,12 +37,8 @@ function AuditHistory({ user }) {
     setData(null);
 
     async function loadPage() {
-      const token = await getClerkToken();
-      const response = await fetch(`/api/history/action/${user.id}?page=${page}&limit=${PAGE_SIZE}`, {
-        headers: {
-          Accept: "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {})
-        }
+      const response = await fetch(`/api/history/action/${encodeURIComponent(user.id)}?page=${page}&limit=${PAGE_SIZE}`, {
+        headers: await authHeaders({ Accept: "application/json" })
       });
 
       const payload = await response.json().catch(() => ({}));

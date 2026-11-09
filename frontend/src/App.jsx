@@ -23,6 +23,7 @@ import SsoCallbackPage from "./pages/auth/SsoCallbackPage";
 import WelcomePage from "./pages/auth/WelcomePage";
 import HouseholdStartPage from "./pages/household/HouseholdStartPage";
 import { CurrentHouseholdProvider, useCurrentHousehold } from "./logic/CurrentHousehold";
+import { useSignInLogging } from "./logic/authEvents";
 import CookieCounter from "./components/shell/CookieCounter";
 import ProfileLink from "./components/shell/ProfileLink";
 import "./App.css";
@@ -80,6 +81,8 @@ function AppContent() {
   const { isLoaded, isSignedIn } = useUser();
   const navigate = useNavigate();
   const location = useLocation();
+  // Audit: log every new Google (Clerk) session once on the backend.
+  useSignInLogging();
   // First path segment decides the active tab; profiles live under People.
   const section = location.pathname.split("/")[1] || "home";
   const activePage = section === "profile" ? "people" : section;

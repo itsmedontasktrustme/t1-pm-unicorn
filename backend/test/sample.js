@@ -2,6 +2,7 @@ const chai = require("chai");
 const chaiHttp = require("chai-http");
 
 const app = require("../src/server");
+const { bearer } = require("./support/tokens");
 
 chai.use(chaiHttp);
 chai.should();
@@ -38,7 +39,7 @@ describe("API /", () => {
 });
 
 describe("API /api/history/action", () => {
-  const authHeader = "Bearer user-42";
+  const authHeader = bearer({ sub: "user-42" });
 
   it("it should log the action and return the generated message", done => {
     chai
