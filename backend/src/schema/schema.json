@@ -1,0 +1,1095 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Homekeeper REST API",
+    "description": "API for managing households, residents, housemates and tasks.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://t1-pm-unicorn.cloud/home",
+      "description": "Homekeeper production"
+    }
+  ],
+  "externalDocs": {
+    "description": "Homekeeper Confluence",
+    "url": "https://t1-pm-unicorn.atlassian.net/wiki/spaces/Homekeeper"
+  },
+  "tags": [
+    {
+      "name": "Household",
+      "description": "Operations for managing households"
+    },
+    {
+      "name": "Resident",
+      "description": "Operations for managing residents"
+    },
+    {
+      "name": "Housemate",
+      "description": "Operations for managing household's residents (housemates)"
+    }
+  ],
+  "security": [
+    {
+      "clerkSessionToken": []
+    }
+  ],
+  "paths": {
+    "/household": {
+      "post": {
+        "tags": [
+          "Household"
+        ],
+        "summary": "Create a new household",
+        "operationId": "createHousehold",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Household"
+              },
+              "example": {
+                "name": "Pařezová chaloupka",
+                "description": "Chaloupka v mechu a kapradí"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Household created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Household"
+                },
+                "example": {
+                  "id": "08c6cb279ed6d63dfa05ddf99a8b3a96",
+                  "name": "Pařezová chaloupka",
+                  "description": "Chaloupka v mechu a kapradí"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/household/{householdId}": {
+      "parameters": [
+        {
+          "name": "householdId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "get": {
+        "tags": [
+          "Household"
+        ],
+        "summary": "Get household details by id",
+        "operationId": "getHouseholdById",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Household"
+                },
+                "example": {
+                  "id": "08c6cb279ed6d63dfa05ddf99a8b3a96",
+                  "name": "Pařezová chaloupka",
+                  "description": "Chaloupka v mechu a kapradí"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "description": "Household not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "householdDoesNotExist",
+                  "message": "Household with id 08c6cb279ed6d63dfa05ddf99a8b3a96 does not exist"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Household"
+        ],
+        "summary": "Update an existing household",
+        "operationId": "updateHousehold",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Household"
+              },
+              "example": {
+                "name": "Pařezová chaloupka",
+                "description": "Chaloupka v mechu a kapradí"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Household updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Household"
+                },
+                "example": {
+                  "id": "08c6cb279ed6d63dfa05ddf99a8b3a96",
+                  "name": "Pařezová chaloupka",
+                  "description": "Chaloupka v mechu a kapradí"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "description": "Household not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "householdDoesNotExist",
+                  "message": "Household with id 08c6cb279ed6d63dfa05ddf99a8b3a96 does not exist"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Household"
+        ],
+        "summary": "Delete a household",
+        "operationId": "deleteHousehold",
+        "responses": {
+          "204": {
+            "description": "Household deleted"
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/household/{householdId}/residents": {
+      "parameters": [
+        {
+          "name": "householdId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "get": {
+        "tags": [
+          "Household"
+        ],
+        "summary": "Get household residents",
+        "operationId": "getHouseholdResidents",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 0
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "itemList": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Resident"
+                      }
+                    },
+                    "pageInfo": {
+                      "$ref": "#/components/schemas/PageInfo"
+                    }
+                  }
+                },
+                "example": {
+                  "itemList" : [
+                    {
+                      "id": "1b9d0396e5d8d09daf5db6bc51526e2b",
+                      "nickname": "Franta Jetel",
+                      "roles": [
+                        "manager",
+                        "owner"
+                      ]
+                    },
+                    {
+                      "id": "37f5f249878fd5390011f9de0107ce4c",
+                      "nickname": "Václav Trachta",
+                      "roles": []
+                    }
+                  ],
+                  "pageInfo": {
+                    "totalItems": 10,
+                    "pageSize": 5,
+                    "totalPages": 2,
+                    "currentPage": 1
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/resident": {
+      "post": {
+        "tags": [
+          "Resident"
+        ],
+        "summary": "Create a new resident",
+        "operationId": "createResident",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Resident"
+              },
+              "example": {
+                "nickname": "Franta Jetel"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Resident created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Resident"
+                },
+                "example": {
+                  "id": "1b9d0396e5d8d09daf5db6bc51526e2b",
+                  "nickname": "Franta Jetel"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/resident/{residentId}": {
+      "parameters": [
+        {
+          "name": "residentId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "get": {
+        "tags": [
+          "Resident"
+        ],
+        "summary": "Get resident details",
+        "operationId": "getResidentById",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Resident"
+                },
+                "example": {
+                  "id": "1b9d0396e5d8d09daf5db6bc51526e2b",
+                  "nickname": "Franta Jetel"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "description": "Resident not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "residentDoesNotExist",
+                  "message": "Resident with id 1b9d0396e5d8d09daf5db6bc51526e2b does not exist"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Resident"
+        ],
+        "summary": "Update resident",
+        "operationId": "updateResident",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Resident"
+              },
+              "example": {
+                "nickname": "Franta Jetel"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Resident"
+                },
+                "example": {
+                  "id": "1b9d0396e5d8d09daf5db6bc51526e2b",
+                  "nickname": "Franta Jetel"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Resident"
+        ],
+        "summary": "Delete resident",
+        "operationId": "deleteResident",
+        "responses": {
+          "204": {
+            "description": "Resident deleted"
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/resident/{residentId}/households": {
+      "parameters": [
+        {
+          "name": "residentId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "get": {
+        "tags": [
+          "Resident"
+        ],
+        "summary": "Get list of resident's households",
+        "operationId": "getResidentHouseholdList",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 0
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "itemList": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Household"
+                      }
+                    },
+                    "pageInfo": {
+                      "$ref": "#/components/schemas/PageInfo"
+                    }
+                  }
+                },
+                "example": {
+                  "itemList" : [
+                    {
+                      "id": "08c6cb279ed6d63dfa05ddf99a8b3a96",
+                      "name": "Pařezová chaloupka",
+                      "description": "Chaloupka v mechu a kapradí"
+                    },
+                    {
+                      "id": "59abbcd291fefce69c54e895c81940d1",
+                      "name": "Rybníček Brčálník",
+                      "description": "Rybníček Brčálník za mlhou, která by se dala krájet"
+                    }
+                  ],
+                  "pageInfo": {
+                    "totalItems": 10,
+                    "pageSize": 5,
+                    "totalPages": 2,
+                    "currentPage": 1
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/household/{householdId}/resident/{residentId}": {
+      "parameters": [
+        {
+          "name": "householdId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "residentId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "tags": [
+          "Housemate"
+        ],
+        "summary": "Create a new housemate",
+        "operationId": "createHousemate",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Housemate"
+              },
+              "example": {
+                "roles": [
+                  "manager",
+                  "owner"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Housemate successfully created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Housemate"
+                },
+                "example": {
+                  "householdId": "08c6cb279ed6d63dfa05ddf99a8b3a96",
+                  "residentId": "1b9d0396e5d8d09daf5db6bc51526e2b",
+                  "roles": [
+                    "manager",
+                    "owner"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "description": "Household or resident not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "householdNotFound": {
+                    "value": {
+                      "code": "householdDoesNotExist",
+                      "message": "Household with id 08c6cb279ed6d63dfa05ddf99a8b3a96 does not exist"
+                    }
+                  },
+                  "residentNotFound": {
+                    "value": {
+                      "code": "residentDoesNotExist",
+                      "message": "Resident with id 1b9d0396e5d8d09daf5db6bc51526e2b does not exist"
+                    }
+                  }
+                }
+              }
+            }  
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Housemate"
+        ],
+        "summary": "Get housemate",
+        "operationId": "getHousemate",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Housemate"
+                },
+                "example": {
+                  "householdId": "08c6cb279ed6d63dfa05ddf99a8b3a96",
+                  "residentId": "1b9d0396e5d8d09daf5db6bc51526e2b",
+                  "roles": [
+                    "manager",
+                    "owner"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "description": "Housemate not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "housemateDoesNotExist",
+                  "message": "Housemate with household id 08c6cb279ed6d63dfa05ddf99a8b3a96 and resident id 1b9d0396e5d8d09daf5db6bc51526e2b does not exist"
+                }
+              }
+            }  
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Housemate"
+        ],
+        "summary": "Update housemate",
+        "operationId": "updateHousemate",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Housemate"
+              },
+                "example": {
+                  "roles": [
+                    "manager"
+                  ]
+                }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Household updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Housemate"
+                },
+                "example": {
+                  "householdId": "08c6cb279ed6d63dfa05ddf99a8b3a96",
+                  "residentId": "1b9d0396e5d8d09daf5db6bc51526e2b",
+                  "roles": [
+                    "manager"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "description": "Housemate not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "housemateDoesNotExist",
+                  "message": "Housemate with household id 08c6cb279ed6d63dfa05ddf99a8b3a96 and resident id 1b9d0396e5d8d09daf5db6bc51526e2b does not exist"
+                }
+              }
+            }  
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Housemate"
+        ],
+        "summary": "Remove resident from household",
+        "operationId": "removeResidentFromHousehold",
+        "responses": {
+          "204": {
+            "description": "Deleted successfully"
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "description": "Housemate not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "housemateDoesNotExist",
+                  "message": "Housemate with household id 08c6cb279ed6d63dfa05ddf99a8b3a96 and resident id 1b9d0396e5d8d09daf5db6bc51526e2b does not exist"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "clerkSessionToken": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Clerk session token returned by useAuth().getToken() from @clerk/react. Send it as Authorization: Bearer <token>."
+      }
+    },
+    "responses": {
+      "ValidationError": {
+        "description": "The request is not valid. The request body or parameters do not conform to the expected schema.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorValidation"
+            },
+            "example": {
+              "code": "requestIsNotValid",
+              "message": "Request is not valid",
+              "validationError": "must not have additional properties"
+            }
+          }
+        }
+      },
+      "ServerError": {
+        "description": "An unexpected error occurred on the server while processing your request.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "code": "internalServerError",
+              "message": "An unexpected error occurred on the server while processing your request."
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "Authentication is required. The Clerk session token is missing, invalid, or expired.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "examples": {
+              "missingToken": {
+                "value": {
+                  "code": "unauthorized",
+                  "message": "A valid Clerk session token is required."
+                }
+              },
+              "invalidOrExpiredToken": {
+                "value": {
+                  "code": "unauthorized",
+                  "message": "The Clerk session token is invalid or expired."
+                }
+              }
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "The authenticated user does not have permission to perform this operation.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "examples": {
+              "insufficientPermissions": {
+                "value": {
+                  "code": "forbidden",
+                  "message": "You do not have permission to perform this operation."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "Household": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "readOnly": true
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": ["string", "null"]
+          }
+        }
+      },
+      "Resident": {
+        "type": "object",
+        "required": [
+          "nickname"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "readOnly": true
+          },
+          "nickname": {
+            "type": "string"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "manager",
+                "owner"
+              ]
+            }
+          }
+        }
+      },
+      "Housemate": {
+        "type": "object",
+        "required": [
+          "roles"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "readOnly": true
+          },
+          "householdId": {
+            "type": "string",
+            "readOnly": true
+          },
+          "residentId": {
+            "type": "string",
+            "readOnly": true
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "manager",
+                "owner"
+              ]
+            }
+          }
+        }
+      },
+      "PageInfo": {
+        "type": "object",
+        "properties": {
+          "totalItems": { 
+            "type": "integer"
+          },
+          "pageSize": {
+            "type": "integer"
+          },
+          "totalPages": {
+            "type": "integer"
+          },
+          "currentPage": {
+            "type": "integer"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "string",
+            "readOnly": true
+          },
+          "message": {
+            "type": "string",
+            "readOnly": true
+          }
+        }
+      },
+      "ErrorValidation": {
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "string",
+            "readOnly": true
+          },
+          "message": {
+            "type": "string",
+            "readOnly": true
+          },
+          "validationError": {
+            "type": "string",
+            "readOnly": true
+          }
+        }
+      }
+    }
+  }
+}
