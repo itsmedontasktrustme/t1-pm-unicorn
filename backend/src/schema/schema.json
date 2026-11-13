@@ -2285,7 +2285,7 @@
               "example": {
                 "name": "Vynést odpadky",
                 "description": "Vynést tříděný odpad",
-                "status": "completed",
+                "status": "done",
                 "assigneeId": 2001,
                 "managerId": 2001,
                 "dueDate": "2026-11-10",
@@ -2306,7 +2306,7 @@
                   "id": 4001,
                   "name": "Vynést odpadky",
                   "description": "Vynést tříděný odpad",
-                  "status": "completed",
+                  "status": "done",
                   "householdId": 1001,
                   "assigneeId": 2001,
                   "managerId": 2001,
@@ -2944,7 +2944,7 @@
             "format": "int64"
           },
           "assigneeId": {
-            "type": "integer",
+            "type": ["integer", "null"],
             "format": "int64"
           },
           "managerId": {
