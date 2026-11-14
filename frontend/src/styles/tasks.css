@@ -1,0 +1,658 @@
+/* Tasks tab (HK-72…HK-84, design Group 7). Phone: one pane per screen; desktop: list + side panel. */
+
+.hk-tasks__list,
+.hk-tasks__side {
+  min-width: 0;
+}
+
+.hk-tasks__side {
+  display: none;
+}
+
+.hk-tasks--side .hk-tasks__list {
+  display: none;
+}
+
+.hk-tasks--side .hk-tasks__side {
+  display: block;
+}
+
+.hk-tasks__placeholder {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .hk-tasks {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    gap: var(--space-6);
+    align-items: start;
+  }
+
+  .hk-tasks .hk-tasks__list,
+  .hk-tasks .hk-tasks__side {
+    display: block;
+  }
+
+  .hk-tasks__side {
+    position: sticky;
+    top: 0;
+  }
+
+  .hk-tasks__placeholder {
+    display: block;
+    color: var(--color-text-muted);
+  }
+
+  .hk-tasks__placeholder p {
+    margin: 0;
+  }
+
+  .hk-tasks__panel > .hk-back {
+    display: none;
+  }
+
+  .hk-tasks--empty {
+    grid-template-columns: minmax(0, 720px);
+  }
+
+  .hk-tasks--empty .hk-tasks__side {
+    display: none;
+  }
+}
+
+/* ---------- List ---------- */
+
+.hk-tasks__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.hk-tasks__head h2 {
+  margin: 0;
+  color: var(--color-primary);
+  font-size: var(--font-size-page-title);
+  line-height: var(--line-height-page-title);
+}
+
+.hk-tasks__filters {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.hk-tasks__filters button {
+  flex-shrink: 0;
+  min-height: 40px;
+  padding: 0 var(--space-4);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--hk-ink);
+  font: inherit;
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+}
+
+.hk-tasks__filters button[aria-pressed="true"] {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: var(--hk-white);
+}
+
+.hk-tasks__count {
+  font-weight: 400;
+  opacity: 0.8;
+}
+
+.hk-tasks__group {
+  margin: var(--space-4) 0 var(--space-2);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.hk-tasks__group:first-of-type {
+  margin-top: 0;
+}
+
+.hk-tasks__cards {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.hk-tasks__none {
+  color: var(--color-text-muted);
+}
+
+/* Task card */
+
+.hk-task {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.hk-task--done {
+  background: transparent;
+}
+
+@media (min-width: 1024px) {
+  .hk-task--selected {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 1px var(--color-primary);
+  }
+}
+
+.hk-task__main {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.hk-task__title {
+  color: var(--hk-ink);
+  font-size: var(--font-size-task-title);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.3;
+  text-decoration: none;
+}
+
+/* The whole card opens the task; buttons stay clickable above the stretched link. */
+.hk-task__title::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-lg);
+}
+
+.hk-task--done .hk-task__title {
+  color: var(--color-text-muted);
+}
+
+.hk-task__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+}
+
+.hk-task__who {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hk-avatar--tiny {
+  width: 22px;
+  height: 22px;
+  font-size: 10px;
+}
+
+.hk-task__side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.hk-task__side .hk-btn {
+  position: relative;
+  z-index: 1;
+  min-height: 40px;
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-small);
+}
+
+.hk-task__cookies {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--hk-ink);
+  font-weight: var(--font-weight-bold);
+  white-space: nowrap;
+}
+
+.hk-task__cookies img {
+  width: 20px;
+  height: 20px;
+}
+
+/* Status chip: always text, Ink on tints, white only on Forest. */
+.hk-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  font-weight: var(--font-weight-bold);
+  white-space: nowrap;
+}
+
+.hk-status::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.hk-status--available {
+  background: #e3f1cf;
+  color: var(--hk-ink);
+}
+
+.hk-status--available::before {
+  background: var(--hk-forest);
+}
+
+.hk-status--assigned {
+  background: var(--hk-peach);
+  color: var(--hk-ink);
+}
+
+.hk-status--done {
+  background: var(--hk-forest);
+  color: var(--hk-white);
+}
+
+.hk-status--done::before {
+  content: "✓";
+  width: auto;
+  height: auto;
+  background: none;
+  font-size: 12px;
+}
+
+.hk-due-today {
+  color: var(--color-primary);
+  font-weight: var(--font-weight-bold);
+}
+
+/* Overdue: red with icon and text; cookies are no longer credited (BR-CK-02). */
+.hk-due-late {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 1px 10px 1px 4px;
+  border-radius: var(--radius-pill);
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+  font-weight: var(--font-weight-bold);
+}
+
+.hk-due-late__icon {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--color-danger);
+  color: var(--hk-white);
+  font-size: 12px;
+}
+
+.hk-due-late__note {
+  color: var(--color-danger);
+}
+
+/* ---------- Side panel: detail and form ---------- */
+
+.hk-tasks__panel {
+  padding: var(--space-5);
+}
+
+@media (max-width: 1023px) {
+  .hk-tasks__panel {
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+}
+
+.hk-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: var(--tap-target-min);
+  margin: 0 0 var(--space-2) calc(var(--space-2) * -1);
+  padding: 0 var(--space-2);
+  color: var(--color-primary);
+  font-weight: var(--font-weight-bold);
+  text-decoration: none;
+}
+
+.hk-back::before {
+  content: "←";
+  font-size: 20px;
+}
+
+.hk-tasks__detail {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.hk-tasks__detail-head {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-2);
+}
+
+.hk-tasks__detail-head h2 {
+  margin: 0;
+  color: var(--hk-ink);
+  font-size: var(--font-size-page-title);
+  line-height: 1.25;
+}
+
+.hk-tasks__desc {
+  margin: 0;
+  color: var(--hk-ink);
+  font-family: var(--font-hand);
+  font-size: var(--font-size-hand);
+  line-height: 1.45;
+  white-space: pre-line;
+}
+
+.hk-tasks__hint {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+}
+
+.hk-facts {
+  margin: 0;
+}
+
+.hk-fact {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.hk-fact:last-child {
+  border-bottom: none;
+}
+
+@media (max-width: 767px) {
+  .hk-fact {
+    grid-template-columns: 84px minmax(0, 1fr) auto;
+  }
+}
+
+.hk-fact dt {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-bold);
+}
+
+.hk-fact dd {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  margin: 0;
+}
+
+.hk-fact small {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+}
+
+.hk-fact .hk-due-late__note {
+  color: var(--color-danger);
+}
+
+.hk-nobody {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border: 2px dashed var(--color-border-strong);
+  border-radius: 50%;
+}
+
+.hk-tasks__actions {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.hk-tasks__actions--two {
+  grid-template-columns: 1fr 1fr;
+}
+
+.hk-tasks__inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 var(--space-2);
+}
+
+.hk-tasks__inline .hk-link-btn {
+  margin-left: 0;
+  padding-left: 0;
+}
+
+.hk-tasks__note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-soft);
+  font-size: var(--font-size-small);
+}
+
+.hk-tasks__note::before {
+  content: "i";
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: var(--hk-white);
+  font-size: 12px;
+  font-weight: var(--font-weight-bold);
+}
+
+.hk-tasks__manage {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-border);
+}
+
+.hk-tasks__manage .hk-link-btn {
+  margin-left: 0;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.hk-link-btn--quiet {
+  color: var(--color-text-muted);
+}
+
+/* People picker (assign sheet and create form) */
+
+.hk-people-pick {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.hk-person {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 52px;
+  padding: var(--space-2) var(--space-3);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  cursor: pointer;
+}
+
+.hk-person input {
+  order: 3;
+  margin-left: auto;
+  width: 22px;
+  height: 22px;
+  accent-color: var(--color-primary);
+}
+
+.hk-person--on {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 1px var(--color-primary);
+}
+
+.hk-person .hk-avatar {
+  width: 32px;
+  height: 32px;
+  font-size: 12px;
+}
+
+.hk-person small {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+}
+
+.hk-tasks__sheet-task {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+/* Form */
+
+.hk-tasks__form {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.hk-tasks__form h2 {
+  margin: 0;
+  color: var(--color-primary);
+  font-size: var(--font-size-section-title);
+}
+
+.hk-tasks__hand {
+  font-family: var(--font-hand);
+  font-size: var(--font-size-hand);
+}
+
+textarea.hk-tasks__hand {
+  resize: vertical;
+}
+
+.hk-tasks__fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.hk-tasks__fieldset legend {
+  margin-bottom: var(--space-1);
+  padding: 0;
+}
+
+.hk-tasks__row2 {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-3);
+}
+
+.hk-stepper {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 44px;
+  max-width: 220px;
+  overflow: hidden;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.hk-stepper--invalid {
+  border-color: var(--color-danger);
+  background: var(--color-danger-soft);
+}
+
+.hk-stepper button {
+  min-height: var(--tap-target-min);
+  border: 0;
+  background: var(--color-surface-soft);
+  color: var(--color-primary);
+  font-size: 20px;
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+}
+
+.hk-stepper__value {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.hk-stepper__value img {
+  width: 20px;
+  height: 20px;
+}
+
+.hk-stepper__value input {
+  width: 3.5ch;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-weight: var(--font-weight-bold);
+  text-align: center;
+}
+
+.hk-tasks__form-actions {
+  display: grid;
+  gap: var(--space-2);
+}
+
+@media (min-width: 768px) {
+  .hk-tasks__form-actions {
+    grid-template-columns: auto auto;
+    justify-content: start;
+  }
+}
+
+.hk-toast__hand {
+  font-family: var(--font-hand);
+  font-size: var(--font-size-hand);
+}

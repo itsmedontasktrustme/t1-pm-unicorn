@@ -101,7 +101,10 @@ function HouseholdPage() {
   const isOwner = me?.roles.includes("owner");
   const openTasks = household.tasks.filter((task) => task.status !== "done");
   const myTasks = openTasks.filter((task) => task.assigneeName && task.assigneeName === me?.name);
-  const dueSoon = [...openTasks].sort((a, b) => new Date(a.due) - new Date(b.due)).slice(0, 3);
+  const dueSoon = openTasks
+    .filter((task) => task.due)
+    .sort((a, b) => new Date(a.due) - new Date(b.due))
+    .slice(0, 3);
   const justCreated = searchParams.get("created") === "1";
   const justJoined = searchParams.get("joined") === "1";
 
