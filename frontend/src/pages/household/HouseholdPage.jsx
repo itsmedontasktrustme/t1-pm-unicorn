@@ -6,32 +6,15 @@ import { ErrorState, LoadingState } from "../../components/states";
 import { useCurrentHousehold } from "../../logic/CurrentHousehold";
 import usePageLoadTracking from "../../logic/usePageLoadTracking";
 import useResident from "../../logic/useResident";
+import { AVATAR_COLOURS, initials } from "../../logic/format";
+import RoleChips from "../../components/ui/RoleChips";
 
 /*
  * HK-60 Household view (design HK-59) — the Home tab.
  * ?created=1 / ?joined=1 show a one-time "ready" banner after US1 / US3.
  */
 
-const ROLE_LABELS = { owner: "Owner", manager: "Manager", housemate: "Housemate" };
-const AVATAR_COLOURS = ["var(--hk-orange)", "var(--hk-lime)", "var(--hk-peach)", "#e9dcc8"];
 const DAY_MS = 24 * 60 * 60 * 1000;
-
-function initials(name) {
-  return (name || "?")
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0].toUpperCase())
-    .join("");
-}
-
-function RoleChips({ roles }) {
-  return roles.map((role) => (
-    <span key={role} className={`hk-chip hk-chip--${role}`}>
-      {ROLE_LABELS[role] || role}
-    </span>
-  ));
-}
 
 function dueLabel(iso) {
   const today = new Date();
@@ -128,7 +111,7 @@ function HouseholdPage() {
         {me && <RoleChips roles={me.roles} />}
       </div>
 
-      <div className="hk-household__grid">
+      <div className="hk-page-grid">
         <div>
           <div className="hk-stats">
             <div className="hk-stat">
@@ -158,7 +141,7 @@ function HouseholdPage() {
                 {dueSoon.map((task) => {
                   const label = dueLabel(task.due);
                   return (
-                    <li key={task.id}>
+                    <li key={task.id} className="hk-row">
                       <div>
                         <span className="hk-due__title">{task.title}</span>
                         <span className="hk-due__who">{task.assigneeName || "Available"}</span>
@@ -198,7 +181,7 @@ function HouseholdPage() {
                     <RoleChips roles={member.roles} />
                   </span>
                 </div>
-                <span className="hk-member__cookies" aria-label={`${member.cookies} cookies`}>
+                <span className="hk-cookies hk-row__end" aria-label={`${member.cookies} cookies`}>
                   <img src={cookieIcon} alt="" />
                   {member.cookies}
                 </span>

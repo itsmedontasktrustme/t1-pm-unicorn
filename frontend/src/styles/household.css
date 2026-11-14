@@ -1,29 +1,5 @@
 /* Group 2 — create / join household (HK-63) and household view (HK-60). */
 
-/* ---------- Create | Join switch ---------- */
-.hk-tabs {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  padding: 4px;
-  border-radius: var(--radius-pill);
-  background: var(--color-surface-soft);
-}
-
-.hk-tabs__tab {
-  padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius-pill);
-  color: var(--color-text-muted);
-  font-weight: var(--font-weight-bold);
-  text-align: center;
-  text-decoration: none;
-}
-
-.hk-tabs__tab[aria-current="page"] {
-  background: var(--color-surface);
-  color: var(--color-primary);
-  box-shadow: var(--shadow-card);
-}
-
 .hk-auth-card--left {
   text-align: left;
 }
@@ -94,57 +70,6 @@
   color: var(--color-text-muted);
 }
 
-.hk-invite__role {
-  padding: var(--space-1) var(--space-3);
-  border-radius: var(--radius-pill);
-  background: var(--color-surface-soft);
-  font-size: var(--font-size-small);
-  font-weight: var(--font-weight-bold);
-}
-
-/* ---------- Avatars & role chips ---------- */
-.hk-avatar {
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: var(--color-surface-soft);
-  color: var(--hk-ink);
-  font-weight: var(--font-weight-bold);
-}
-
-.hk-avatar--small {
-  width: 28px;
-  height: 28px;
-  font-size: 12px;
-}
-
-.hk-chip {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px var(--space-2);
-  border-radius: var(--radius-pill);
-  font-size: 12px;
-  font-weight: var(--font-weight-bold);
-}
-
-.hk-chip--owner {
-  background: var(--hk-forest);
-  color: var(--hk-white);
-}
-
-.hk-chip--manager {
-  background: var(--hk-lime);
-  color: var(--hk-ink);
-}
-
-.hk-chip--housemate {
-  background: var(--color-surface-soft);
-  color: var(--hk-ink);
-}
-
 /* ---------- Household view ---------- */
 .hk-household {
   max-width: var(--content-max-width);
@@ -182,18 +107,6 @@
 
 .hk-household__head h2 {
   margin: 0;
-}
-
-.hk-household__grid {
-  display: grid;
-  gap: var(--space-5);
-}
-
-@media (min-width: 1024px) {
-  .hk-household__grid {
-    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-    align-items: start;
-  }
 }
 
 .hk-stats {
@@ -267,18 +180,6 @@
   list-style: none;
 }
 
-.hk-due li {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-2) 0;
-  border-bottom: 1px solid var(--color-border);
-}
-
-.hk-due li:last-child {
-  border-bottom: none;
-}
-
 .hk-due__title {
   font-weight: var(--font-weight-bold);
 }
@@ -334,19 +235,6 @@
   display: flex;
   gap: 4px;
   margin-top: 2px;
-}
-
-.hk-member__cookies {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  margin-left: auto;
-  font-weight: var(--font-weight-bold);
-}
-
-.hk-member__cookies img {
-  width: 18px;
-  height: 18px;
 }
 
 .hk-card__actions {

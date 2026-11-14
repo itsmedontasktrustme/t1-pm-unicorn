@@ -138,13 +138,13 @@ function TaskList({ data, selectedId, context }) {
         <>
           {soon.length > 0 && (
             <>
-              <h3 className="hk-tasks__group">{hasOverdue ? "Overdue and today" : "Today"}</h3>
+              <h3 className="hk-group-label">{hasOverdue ? "Overdue and today" : "Today"}</h3>
               <div className="hk-tasks__cards">{soon.map(card)}</div>
             </>
           )}
           {later.length > 0 && (
             <>
-              <h3 className="hk-tasks__group">Later</h3>
+              <h3 className="hk-group-label">Later</h3>
               <div className="hk-tasks__cards">{later.map(card)}</div>
             </>
           )}

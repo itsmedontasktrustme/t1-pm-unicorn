@@ -111,19 +111,6 @@
   opacity: 0.8;
 }
 
-.hk-tasks__group {
-  margin: var(--space-4) 0 var(--space-2);
-  color: var(--color-text-muted);
-  font-size: var(--font-size-small);
-  font-weight: var(--font-weight-bold);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.hk-tasks__group:first-of-type {
-  margin-top: 0;
-}
-
 .hk-tasks__cards {
   display: grid;
   gap: var(--space-2);
@@ -199,12 +186,6 @@
   gap: 6px;
 }
 
-.hk-avatar--tiny {
-  width: 22px;
-  height: 22px;
-  font-size: 10px;
-}
-
 .hk-task__side {
   display: flex;
   flex-direction: column;
@@ -219,20 +200,6 @@
   min-height: 40px;
   padding: var(--space-2) var(--space-3);
   font-size: var(--font-size-small);
-}
-
-.hk-task__cookies {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  color: var(--hk-ink);
-  font-weight: var(--font-weight-bold);
-  white-space: nowrap;
-}
-
-.hk-task__cookies img {
-  width: 20px;
-  height: 20px;
 }
 
 /* Status chip: always text, Ink on tints, white only on Forest. */
@@ -328,23 +295,6 @@
   }
 }
 
-.hk-back {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-height: var(--tap-target-min);
-  margin: 0 0 var(--space-2) calc(var(--space-2) * -1);
-  padding: 0 var(--space-2);
-  color: var(--color-primary);
-  font-weight: var(--font-weight-bold);
-  text-decoration: none;
-}
-
-.hk-back::before {
-  content: "←";
-  font-size: 20px;
-}
-
 .hk-tasks__detail {
   display: grid;
   gap: var(--space-4);
@@ -370,12 +320,6 @@
   font-size: var(--font-size-hand);
   line-height: 1.45;
   white-space: pre-line;
-}
-
-.hk-tasks__hint {
-  margin: 0;
-  color: var(--color-text-muted);
-  font-size: var(--font-size-small);
 }
 
 .hk-facts {
@@ -529,12 +473,6 @@
 .hk-person--on {
   border-color: var(--color-primary);
   box-shadow: 0 0 0 1px var(--color-primary);
-}
-
-.hk-person .hk-avatar {
-  width: 32px;
-  height: 32px;
-  font-size: 12px;
 }
 
 .hk-person small {

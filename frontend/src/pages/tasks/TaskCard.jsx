@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import cookieIcon from "../../assets/cookie.svg";
-import { initials } from "../history/historyFormat";
+import { initials } from "../../logic/format";
 import { cardDue, completedText, STATUS_LABELS } from "./taskFormat";
 
 /* One task in the list (HK-72): status, name, assignee, due date, cookies and a quick action. */
@@ -64,7 +64,7 @@ function TaskCard({ task, meId, selected, to, busy, onQuickAction }) {
         </div>
       </div>
       <div className="hk-task__side">
-        <span className="hk-task__cookies" aria-label={`${done ? task.creditedCookies ?? task.cookies : task.cookies} cookies`}>
+        <span className="hk-cookies" aria-label={`${done ? task.creditedCookies ?? task.cookies : task.cookies} cookies`}>
           {done ? "+" : ""}
           {done ? task.creditedCookies ?? task.cookies : task.cookies}
           <img src={cookieIcon} alt="" />

@@ -3,7 +3,7 @@ import { Link, useNavigate, useOutletContext, useParams, useSearchParams } from 
 import cookieIcon from "../../assets/cookie.svg";
 import Sheet from "../../components/Sheet";
 import { FormBanner } from "../../components/forms";
-import { initials } from "../history/historyFormat";
+import { initials } from "../../logic/format";
 import { assignTask, deleteTask, giveBackTask, markTaskDone, pickUpTask, returnTask } from "../../api/tasks";
 import { StatusChip } from "./TaskCard";
 import { announceCookiesChanged, completedText, detailDue, doneToast, isOverdue } from "./taskFormat";
@@ -13,9 +13,9 @@ import { announceCookiesChanged, completedText, detailDue, doneToast, isOverdue 
  * Actions follow US7–US9 and the Permission Matrix; actions the resident may not take are not offered.
  */
 
-function Avatar({ name }) {
+function Avatar({ name, size }) {
   return (
-    <span className="hk-avatar" aria-hidden="true">
+    <span className={size ? `hk-avatar hk-avatar--${size}` : "hk-avatar"} aria-hidden="true">
       {initials(name)}
     </span>
   );
@@ -47,7 +47,7 @@ function AssignSheet({ open, task, members, meId, busy, onCancel, onAssign }) {
       <h2 id="task-assign-title">{task.assigneeId ? "Reassign task" : "Assign task"}</h2>
       <div className="hk-tasks__sheet-task">
         <strong>{task.title}</strong>
-        <span className="hk-task__cookies">
+        <span className="hk-cookies">
           {task.cookies}
           <img src={cookieIcon} alt="" />
         </span>
@@ -62,7 +62,7 @@ function AssignSheet({ open, task, members, meId, busy, onCancel, onAssign }) {
               checked={choice === member.id}
               onChange={() => setChoice(member.id)}
             />
-            <Avatar name={member.name} />
+            <Avatar name={member.name} size="medium" />
             <span>
               {member.name}
               {member.id === meId && <small>you</small>}
@@ -72,7 +72,7 @@ function AssignSheet({ open, task, members, meId, busy, onCancel, onAssign }) {
         ))}
       </div>
       {task.assigneeId && chosen && chosen.id !== task.assigneeId && (
-        <p className="hk-tasks__hint">{task.assigneeName} will no longer see this task in their list.</p>
+        <p className="hk-hint">{task.assigneeName} will no longer see this task in their list.</p>
       )}
       <div className="hk-sheet__actions hk-sheet__actions--two">
         <button type="button" className="hk-btn hk-btn--secondary" onClick={onCancel}>
@@ -172,7 +172,7 @@ function TaskDetail() {
           <button type="button" className="hk-link-btn" disabled={busy} onClick={markDone}>
             Mark as done without assignee
           </button>
-          <span className="hk-tasks__hint">Nobody gets cookies for it.</span>
+          <span className="hk-hint">Nobody gets cookies for it.</span>
         </div>
       </>
     ) : (
@@ -196,11 +196,11 @@ function TaskDetail() {
           </button>
         </div>
         {overdue && (
-          <p className="hk-tasks__hint">
+          <p className="hk-hint">
             It can still be marked as done, but {isMine ? "you get" : `${task.assigneeName} gets`} no cookies for it.
           </p>
         )}
-        {!overdue && !isMine && <p className="hk-tasks__hint">{task.assigneeName} gets the cookies when it’s marked as done.</p>}
+        {!overdue && !isMine && <p className="hk-hint">{task.assigneeName} gets the cookies when it’s marked as done.</p>}
       </>
     );
   } else if (task.status === "assigned") {
@@ -236,7 +236,7 @@ function TaskDetail() {
         <div className="hk-tasks__detail-head">
           <StatusChip status={task.status} />
           <h2>{task.title}</h2>
-          {task.description ? <p className="hk-tasks__desc">{task.description}</p> : <p className="hk-tasks__hint">No description.</p>}
+          {task.description ? <p className="hk-tasks__desc">{task.description}</p> : <p className="hk-hint">No description.</p>}
         </div>
 
         <dl className="hk-facts">
@@ -288,7 +288,7 @@ function TaskDetail() {
             </Fact>
           )}
           <Fact label="Cookies">
-            <span className="hk-task__cookies">
+            <span className="hk-cookies">
               {task.status === "done" ? `+${task.creditedCookies ?? task.cookies}` : task.cookies}
               <img src={cookieIcon} alt="" />
             </span>

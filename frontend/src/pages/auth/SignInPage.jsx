@@ -97,7 +97,7 @@ function SignInPage() {
         <GoogleButton onClick={handleGoogle} busy={busy}>
           {status === "email-exists" ? "Use a different Google account" : "Continue with Google"}
         </GoogleButton>
-        <p className="hk-auth-card__small">
+        <p className="hk-hint">
           {status === "cancelled"
             ? "HomeKeeper needs your Google name and email to create your account."
             : "New here? The same button creates your account — we only use your Google name and email."}

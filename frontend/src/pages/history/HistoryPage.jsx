@@ -37,14 +37,14 @@ function HistoryPage() {
         <h2>History</h2>
       </div>
 
-      <div className="hk-history__switch" role="group" aria-label="History view">
-        <button type="button" aria-pressed={view === "household"} onClick={() => choose("household")}>
+      <div className="hk-segmented hk-segmented--inline hk-history__switch" role="group" aria-label="History view">
+        <button type="button" className="hk-segmented__item" aria-pressed={view === "household"} onClick={() => choose("household")}>
           Household
         </button>
-        <button type="button" aria-pressed={view === "mine"} onClick={() => choose("mine")}>
+        <button type="button" className="hk-segmented__item" aria-pressed={view === "mine"} onClick={() => choose("mine")}>
           Mine
         </button>
-        <button type="button" aria-pressed={view === "audit"} onClick={() => choose("audit")}>
+        <button type="button" className="hk-segmented__item" aria-pressed={view === "audit"} onClick={() => choose("audit")}>
           Audit
         </button>
       </div>

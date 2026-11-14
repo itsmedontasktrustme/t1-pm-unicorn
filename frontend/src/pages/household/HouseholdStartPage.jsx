@@ -7,6 +7,7 @@ import { FormBanner, FormField } from "../../components/forms";
 import { acceptInvitation, createHousehold, getInvitation } from "../../api/households";
 import { useCurrentHousehold } from "../../logic/CurrentHousehold";
 import useResident from "../../logic/useResident";
+import { initials } from "../../logic/format";
 
 /*
  * HK-63 Create / join household view (design HK-62, US1 + US3).
@@ -14,26 +15,17 @@ import useResident from "../../logic/useResident";
  * /household/join[?code=] — join with an invitation code or link (US3)
  */
 
-function initials(name) {
-  return (name || "?")
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0].toUpperCase())
-    .join("");
-}
-
 function formatDate(iso) {
   return new Date(iso).toLocaleDateString();
 }
 
 function Tabs({ mode }) {
   return (
-    <nav className="hk-tabs" aria-label="Create or join a household">
-      <Link className="hk-tabs__tab" to="/household/new" aria-current={mode === "create" ? "page" : undefined}>
+    <nav className="hk-segmented" aria-label="Create or join a household">
+      <Link className="hk-segmented__item" to="/household/new" aria-current={mode === "create" ? "page" : undefined}>
         Create
       </Link>
-      <Link className="hk-tabs__tab" to="/household/join" aria-current={mode === "join" ? "page" : undefined}>
+      <Link className="hk-segmented__item" to="/household/join" aria-current={mode === "join" ? "page" : undefined}>
         Join
       </Link>
     </nav>
@@ -177,7 +169,7 @@ function JoinFlow({ initialCode, onDone }) {
             {invitation.memberCount} {invitation.memberCount === 1 ? "housemate" : "housemates"} · invitation valid until{" "}
             {formatDate(invitation.expiresAt)}
           </div>
-          <span className="hk-invite__role">You’ll join as a Housemate</span>
+          <span className="hk-badge">You’ll join as a Housemate</span>
         </div>
         <div className="hk-actions">
           <button type="button" className="hk-btn hk-btn--primary" onClick={accept} disabled={busy}>

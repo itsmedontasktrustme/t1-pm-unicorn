@@ -5,35 +5,6 @@
   color: var(--color-text-muted);
 }
 
-.hk-people__grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--space-5);
-}
-
-@media (min-width: 1024px) {
-  .hk-people__grid {
-    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-    align-items: start;
-  }
-}
-
-.hk-member-row {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-2) 0;
-  border-bottom: 1px solid var(--color-border);
-}
-
-.hk-member-row:last-child {
-  border-bottom: none;
-}
-
-.hk-member-row > div {
-  min-width: 0;
-}
-
 .hk-link-btn {
   min-height: var(--tap-target-min);
   margin-left: auto;
@@ -53,32 +24,10 @@
 }
 
 /* Pending invitations */
-.hk-inv {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-2) 0;
-  border-bottom: 1px solid var(--color-border);
-}
 
-.hk-inv:last-of-type {
-  border-bottom: none;
-}
-
+/* Link / code icon on the shared avatar circle */
 .hk-inv__kind {
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: var(--color-surface-soft);
-  font-weight: var(--font-weight-bold);
   color: var(--color-primary);
-}
-
-.hk-inv__main {
-  min-width: 0;
 }
 
 .hk-inv__value {
@@ -95,7 +44,7 @@
   color: var(--color-text-muted);
 }
 
-.hk-inv .hk-btn {
+.hk-row .hk-btn {
   margin-left: auto;
 }
 

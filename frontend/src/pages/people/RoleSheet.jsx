@@ -3,6 +3,8 @@ import Sheet from "../../components/Sheet";
 import { FormBanner } from "../../components/forms";
 import { changeRole } from "../../api/households";
 import useResident from "../../logic/useResident";
+import { initials } from "../../logic/format";
+import RoleChips from "../../components/ui/RoleChips";
 
 /*
  * HK-51 Manage roles (design HK-50, US4).
@@ -10,22 +12,12 @@ import useResident from "../../logic/useResident";
  * disabled with the user-story texts, so errors 6a / 6b cannot happen.
  */
 
-const ROLE_LABELS = { owner: "Owner", manager: "Manager", housemate: "Housemate" };
 
 const SUCCESS = {
   "grant-manager": (name) => `${name} is now a manager`,
   "remove-manager": (name) => `${name} is no longer a manager`,
   "hand-over-owner": (name) => `${name} is now the owner`
 };
-
-function initials(name) {
-  return (name || "?")
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0].toUpperCase())
-    .join("");
-}
 
 function Option({ icon, title, description, onClick, disabled = false }) {
   return (
@@ -112,11 +104,7 @@ function RoleSheet({ open, member, isSelf, householdId, householdName, onClose, 
             {isSelf ? " (you)" : ""}
           </strong>
           <span className="hk-member__roles">
-            {member.roles.map((role) => (
-              <span key={role} className={`hk-chip hk-chip--${role}`}>
-                {ROLE_LABELS[role] || role}
-              </span>
-            ))}
+            <RoleChips roles={member.roles} />
           </span>
         </div>
       </div>

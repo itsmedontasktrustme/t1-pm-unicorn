@@ -3,7 +3,7 @@ import { Link, useNavigate, useOutletContext, useParams, useSearchParams } from 
 import cookieIcon from "../../assets/cookie.svg";
 import { FormBanner, FormField } from "../../components/forms";
 import { AccessDeniedState } from "../../components/states";
-import { initials } from "../history/historyFormat";
+import { initials } from "../../logic/format";
 import { createTask, TASK_DESCRIPTION_MAX, TASK_NAME_MAX, updateTask, validateTask } from "../../api/tasks";
 import { joinDue, splitDue } from "./taskFormat";
 
@@ -228,7 +228,7 @@ function TaskForm({ mode }) {
                     checked={assigneeId === member.id}
                     onChange={() => setAssigneeId(member.id)}
                   />
-                  <span className="hk-avatar" aria-hidden="true">
+                  <span className="hk-avatar hk-avatar--medium" aria-hidden="true">
                     {initials(member.name)}
                   </span>
                   <span>
