@@ -651,7 +651,8 @@
                       "residentId": 2001,
                       "householdId": 1001,
                       "operation": "create",
-                      "action": "Created task Vynést odpadky"
+                      "action": "Created task Vynést odpadky",
+                      "createdTimestamp": "2026-11-10T12:00:00Z"
                     }
                   ],
                   "pageInfo": {
@@ -1292,7 +1293,8 @@
                       "residentId": 2001,
                       "householdId": 1001,
                       "operation": "create",
-                      "action": "Created task Vynést odpadky"
+                      "action": "Created task Vynést odpadky",
+                      "createdTimestamp": "2026-11-10T12:00:00Z"
                     }
                   ],
                   "pageInfo": {
@@ -1327,6 +1329,96 @@
                 }
               }
             }
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/residents": {
+      "get": {
+        "tags": [
+          "Resident"
+        ],
+        "summary": "Get residents",
+        "operationId": "getResidents",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 0
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "description": "Resident's name",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "itemList": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Resident"
+                      }
+                    },
+                    "pageInfo": {
+                      "$ref": "#/components/schemas/PageInfo"
+                    }
+                  }
+                },
+                "example": {
+                  "itemList": [
+                    {
+                      "id": 2001,
+                      "authUserId": "user_2abc123",
+                      "name": "Franta Jetel"
+                    },
+                    {
+                      "id": 2002,
+                      "authUserId": "user_3def456",
+                      "name": "Václav Trachta"
+                    }
+                  ],
+                  "pageInfo": {
+                    "totalItems": 2,
+                    "pageSize": 10,
+                    "totalPages": 1,
+                    "currentPage": 1
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
           },
           "500": {
             "$ref": "#/components/responses/ServerError"
@@ -1797,7 +1889,8 @@
                       "residentId": 2001,
                       "householdId": 1001,
                       "operation": "create",
-                      "action": "Created task Vynést odpadky"
+                      "action": "Created task Vynést odpadky",
+                      "createdTimestamp": "2026-11-10T12:00:00Z"
                     }
                   ],
                   "pageInfo": {
@@ -2461,7 +2554,8 @@
                   "residentId": 2001,
                   "householdId": 1001,
                   "operation": "create",
-                  "action": "Created task Vynést odpadky"
+                  "action": "Created task Vynést odpadky",
+                  "createdTimestamp": "2026-11-10T12:00:00Z"
                 }
               }
             }
@@ -2544,7 +2638,8 @@
                   "residentId": 2001,
                   "householdId": 1001,
                   "operation": "create",
-                  "action": "Created task Vynést odpadky"
+                  "action": "Created task Vynést odpadky",
+                  "createdTimestamp": "2026-11-10T12:00:00Z"
                 }
               }
             }
@@ -2616,7 +2711,8 @@
                   "residentId": 2001,
                   "householdId": 1001,
                   "operation": "update",
-                  "action": "Updated task Vynést odpadky"
+                  "action": "Updated task Vynést odpadky",
+                  "createdTimestamp": "2026-11-10T12:00:00Z"
                 }
               }
             }
@@ -3008,6 +3104,11 @@
           },
           "action": {
             "type": "string"
+          },
+          "createdTimestamp": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
           }
         }
       },
