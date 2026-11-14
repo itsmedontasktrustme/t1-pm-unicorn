@@ -14,9 +14,9 @@ function StatePanel({ icon, title, text, badge, actions, note, tone = "default",
       )}
       <h2 className="hk-state__title">{title}</h2>
       {text && <p className="hk-state__text">{text}</p>}
-      {badge && <span className="hk-state__badge">{badge}</span>}
+      {badge && <span className="hk-badge">{badge}</span>}
       {actions && <div className="hk-state__actions">{actions}</div>}
-      {note && <p className="hk-state__note">{note}</p>}
+      {note && <p className="hk-hint">{note}</p>}
     </section>
   );
 }

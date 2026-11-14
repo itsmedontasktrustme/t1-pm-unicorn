@@ -7,7 +7,8 @@ import useResident from "../../logic/useResident";
 
 /*
  * HK-264: the resident's own cookies in the current household (was a fixed 120).
- * Re-read when the household or the page changes, so a finished task shows up after navigating.
+ * Re-read when the household or the page changes, and when a task screen announces
+ * "homekeeper:cookies-changed" (task marked done or returned, HK-84).
  * Opens History → Mine.
  */
 function CookieCounter() {
@@ -15,7 +16,14 @@ function CookieCounter() {
   const { current } = useCurrentHousehold();
   const { pathname } = useLocation();
   const [cookies, setCookies] = useState(null);
+  const [changes, setChanges] = useState(0);
   const householdId = current?.id;
+
+  useEffect(() => {
+    const bump = () => setChanges((count) => count + 1);
+    window.addEventListener("homekeeper:cookies-changed", bump);
+    return () => window.removeEventListener("homekeeper:cookies-changed", bump);
+  }, []);
 
   useEffect(() => {
     if (!user || !householdId) {
@@ -33,7 +41,7 @@ function CookieCounter() {
     return () => {
       active = false;
     };
-  }, [user, householdId, pathname]);
+  }, [user, householdId, pathname, changes]);
 
   if (!current) {
     return null;

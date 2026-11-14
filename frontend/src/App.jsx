@@ -7,7 +7,10 @@ import peopleIcon from "./assets/members-green.svg";
 import settingsIcon from "./assets/settings-green.svg";
 import historyIcon from "./assets/book-green.svg";
 import HouseholdPage from "./pages/household/HouseholdPage";
-import TaskBoardPage from "./pages/TaskBoardPage";
+import TasksPage from "./pages/tasks/TasksPage";
+import TaskDetail from "./pages/tasks/TaskDetail";
+import TaskForm from "./pages/tasks/TaskForm";
+import TaskIndex from "./pages/tasks/TaskIndex";
 import PeoplePage from "./pages/people/PeoplePage";
 import ProfilePage from "./pages/profile/ProfilePage";
 import HousemateProfilePage from "./pages/profile/HousemateProfilePage";
@@ -28,6 +31,7 @@ import "./styles/household.css";
 import "./styles/people.css";
 import "./styles/profile.css";
 import "./styles/history.css";
+import "./styles/tasks.css";
 
 const navItems = [
   { id: "home", path: "/home", label: "Home", icon: homeIcon },
@@ -124,7 +128,12 @@ function AppContent() {
         <Routes>
           <Route path="/" element={<Navigate to="/home" replace />} />
           <Route path="/home" element={<HouseholdPage />} />
-          <Route path="/tasks" element={<TaskBoardPage />} />
+          <Route path="/tasks" element={<TasksPage />}>
+            <Route index element={<TaskIndex />} />
+            <Route path="new" element={<TaskForm mode="create" />} />
+            <Route path=":taskId" element={<TaskDetail />} />
+            <Route path=":taskId/edit" element={<TaskForm mode="edit" />} />
+          </Route>
           <Route path="/task" element={<Navigate to="/tasks" replace />} />
           <Route path="/people" element={<PeoplePage />} />
           <Route path="/profile" element={<ProfilePage />} />

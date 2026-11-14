@@ -1,31 +1,5 @@
 /* Group 4 — profiles: own (HK-66) and housemate (HK-69). */
 
-.hk-profile__grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--space-5);
-}
-
-@media (min-width: 1024px) {
-  .hk-profile__grid {
-    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-    align-items: start;
-  }
-}
-
-.hk-profile__back {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  min-height: var(--tap-target-min);
-  margin: calc(-1 * var(--space-2)) 0 var(--space-2) calc(-1 * var(--space-2));
-  padding: 0 var(--space-2);
-  border-radius: var(--radius-md);
-  color: var(--color-primary);
-  font-weight: var(--font-weight-bold);
-  text-decoration: none;
-}
-
 .hk-id-card {
   display: grid;
   justify-items: center;
@@ -115,31 +89,6 @@
 }
 
 /* Your households */
-.hk-hh-row {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-3) 0;
-  border-bottom: 1px solid var(--color-border);
-}
-
-.hk-hh-row:last-of-type {
-  border-bottom: none;
-}
-
-.hk-hh-row > div {
-  min-width: 0;
-}
-
-.hk-hh-row__icon {
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: var(--color-surface-soft);
-}
 
 .hk-hh-row__icon img {
   width: 24px;
@@ -156,19 +105,6 @@
   flex-wrap: wrap;
   gap: 4px;
   margin-top: 2px;
-}
-
-.hk-hh-row__cookies {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  margin-left: auto;
-  font-weight: var(--font-weight-bold);
-}
-
-.hk-hh-row__cookies img {
-  width: 18px;
-  height: 18px;
 }
 
 .hk-hh-row__action {
@@ -205,18 +141,6 @@
   list-style: none;
 }
 
-.hk-task-list li {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-2) 0;
-  border-bottom: 1px solid var(--color-border);
-}
-
-.hk-task-list li:last-child {
-  border-bottom: none;
-}
-
 .hk-task-list__title {
   display: block;
   font-weight: var(--font-weight-bold);
@@ -225,21 +149,6 @@
 .hk-task-list__sub {
   font-family: var(--font-hand);
   color: var(--color-text-muted);
-}
-
-.hk-task-list__right {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  margin-left: auto;
-  font-size: var(--font-size-small);
-  font-weight: var(--font-weight-bold);
-  white-space: nowrap;
-}
-
-.hk-task-list__right img {
-  width: 16px;
-  height: 16px;
 }
 
 .hk-done-mark {
