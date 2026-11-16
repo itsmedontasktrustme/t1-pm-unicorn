@@ -1,7 +1,7 @@
 CREATE TABLE `resident` (
   `id` bigint PRIMARY KEY AUTO_INCREMENT,
   `auth_user_id` varchar(64) UNIQUE NOT NULL,
-  `name` varchar(255) NOT NULL,
+  `name` varchar(50) NOT NULL,
   `create_dt` timestamp NOT NULL DEFAULT (now()),
   `update_dt` timestamp NOT NULL DEFAULT (now())
 );
@@ -68,7 +68,7 @@ CREATE UNIQUE INDEX `housemate_index_0` ON `housemate` (`household_id`, `residen
 
 CREATE INDEX `housemate_index_1` ON `housemate` (`resident_id`);
 
-CREATE INDEX `housemate_role_index_2` ON `housemate_role` (`housemate_id`);
+CREATE UNIQUE INDEX `housemate_role_index_2` ON `housemate_role` (`housemate_id`, `role`);
 
 CREATE INDEX `task_index_3` ON `task` (`household_id`);
 
