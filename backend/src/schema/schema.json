@@ -3145,7 +3145,7 @@
           "name": {
             "type": "string",
             "minLength": 3,
-            "maxLength": 20
+            "maxLength": 50
           },
           "roles": {
             "type": "array",
@@ -3235,10 +3235,11 @@
           "name": {
             "type": "string",
             "minLength": 3,
-            "maxLength": 20
+            "maxLength": 100
           },
           "description": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 2000
           },
           "status": {
             "type": "string",
