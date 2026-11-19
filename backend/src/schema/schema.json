@@ -318,6 +318,7 @@
                       "id": 2001,
                       "authUserId": "user_2abc123",
                       "name": "Franta Jetel",
+                      "email": "franta.jetel@example.com",
                       "roles": [
                         "manager",
                         "owner"
@@ -327,6 +328,7 @@
                       "id": 2002,
                       "authUserId": "user_3def456",
                       "name": "Václav Trachta",
+                      "email": "vaclav.trachta@example.com",
                       "roles": []
                     }
                   ],
@@ -533,7 +535,7 @@
                       "id": 4001,
                       "name": "Vynést odpadky",
                       "description": "Vynést tříděný odpad",
-                      "status": "pending",
+                      "status": "todo",
                       "householdId": 1001,
                       "assigneeId": 2001,
                       "managerId": 2001,
@@ -710,7 +712,8 @@
               },
               "example": {
                 "authUserId": "user_2abc123",
-                "name": "Franta Jetel"
+                "name": "Franta Jetel",
+                "email": "franta.jetel@example.com"
               }
             }
           }
@@ -726,7 +729,8 @@
                 "example": {
                   "id": 2001,
                   "authUserId": "user_2abc123",
-                  "name": "Franta Jetel"
+                  "name": "Franta Jetel",
+                  "email": "franta.jetel@example.com"
                 }
               }
             }
@@ -775,7 +779,8 @@
                 "example": {
                   "id": 2001,
                   "authUserId": "user_2abc123",
-                  "name": "Franta Jetel"
+                  "name": "Franta Jetel",
+                  "email": "franta.jetel@example.com"
                 }
               }
             }
@@ -823,7 +828,8 @@
               },
               "example": {
                 "authUserId": "user_2abc123",
-                "name": "Franta Jetel"
+                "name": "Franta Jetel",
+                "email": "franta.jetel@example.com"
               }
             }
           }
@@ -839,7 +845,8 @@
                 "example": {
                   "id": 2001,
                   "authUserId": "user_2abc123",
-                  "name": "Franta Jetel"
+                  "name": "Franta Jetel",
+                  "email": "franta.jetel@example.com"
                 }
               }
             }
@@ -1175,7 +1182,7 @@
                       "id": 4001,
                       "name": "Vynést odpadky",
                       "description": "Vynést tříděný odpad",
-                      "status": "pending",
+                      "status": "todo",
                       "householdId": 1001,
                       "assigneeId": 2001,
                       "managerId": 2002,
@@ -1367,6 +1374,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "email",
+            "in": "query",
+            "description": "Resident's email",
+            "schema": {
+              "type": "string",
+              "format": "email"
+            }
           }
         ],
         "responses": {
@@ -1393,12 +1409,14 @@
                     {
                       "id": 2001,
                       "authUserId": "user_2abc123",
-                      "name": "Franta Jetel"
+                      "name": "Franta Jetel",
+                      "email": "franta.jetel@example.com"
                     },
                     {
                       "id": 2002,
                       "authUserId": "user_3def456",
-                      "name": "Václav Trachta"
+                      "name": "Václav Trachta",
+                      "email": "vaclav.trachta@example.com"
                     }
                   ],
                   "pageInfo": {
@@ -1762,7 +1780,7 @@
                       "id": 4001,
                       "name": "Vynést odpadky",
                       "description": "Vynést tříděný odpad",
-                      "status": "pending",
+                      "status": "todo",
                       "householdId": 1001,
                       "assigneeId": 2001,
                       "managerId": 2002,
@@ -2195,7 +2213,7 @@
               "example": {
                 "name": "Vynést odpadky",
                 "description": "Vynést tříděný odpad",
-                "status": "pending",
+                "status": "todo",
                 "householdId": 1001,
                 "assigneeId": 2001,
                 "managerId": 2001,
@@ -2217,7 +2235,7 @@
                   "id": 4001,
                   "name": "Vynést odpadky",
                   "description": "Vynést tříděný odpad",
-                  "status": "pending",
+                  "status": "todo",
                   "householdId": 1001,
                   "assigneeId": 2001,
                   "managerId": 2001,
@@ -2324,7 +2342,7 @@
                   "id": 4001,
                   "name": "Vynést odpadky",
                   "description": "Vynést tříděný odpad",
-                  "status": "pending",
+                  "status": "todo",
                   "householdId": 1001,
                   "assigneeId": 2001,
                   "managerId": 2001,
@@ -2918,7 +2936,8 @@
         "type": "object",
         "required": [
           "authUserId",
-          "name"
+          "name",
+          "email"
         ],
         "properties": {
           "id": {
@@ -2933,6 +2952,10 @@
             "type": "string",
             "minLength": 3,
             "maxLength": 50
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
           },
           "roles": {
             "type": "array",
@@ -3031,8 +3054,7 @@
           "status": {
             "type": "string",
             "enum": [
-              "pending",
-              "in progress",
+              "todo",
               "done"
             ]
           },
@@ -3054,7 +3076,8 @@
           },
           "cookies": {
             "type": "integer",
-            "minimum": 0
+            "minimum": 1,
+            "maximum": 100
           }
         }
       },
