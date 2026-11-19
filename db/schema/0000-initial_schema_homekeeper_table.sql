@@ -2,6 +2,7 @@ CREATE TABLE `resident` (
   `id` bigint PRIMARY KEY AUTO_INCREMENT,
   `auth_user_id` varchar(64) UNIQUE NOT NULL,
   `name` varchar(50) NOT NULL,
+  `email` varchar(255) UNIQUE NOT NULL,
   `create_dt` timestamp NOT NULL DEFAULT (now()),
   `update_dt` timestamp NOT NULL DEFAULT (now())
 );
@@ -37,7 +38,7 @@ CREATE TABLE `task` (
   `description` varchar(2000),
   `due_date` timestamp,
   `cookies` integer,
-  `status` ENUM ('pending', 'in progress', 'done') NOT NULL,
+  `status` ENUM ('todo', 'done') NOT NULL,
   `assignee_id` bigint,
   `manager_id` bigint NOT NULL,
   `create_dt` timestamp NOT NULL DEFAULT (now()),
@@ -107,10 +108,10 @@ ALTER TABLE `housemate_role` ADD FOREIGN KEY (`housemate_id`) REFERENCES `housem
 -- Disable foreign key checks for INSERT
 SET FOREIGN_KEY_CHECKS = 0;
 
-INSERT INTO `resident` (`id`, `auth_user_id`, `name`, `create_dt`, `update_dt`)
+INSERT INTO `resident` (`id`, `auth_user_id`, `name`, `email`, `create_dt`, `update_dt`)
 VALUES
-  (2001, 'user_2abc123', 'Franta Jetel', NULL, NULL),
-  (2002, 'user_3def456', 'Václav Trachta', NULL, NULL);
+  (2001, 'user_2abc123', 'Franta Jetel', 'franta.jetel@example.com', NULL, NULL),
+  (2002, 'user_3def456', 'Václav Trachta', 'vaclav.trachta@example.com', NULL, NULL);
 INSERT INTO `household` (`id`, `name`, `description`, `create_dt`, `update_dt`)
 VALUES
   (1001, 'Pařezová chaloupka', 'Chaloupka v mechu a kapradí', NULL, NULL);
@@ -124,7 +125,7 @@ VALUES
   (4002, 3001, 'manager', NULL, NULL);
 INSERT INTO `task` (`id`, `household_id`, `name`, `description`, `due_date`, `cookies`, `status`, `assignee_id`, `manager_id`, `create_dt`, `update_dt`)
 VALUES
-  (5001, 1001, 'Vynést odpadky', 'Vynést tříděný odpad', '2027-11-10', 666, 'pending', 2002, 2001, NULL, NULL);
+  (5001, 1001, 'Vynést odpadky', 'Vynést tříděný odpad', '2027-11-10', 666, 'todo', 2002, 2001, NULL, NULL);
 INSERT INTO `invitation` (`id`, `household_id`, `resident_id`, `expiration_dt`, `create_dt`, `update_dt`)
 VALUES
   (6001, 1001, 2002, '2027-11-10', NULL, NULL);
