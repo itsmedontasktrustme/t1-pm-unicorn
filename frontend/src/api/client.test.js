@@ -1,4 +1,4 @@
-import { ApiError, ensureMe, request, resetClient } from "./client";
+import { ApiError, ensureMe, request, resetClient, SESSION_EXPIRED_EVENT } from "./client";
 
 jest.mock("../logic/auth", () => ({ getClerkToken: () => Promise.resolve("token-123") }));
 
@@ -56,4 +56,22 @@ test("a failed POST /api/me is retried on the next request", async () => {
 
   global.fetch = jest.fn(() => answer(200, { ok: true, resident: { id: "7" } }));
   await expect(ensureMe(user)).resolves.toEqual({ id: "7" });
+});
+
+test("HK-94: a 401 answer tells the app that the session has expired", async () => {
+  const listener = jest.fn();
+  window.addEventListener(SESSION_EXPIRED_EVENT, listener);
+  global.fetch = jest.fn(() => answer(401, { ok: false, code: "unauthorized", error: "Authentication required" }));
+
+  const error = await ensureMe(user).catch((caught) => caught);
+
+  expect(error).toMatchObject({ code: "unauthorized", status: 401 });
+  expect(listener).toHaveBeenCalledTimes(1);
+  window.removeEventListener(SESSION_EXPIRED_EVENT, listener);
+});
+
+test("HK-94: a server error does not leak details", async () => {
+  global.fetch = jest.fn(() => answer(500, { ok: false, error: "Internal server error", details: "ER_NO_SUCH_TABLE" }));
+  const error = await ensureMe(user).catch((caught) => caught);
+  expect(error).toMatchObject({ code: "server", status: 500, message: "Something went wrong on our side. Please try again." });
 });

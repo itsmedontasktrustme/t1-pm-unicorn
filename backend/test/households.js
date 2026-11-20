@@ -114,3 +114,17 @@ describe("HK-61 / HK-64 / HK-67 households", () => {
     });
   });
 });
+
+describe("HK-97 invalid request body", () => {
+  it("answers 400 with a clear text for broken JSON", async () => {
+    const chai = require("chai");
+    const { app } = require("./support/residents");
+    const res = await chai
+      .request(app)
+      .post("/api/households")
+      .set("Content-Type", "application/json")
+      .send("{ not json");
+    expect(res).to.have.status(400);
+    expect(res.body).to.include({ ok: false, code: "invalid", error: "The request is not valid JSON." });
+  });
+});

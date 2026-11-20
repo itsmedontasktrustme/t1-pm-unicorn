@@ -101,6 +101,11 @@ app.use(function(err, req, res, _next) {
 
   const status = err.status || 500;
 
+  // HK-97: a broken request body (invalid JSON) is the client's mistake, not a server error.
+  if (err.type === "entity.parse.failed") {
+    return res.status(400).json({ ok: false, code: "invalid", error: "The request is not valid JSON." });
+  }
+
   return res.status(status).json({
     ok: false,
     error: "Internal server error",

@@ -4,7 +4,7 @@ import { useClerk } from "@clerk/react";
 import cookieIcon from "../../assets/cookie.svg";
 import homeIcon from "../../assets/home-green.svg";
 import { listMyMemberships } from "../../api/households";
-import { ErrorState, LoadingState } from "../../components/states";
+import { ApiErrorState, LoadingState } from "../../components/states";
 import { useCurrentHousehold } from "../../logic/CurrentHousehold";
 import { logSignOut } from "../../logic/authEvents";
 import usePageLoadTracking from "../../logic/usePageLoadTracking";
@@ -67,7 +67,7 @@ function ProfilePage() {
   }, [clerk, isDemo, navigate, user]);
 
   if (error) {
-    return <ErrorState text="We couldn’t load your profile. Check your connection and try again." onRetry={() => setReloadKey((key) => key + 1)} homePath={null} />;
+    return <ApiErrorState error={error} text="We couldn’t load your profile. Check your connection and try again." onRetry={() => setReloadKey((key) => key + 1)} />;
   }
 
   if (!user || !memberships) {

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, Navigate, useSearchParams } from "react-router-dom";
 import cookieIcon from "../../assets/cookie.svg";
 import { getHousehold } from "../../api/households";
-import { ErrorState, LoadingState } from "../../components/states";
+import { ApiErrorState, LoadingState } from "../../components/states";
 import { useCurrentHousehold } from "../../logic/CurrentHousehold";
 import usePageLoadTracking from "../../logic/usePageLoadTracking";
 import useResident from "../../logic/useResident";
@@ -58,7 +58,7 @@ function HouseholdPage() {
   }, [currentId, user, reloadKey]);
 
   if (listError) {
-    return <ErrorState text="We couldn’t load your households. Check your connection and try again." onRetry={refresh} homePath={null} />;
+    return <ApiErrorState error={listError} text="We couldn’t load your households. Check your connection and try again." onRetry={refresh} />;
   }
 
   if (!isLoading && households?.length === 0) {
@@ -68,10 +68,13 @@ function HouseholdPage() {
 
   if (error) {
     return (
-      <ErrorState
+      <ApiErrorState
+        error={error}
         text="We couldn’t load this household. Check your connection and try again."
         onRetry={() => setReloadKey((key) => key + 1)}
-        homePath={null}
+        notFoundTitle="This household isn’t available"
+        notFoundText="You may no longer be a housemate there. Open one of your households instead."
+        onNotFound={refresh}
       />
     );
   }

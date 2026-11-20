@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { answerInvitee, getHousehold, getInvitationState } from "../../api/households";
-import { ErrorState, LoadingState } from "../../components/states";
+import { ApiErrorState, LoadingState } from "../../components/states";
 import { Toast } from "../../components/forms";
 import { useCurrentHousehold } from "../../logic/CurrentHousehold";
 import usePageLoadTracking from "../../logic/usePageLoadTracking";
@@ -244,7 +244,15 @@ function PeoplePage() {
   };
 
   if (error) {
-    return <ErrorState text="We couldn’t load the housemates. Check your connection and try again." onRetry={reload} homePath={null} />;
+    return (
+      <ApiErrorState
+        error={error}
+        text="We couldn’t load the housemates. Check your connection and try again."
+        onRetry={reload}
+        notFoundTitle="This household isn’t available"
+        notFoundText="You may no longer be a housemate there. Open one of your households instead."
+      />
+    );
   }
 
   if (!household || household.id !== currentId) {

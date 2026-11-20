@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import cookieIcon from "../../assets/cookie.svg";
 import historyIcon from "../../assets/book-green.svg";
 import { listMyHistory } from "../../api/households";
-import { EmptyState, ErrorState, LoadingState } from "../../components/states";
+import { ApiErrorState, EmptyState, LoadingState } from "../../components/states";
 import { groupByDay } from "./historyFormat";
 
 /*
@@ -30,7 +30,7 @@ function MyHistory({ user }) {
   }, [user, reloadKey]);
 
   if (error) {
-    return <ErrorState text="We couldn’t load your history. Check your connection and try again." onRetry={() => setReloadKey((key) => key + 1)} homePath={null} />;
+    return <ApiErrorState error={error} text="We couldn’t load your history. Check your connection and try again." onRetry={() => setReloadKey((key) => key + 1)} />;
   }
 
   if (!data) {

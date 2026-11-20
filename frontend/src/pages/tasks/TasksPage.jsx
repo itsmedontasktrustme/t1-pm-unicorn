@@ -4,7 +4,7 @@ import { listTasks } from "../../api/tasks";
 import { useCurrentHousehold } from "../../logic/CurrentHousehold";
 import useResident from "../../logic/useResident";
 import usePageLoadTracking from "../../logic/usePageLoadTracking";
-import { ErrorState, LoadingState } from "../../components/states";
+import { ApiErrorState, LoadingState } from "../../components/states";
 import { Toast } from "../../components/forms";
 import TaskList from "./TaskList";
 
@@ -47,7 +47,15 @@ function TasksPage() {
   const closeToast = useCallback(() => setToast(null), []);
 
   if (error) {
-    return <ErrorState onRetry={reload} />;
+    return (
+      <ApiErrorState
+        error={error}
+        text="We couldn’t load the tasks. Check your connection and try again."
+        onRetry={reload}
+        notFoundTitle="This household isn’t available"
+        notFoundText="You may no longer be a housemate there. Open one of your households instead."
+      />
+    );
   }
 
   if (householdLoading || !data || data.householdId !== householdId) {

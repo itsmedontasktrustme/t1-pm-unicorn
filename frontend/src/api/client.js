@@ -29,6 +29,9 @@ export class ApiError extends Error {
   }
 }
 
+/** Fired when the backend no longer accepts the session (401); App.jsx shows "Your session has expired". */
+export const SESSION_EXPIRED_EVENT = "homekeeper:session-expired";
+
 const NETWORK_MESSAGE = "We couldn’t reach Homekeeper. Check your connection and try again.";
 const SERVER_MESSAGE = "Something went wrong on our side. Please try again.";
 
@@ -62,6 +65,9 @@ async function send(method, path, body) {
 
   if (!response.ok || payload?.ok === false) {
     const status = response.status;
+    if (status === 401) {
+      window.dispatchEvent(new Event(SESSION_EXPIRED_EVENT));
+    }
     if (status >= 500 || !payload) {
       throw new ApiError("server", SERVER_MESSAGE, status);
     }
