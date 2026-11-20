@@ -17,7 +17,7 @@ function Stepper({ value, onChange, invalid, describedBy }) {
   const number = Number.isInteger(Number(value)) ? Number(value) : 0;
   return (
     <div className={invalid ? "hk-stepper hk-stepper--invalid" : "hk-stepper"}>
-      <button type="button" aria-label="Fewer cookies" onClick={() => onChange(String(Math.max(0, number - 1)))}>
+      <button type="button" aria-label="Fewer cookies" onClick={() => onChange(String(Math.max(1, number - 1)))}>
         −
       </button>
       <label className="hk-stepper__value">
@@ -53,7 +53,7 @@ function TaskForm({ mode }) {
   const [description, setDescription] = useState(existing?.description || "");
   const [dueDate, setDueDate] = useState(initialDue.date);
   const [dueTime, setDueTime] = useState(initialDue.time || "20:00");
-  const [cookies, setCookies] = useState(existing ? String(existing.cookies ?? 0) : "1");
+  const [cookies, setCookies] = useState(existing ? String(existing.cookies ?? 1) : "1");
   const [assigneeId, setAssigneeId] = useState("");
   const [errors, setErrors] = useState({});
   const [banner, setBanner] = useState(null);
@@ -202,7 +202,7 @@ function TaskForm({ mode }) {
             </div>
           ) : (
             <div className="hk-field__hint" id="task-cookies-note">
-              A whole number
+              A whole number, 1 or more
             </div>
           )}
         </div>

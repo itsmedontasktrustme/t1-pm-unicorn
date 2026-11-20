@@ -28,8 +28,14 @@ test("US5 7a / HK-202: name required, past due date and negative cookies are rej
   expect(fields).toEqual({
     title: "Enter a task name.",
     due: "Due date can’t be in the past.",
-    cookies: "Enter a whole number, 0 or more."
+    cookies: "Enter a whole number, 1 or more."
   });
+});
+
+test("HK-202 TC-US5-06: 0 cookies are rejected, 1 is the minimum", () => {
+  expect(validateTask({ title: "X", cookies: "0" }).fields.cookies).toBe("Enter a whole number, 1 or more.");
+  expect(validateTask({ title: "X", cookies: "1" }).fields.cookies).toBeUndefined();
+  expect(validateTask({ title: "X", cookies: "" }).value.cookies).toBe(1);
 });
 
 test("US5: without an assignee the task is Available, with one it is Assigned", async () => {

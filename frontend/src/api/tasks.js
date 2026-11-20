@@ -59,7 +59,7 @@ function requireManager(isManager) {
   }
 }
 
-/** Validates the task form (US5 7a, BR-TASK-02, BR-TASK-07, HK-202 TC-US5-01/06/11). */
+/** Validates the task form (US5 7a, BR-TASK-02, HK-202 TC-US5-01/06/11). */
 export function validateTask(input, { now = new Date(), isNew = true, previousDue = null } = {}) {
   const fields = {};
   const title = (input.title || "").trim();
@@ -80,9 +80,10 @@ export function validateTask(input, { now = new Date(), isNew = true, previousDu
     fields.due = "Due date can’t be in the past.";
   }
 
-  const cookies = input.cookies === "" || input.cookies === null || input.cookies === undefined ? 0 : Number(input.cookies);
-  if (!Number.isInteger(cookies) || cookies < 0) {
-    fields.cookies = "Enter a whole number, 0 or more.";
+  // Cookies: whole number, 1 or more (OpenAPI Task.cookies minimum 1, HK-202 TC-US5-06); empty = 1.
+  const cookies = input.cookies === "" || input.cookies === null || input.cookies === undefined ? 1 : Number(input.cookies);
+  if (!Number.isInteger(cookies) || cookies < 1) {
+    fields.cookies = "Enter a whole number, 1 or more.";
   }
 
   return { fields, value: { title, description, due: input.due || null, cookies } };
