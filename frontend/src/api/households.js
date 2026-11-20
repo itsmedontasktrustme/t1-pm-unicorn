@@ -23,17 +23,15 @@
  *   CompletedTask { id, title, memberId, markedById, completedAt: ISO, cookies }
  */
 
+import { ApiError } from "./client";
+
+export { ApiError };
+
 const STORAGE_KEY = "homekeeper.placeholder.households.v5";
 // Simulated network latency so loading states are visible; none in tests.
 const LATENCY_MS = process.env.NODE_ENV === "test" ? 0 : 350;
 const INVITATION_VALID_DAYS = 7;
 
-export class ApiError extends Error {
-  constructor(code, message) {
-    super(message);
-    this.code = code;
-  }
-}
 
 function daysFromNow(days) {
   const date = new Date();
