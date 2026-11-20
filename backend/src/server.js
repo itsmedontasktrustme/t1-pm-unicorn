@@ -18,6 +18,7 @@ const { registerAuthEndpoints } = require("./endpoints/auth");
 const { registerResidentEndpoints } = require("./endpoints/residents");
 const { registerHouseholdEndpoints } = require("./endpoints/households");
 const { registerInvitationEndpoints } = require("./endpoints/invitations");
+const { registerTaskEndpoints } = require("./endpoints/tasks");
 const { isAuthConfigured } = require("./logic/auth");
 
 function logServerError(context, error, extra = {}) {
@@ -75,6 +76,7 @@ registerHistoryActionEndpoint(app);
 registerResidentEndpoints(app);
 registerHouseholdEndpoints(app);
 registerInvitationEndpoints(app);
+registerTaskEndpoints(app);
 
 app.use(function(req, res) {
   logServerError("Route not found", new Error(`Unhandled route: ${req.method} ${req.originalUrl}`), {

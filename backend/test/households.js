@@ -63,7 +63,7 @@ describe("HK-61 / HK-64 / HK-67 households", () => {
 
     it("shows members with roles and cookies from DONE tasks", async () => {
       await database("task").insert([
-        { household_id: household.id, name: "De-gnome the garden", cookies: 5, status: "done", assignee_id: housemate.id, manager_id: owner.id, completed_dt: new Date(), completed_by: housemate.id },
+        { household_id: household.id, name: "De-gnome the garden", cookies: 5, credited_cookies: 5, status: "done", assignee_id: housemate.id, manager_id: owner.id, completed_dt: new Date(), completed_by: housemate.id },
         { household_id: household.id, name: "Feed the chickens", cookies: 3, status: "todo", assignee_id: housemate.id, manager_id: owner.id }
       ]);
 

@@ -13,8 +13,9 @@
  *   Household  { id, name, description, meId, members: Member[], tasks: Task[] }
  *              meId = id of the signed-in resident among the members (compare with it, not with the Clerk id)
  *   Member     { id, name, roles: ("owner"|"manager"|"housemate")[], cookies }
- *   Task       { id, title, description, assigneeId|null, assigneeName|null, due: ISO date-time|null,
- *                cookies, status: "available"|"assigned"|"done", creditedCookies? }  — see api/tasks.js
+ *   Task       { id, title, description, assigneeId|null, assigneeName|null, managerId, managerName,
+ *                due: ISO date-time|null, cookies, status: "available"|"assigned"|"done", creditedCookies,
+ *                completedAt, markedById }  — see api/tasks.js
  *   Invitation { code, householdId, householdName, invitedBy, memberCount, expiresAt }  — preview of a code (US3)
  *   InvitationState { invitation: { code, expiresAt }|null, invitees: { id, name, joinedAt }[] }  — owner (US2/US3)
  *   Pending    { householdId, householdName, joinedAt }  — resident waits for the owner (Invitee)
@@ -26,7 +27,7 @@ import { ApiError, request, USE_PLACEHOLDER_API } from "./client";
 
 export { ApiError };
 
-const STORAGE_KEY = "homekeeper.placeholder.households.v6";
+const STORAGE_KEY = "homekeeper.placeholder.households.v7";
 // Simulated network latency so loading states are visible; none in tests.
 const LATENCY_MS = process.env.NODE_ENV === "test" ? 0 : 350;
 const INVITATION_VALID_DAYS = 7;
@@ -73,8 +74,21 @@ function withDoneTasks(data) {
   return data;
 }
 
+// Every task has a responsible manager (US5 8): the household owner, unless named in `managers`.
+function withManagers(data, managers) {
+  data.households.forEach((household) => {
+    const owner = household.members.find((member) => member.roles.includes("owner"));
+    household.tasks.forEach((item) => {
+      const manager = household.members.find((member) => member.id === managers[item.id]) || owner;
+      Object.assign(item, { managerId: manager.id, managerName: manager.name });
+    });
+  });
+  return data;
+}
+
 function demoData() {
-  return withDoneTasks({
+  // Ron is responsible for two Gryffindor tasks, so Harry (owner) also sees tasks he cannot change.
+  return withManagers(withDoneTasks({
     households: [
       {
         id: "hh-private-drive",
@@ -142,7 +156,7 @@ function demoData() {
       { code: "HK-Q3T8-1X", householdId: "hh-gryffindor", invitedBy: "Harry Potter", expiresAt: daysFromNow(2) },
       { code: "HK-B7RW-3X", householdId: "hh-burrow", invitedBy: "Molly W.", expiresAt: daysFromNow(5) }
     ]
-  });
+  }), { g2: "demo-ron", g4: "demo-ron", gc1: "demo-ron" });
 }
 
 function load() {

@@ -3,12 +3,12 @@
  *
  * Roles: every member is a housemate; "owner" and "manager" are extra roles (housemate_role).
  * The frontend gets roles as ["owner", "manager"], ["manager"] or ["housemate"].
- * Cookies of a housemate = sum of cookies of their DONE tasks in that household (BR-CK-05).
+ * Cookies of a housemate = sum of credited cookies of their DONE tasks in that household (US9, US10).
  * Invitees (joined with a code, not accepted yet) are not members: they do not see the household.
  */
 const database = require("../database");
 const { badRequest, notFound } = require("./errors");
-const { taskQuery, toTask } = require("./tasks");
+const { taskQuery, toTask } = require("./taskRows");
 
 const NAME_MAX = 20;
 const DESCRIPTION_MAX = 255;
@@ -31,7 +31,7 @@ async function cookiesByResident(householdId) {
     .whereNotNull("assignee_id")
     .groupBy("assignee_id")
     .select("assignee_id")
-    .sum({ cookies: "cookies" });
+    .sum({ cookies: "credited_cookies" });
   return Object.fromEntries(rows.map((row) => [String(row.assignee_id), Number(row.cookies) || 0]));
 }
 
