@@ -5,6 +5,7 @@ import { changeRole } from "../../api/households";
 import useResident from "../../logic/useResident";
 import { initials } from "../../logic/format";
 import RoleChips from "../../components/ui/RoleChips";
+import { trackAction } from "../../logic/HistoryTracker";
 
 /*
  * HK-51 Manage roles (design HK-50, US4).
@@ -56,6 +57,7 @@ function RoleSheet({ open, member, isSelf, householdId, householdName, onClose, 
     setError(null);
     try {
       await changeRole(user, householdId, member.id, action);
+      trackAction("RoleSheet", user, action);
       setStep("options");
       setBusy(false);
       onChanged(SUCCESS[action](name));

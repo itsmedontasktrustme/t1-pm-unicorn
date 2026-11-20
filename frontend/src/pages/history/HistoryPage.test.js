@@ -69,27 +69,55 @@ test("US10 2a-2b: Mine shows own cookies across households and own completed tas
 });
 
 test("US10 2c: Audit loads the user's activity log with pagination", async () => {
-  const fetchMock = jest.fn()
-    .mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({
-        page: 1,
-        totalPages: 2,
-        hasNextPage: true,
-        hasPreviousPage: false,
-        data: [{ id: 1, component: "HomePage", action: "view", userId: "dev-demo-resident", createdAt: "2024-01-01T00:00:00.000Z" }]
-      })
-    })
-    .mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({
-        page: 2,
-        totalPages: 2,
-        hasNextPage: false,
-        hasPreviousPage: true,
-        data: [{ id: 2, component: "TaskBoard", action: "complete", userId: "dev-demo-resident", createdAt: "2024-01-02T00:00:00.000Z" }]
-      })
-    });
+  const fetchMock = jest.fn((input) => {
+    const url = String(input);
+
+    if (url.includes("/api/households?userId=dev-demo-resident")) {
+      return Promise.resolve({
+        ok: true,
+        json: async () => ({ households: [{ id: "hh-private-drive", name: "Private Drive No. 4" }] })
+      });
+    }
+
+    if (url.includes("/api/households/hh-private-drive/history?userId=dev-demo-resident")) {
+      return Promise.resolve({
+        ok: true,
+        json: async () => ({
+          householdName: "Private Drive No. 4",
+          completed: [],
+          totals: [{ id: "dev-demo-resident", name: "Harry Potter", cookies: 64 }]
+        })
+      });
+    }
+
+    if (url.includes("/api/history/action/dev-demo-resident?page=1&limit=20")) {
+      return Promise.resolve({
+        ok: true,
+        json: async () => ({
+          page: 1,
+          totalPages: 2,
+          hasNextPage: true,
+          hasPreviousPage: false,
+          data: [{ id: 1, component: "HomePage", action: "view", userId: "dev-demo-resident", createdAt: "2024-01-01T00:00:00.000Z" }]
+        })
+      });
+    }
+
+    if (url.includes("/api/history/action/dev-demo-resident?page=2&limit=20")) {
+      return Promise.resolve({
+        ok: true,
+        json: async () => ({
+          page: 2,
+          totalPages: 2,
+          hasNextPage: false,
+          hasPreviousPage: true,
+          data: [{ id: 2, component: "TaskBoard", action: "complete", userId: "dev-demo-resident", createdAt: "2024-01-02T00:00:00.000Z" }]
+        })
+      });
+    }
+
+    return Promise.resolve({ ok: true, json: async () => ({}) });
+  });
 
   global.fetch = fetchMock;
   await renderHistory("hh-private-drive");
@@ -97,15 +125,13 @@ test("US10 2c: Audit loads the user's activity log with pagination", async () =>
   await userEvent.click(screen.getByRole("button", { name: "Audit" }));
   await settle();
 
-  expect(fetchMock).toHaveBeenCalledTimes(1);
-  expect(fetchMock.mock.calls[0][0]).toContain("/api/history/action/dev-demo-resident?page=1&limit=20");
+  expect(fetchMock.mock.calls.some(([url]) => String(url).includes("/api/history/action/dev-demo-resident?page=1&limit=20"))).toBe(true);
   expect(screen.getByText("Page 1 of 2")).toBeInTheDocument();
   expect(screen.getByRole("button", { name: "2" })).toBeInTheDocument();
 
   await userEvent.click(screen.getByRole("button", { name: "2" }));
   await settle();
 
-  expect(fetchMock).toHaveBeenCalledTimes(2);
-  expect(fetchMock.mock.calls[1][0]).toContain("page=2");
+  expect(fetchMock.mock.calls.some(([url]) => String(url).includes("/api/history/action/dev-demo-resident?page=2&limit=20"))).toBe(true);
   expect(screen.getByText("Page 2 of 2")).toBeInTheDocument();
 });

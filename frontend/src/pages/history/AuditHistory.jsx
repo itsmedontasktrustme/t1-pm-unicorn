@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { EmptyState, ErrorState, LoadingState } from "../../components/states";
 import { authHeaders } from "../../logic/auth";
 
-const PAGE_SIZE = 9;
+const PAGE_SIZE = 20;
 
 function formatAuditDate(value) {
   if (!value) {
