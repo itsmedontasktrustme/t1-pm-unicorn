@@ -356,9 +356,15 @@ function withoutRole(roles, role) {
  * US4: change a housemate's role. Owner only.
  * action: "grant-manager" | "remove-manager" | "hand-over-owner"
  * Rules: the owner is always a manager (6a); there is always exactly one owner (6b);
- * after a hand-over the new owner is also a manager and the previous owner becomes a housemate.
+ * after a hand-over the new owner is also a manager and the previous owner stays a manager;
+ * when the manager role is removed, the owner becomes the responsible manager of that housemate's tasks.
+ * Returns the updated household.
  */
 export async function changeRole(user, householdId, memberId, action) {
+  if (!USE_PLACEHOLDER_API) {
+    const path = `/households/${encodeURIComponent(householdId)}/members/${encodeURIComponent(memberId)}/role`;
+    return (await request(user, "POST", path, { action })).household;
+  }
   const { data, household, me } = ownerContext(user, householdId, ONLY_OWNER_ROLES);
   const target = household.members.find((member) => member.id === memberId);
 
@@ -370,21 +376,27 @@ export async function changeRole(user, householdId, memberId, action) {
     target.roles = withRole(target.roles, "manager");
   } else if (action === "remove-manager") {
     if (target.roles.includes("owner")) {
-      throw new ApiError("owner-must-be-manager", "The owner must always be a manager.");
+      throw new ApiError("owner-must-be-manager", "The owner must always be a manager");
     }
     target.roles = withoutRole(target.roles, "manager");
+    household.tasks.forEach((item) => {
+      if (item.managerId === target.id) {
+        item.managerId = me.id;
+        item.managerName = me.name;
+      }
+    });
   } else if (action === "hand-over-owner") {
     if (target.id === me.id) {
-      throw new ApiError("hand-over-first", "Hand over the owner role to another housemate first.");
+      throw new ApiError("hand-over-first", "Hand over the owner role to another housemate first");
     }
     target.roles = ["owner", "manager"];
-    me.roles = ["housemate"];
+    me.roles = ["manager"];
   } else {
     throw new ApiError("unknown-action", `Unknown role change: ${action}`);
   }
 
   save(data);
-  return delay(household);
+  return delay({ ...household, meId: me.id });
 }
 
 /** Resident profile (HK-66): the resident's role and cookies in each household. */

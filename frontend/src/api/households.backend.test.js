@@ -1,4 +1,4 @@
-import { createHousehold, getHousehold, getMemberProfile, listMyHouseholds, listMyMemberships } from "./households";
+import { changeRole, createHousehold, getHousehold, getMemberProfile, listMyHouseholds, listMyMemberships } from "./households";
 import { request } from "./client";
 
 // The same functions with the backend switched on (no placeholder).
@@ -31,4 +31,10 @@ test("HK-61 / HK-64 / HK-67: household functions call the backend", async () => 
   request.mockResolvedValueOnce({ profile: { meId: "7" } });
   await getMemberProfile(user, "2", "9");
   expect(request).toHaveBeenLastCalledWith(user, "GET", "/households/2/members/9");
+});
+
+test("HK-52: a role change calls the backend and returns the updated household", async () => {
+  request.mockResolvedValueOnce({ household: { id: "2", meId: "7", members: [] } });
+  await expect(changeRole(user, "2", "9", "hand-over-owner")).resolves.toMatchObject({ id: "2" });
+  expect(request).toHaveBeenLastCalledWith(user, "POST", "/households/2/members/9/role", { action: "hand-over-owner" });
 });

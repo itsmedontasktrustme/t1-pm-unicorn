@@ -76,7 +76,7 @@ function RoleSheet({ open, member, isSelf, householdId, householdName, onClose, 
         <div className="hk-warn">
           <span aria-hidden="true">⚠</span>
           <span>
-            You’ll stay in the household as a <strong>housemate</strong> and won’t be able to invite people or change roles anymore.
+            You’ll stay in the household as a <strong>manager</strong>, but you won’t be able to invite people or change roles anymore.
             Only the new owner can undo this.
           </span>
         </div>
@@ -114,8 +114,8 @@ function RoleSheet({ open, member, isSelf, householdId, householdName, onClose, 
         {isSelf ? (
           <>
             {/* US4 6a / 6b — explained up front instead of failing afterwards */}
-            <Option icon="−" title="Remove manager role" description="The owner must always be a manager." disabled />
-            <Option icon="★" title="Give up owner role" description="Hand over the owner role to another housemate first." disabled />
+            <Option icon="−" title="Remove manager role" description="The owner must always be a manager" disabled />
+            <Option icon="★" title="Give up owner role" description="Hand over the owner role to another housemate first" disabled />
           </>
         ) : (
           <>
@@ -123,7 +123,7 @@ function RoleSheet({ open, member, isSelf, householdId, householdName, onClose, 
               <Option
                 icon="−"
                 title="Remove manager role"
-                description={`${name} can still pick up and complete tasks.`}
+                description={`${name} can still pick up and complete tasks. You become responsible for the tasks ${name} manages.`}
                 onClick={() => apply("remove-manager")}
                 disabled={busy}
               />
@@ -139,7 +139,7 @@ function RoleSheet({ open, member, isSelf, householdId, householdName, onClose, 
             <Option
               icon="★"
               title="Hand over owner role"
-              description={`${name} becomes the owner. You stay as a housemate.`}
+              description={`${name} becomes the owner. You stay as a manager.`}
               onClick={() => setStep("confirm")}
               disabled={busy}
             />

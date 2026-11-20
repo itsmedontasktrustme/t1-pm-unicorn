@@ -1,6 +1,7 @@
 const { handle } = require("../logic/errors");
 const { requireResident } = require("../logic/residents");
 const households = require("../logic/households");
+const roles = require("../logic/roles");
 
 function registerHouseholdEndpoints(app) {
   const meId = (req) => Number(req.resident.id);
@@ -40,6 +41,17 @@ function registerHouseholdEndpoints(app) {
     handle(async (req) => ({
       profile: await households.getMemberProfile(req.params.householdId, req.params.memberId, meId(req))
     }))
+  );
+
+  // HK-52 (US4): owner grants / removes the manager role or hands over the owner role.
+  // Answers with the updated household so the People screen can show the new roles at once.
+  app.post(
+    "/api/households/:householdId/members/:memberId/role",
+    requireResident,
+    handle(async (req) => {
+      await roles.changeRole(req.params.householdId, req.params.memberId, req.body?.action, meId(req));
+      return { household: await households.getHousehold(req.params.householdId, meId(req)) };
+    })
   );
 }
 
