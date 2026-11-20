@@ -37,6 +37,9 @@
   .hk-tasks__side {
     position: sticky;
     top: 0;
+    /* sticky makes its own layer: keep it (and the dialogs opened in it) above the
+       quick-action buttons of the task cards (z-index 1). */
+    z-index: 2;
   }
 
   .hk-tasks__placeholder {
