@@ -5,8 +5,9 @@
  * the same functions work on placeholder data in the browser (localStorage), see USE_PLACEHOLDER_API.
  * Connected to the backend:
  *   HK-64 Create household · HK-61 Household view · HK-67 Resident / housemate profile
+ *   HK-52 Roles · HK-49 / HK-268 Invitations (code, Invitee, accept / reject)
  * Still on the placeholder only (next steps):
- *   HK-49 / HK-268 invitations · HK-52 roles · HK-88 / HK-91 history
+ *   HK-88 / HK-91 history
  *
  * Shapes:
  *   Household  { id, name, description, meId, members: Member[], tasks: Task[] }
@@ -14,8 +15,9 @@
  *   Member     { id, name, roles: ("owner"|"manager"|"housemate")[], cookies }
  *   Task       { id, title, description, assigneeId|null, assigneeName|null, due: ISO date-time|null,
  *                cookies, status: "available"|"assigned"|"done", creditedCookies? }  — see api/tasks.js
- *   Invitation { code, householdId, householdName, invitedBy, memberCount, expiresAt }
- *   PendingInvitation { code, kind: "link"|"code", link, expiresAt }
+ *   Invitation { code, householdId, householdName, invitedBy, memberCount, expiresAt }  — preview of a code (US3)
+ *   InvitationState { invitation: { code, expiresAt }|null, invitees: { id, name, joinedAt }[] }  — owner (US2/US3)
+ *   Pending    { householdId, householdName, joinedAt }  — resident waits for the owner (Invitee)
  *   Membership { id, name, roles, cookies }  — one per household of the resident
  *   CompletedTask { id, title, memberId, markedById, completedAt: ISO, cookies }
  */
@@ -24,7 +26,7 @@ import { ApiError, request, USE_PLACEHOLDER_API } from "./client";
 
 export { ApiError };
 
-const STORAGE_KEY = "homekeeper.placeholder.households.v5";
+const STORAGE_KEY = "homekeeper.placeholder.households.v6";
 // Simulated network latency so loading states are visible; none in tests.
 const LATENCY_MS = process.env.NODE_ENV === "test" ? 0 : 350;
 const INVITATION_VALID_DAYS = 7;
@@ -114,17 +116,31 @@ function demoData() {
           task("g4", "Scrub the cauldrons", "demo-ron", "Ron W.", dueAt(-1, 18), 5),
           task("g5", "Water the Mandrakes", null, null, null, 1, "Earmuffs on!")
         ],
+        // Used the code and waits for the owner (US3 step 5).
+        invitees: [{ id: "demo-neville", name: "Neville L.", joinedAt: daysFromNow(-1) }],
         completed: [
           { id: "gc1", title: "Sort the library books", memberId: "demo-ron", markedById: "demo-ron", completedAt: daysFromNow(-1), cookies: 3 },
           { id: "gc2", title: "Sweep the common room", memberId: "dev-demo-resident", markedById: "demo-ron", completedAt: daysFromNow(-6), cookies: 3 }
         ]
+      },
+      {
+        // The demo resident is not a member here: join it with the code HK-B7RW-3X (US3).
+        id: "hh-burrow",
+        name: "The Burrow",
+        members: [
+          { id: "demo-molly", name: "Molly W.", roles: ["owner", "manager"], cookies: 12 },
+          { id: "demo-arthur", name: "Arthur W.", roles: ["manager"], cookies: 7 }
+        ],
+        tasks: [],
+        completed: []
       }
     ],
     invitations: [
       // Demo codes to try the join flow: one valid, one expired (US3 3a).
       { code: "HK-7K2M-5P", householdId: "hh-private-drive", invitedBy: "Vernon D.", expiresAt: daysFromNow(INVITATION_VALID_DAYS) },
       { code: "HK-4F9Q-2B", householdId: "hh-private-drive", invitedBy: "Vernon D.", expiresAt: daysFromNow(-2) },
-      { code: "HK-Q3T8-1X", kind: "code", householdId: "hh-gryffindor", invitedBy: "Harry Potter", expiresAt: daysFromNow(2) }
+      { code: "HK-Q3T8-1X", householdId: "hh-gryffindor", invitedBy: "Harry Potter", expiresAt: daysFromNow(2) },
+      { code: "HK-B7RW-3X", householdId: "hh-burrow", invitedBy: "Molly W.", expiresAt: daysFromNow(5) }
     ]
   });
 }
@@ -220,18 +236,44 @@ export async function createHousehold(user, name, description = "") {
   return delay({ id: household.id, name: household.name });
 }
 
-/** US3 steps 3–4: look up an invitation by code. Throws "invitation-invalid" (US3 3a). */
-export async function getInvitation(code) {
-  const normalized = (code || "").trim().toUpperCase();
-  const data = load();
+export const INVITATION_MESSAGES = {
+  onlyOwner: "Only the owner can invite residents to this household",
+  validity: "An invitation must be valid for 1 to 14 days",
+  invalid: "This invitation is invalid or has expired. Ask the owner for a new one.",
+  alreadyHousemate: "You are already a housemate of this household"
+};
+export const INVITATION_DAYS = { min: 1, max: 14, default: INVITATION_VALID_DAYS };
+
+/** "hk-7k2m-5p", " HK7K2M5P " → "HK-7K2M-5P". */
+function normalizeCode(code) {
+  const raw = String(code || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+  const body = raw.startsWith("HK") ? raw.slice(2) : raw;
+  return body.length === 6 ? `HK-${body.slice(0, 4)}-${body.slice(4)}` : String(code || "").trim().toUpperCase();
+}
+
+function findValidInvitation(data, code) {
+  const normalized = normalizeCode(code);
   const invitation = data.invitations.find((item) => item.code === normalized);
   const household = invitation && data.households.find((item) => item.id === invitation.householdId);
-
   if (!invitation || !household || new Date(invitation.expiresAt) < new Date()) {
-    await delay();
-    throw new ApiError("invitation-invalid", "This invitation is invalid or has expired. Ask the owner for a new one.");
+    throw new ApiError("invitation-invalid", INVITATION_MESSAGES.invalid, 404);
   }
+  return { invitation, household };
+}
 
+/** US3 step 2: what the code is for. Throws "invitation-invalid" (US3 2a). */
+export async function getInvitation(user, code) {
+  if (!USE_PLACEHOLDER_API) {
+    return (await request(user, "GET", `/invitations/${encodeURIComponent(normalizeCode(code))}`)).invitation;
+  }
+  let found;
+  try {
+    found = findValidInvitation(load(), code);
+  } catch (error) {
+    await delay();
+    throw error;
+  }
+  const { invitation, household } = found;
   return delay({
     code: invitation.code,
     householdId: household.id,
@@ -242,18 +284,48 @@ export async function getInvitation(code) {
   });
 }
 
-/** US3 steps 5–6: accept an invitation; the resident becomes a housemate. */
-export async function acceptInvitation(user, code) {
-  const invitation = await getInvitation(code);
+/** US3 steps 2–4: join with the code; the resident becomes an Invitee and waits for the owner. */
+export async function joinWithCode(user, code) {
+  if (!USE_PLACEHOLDER_API) {
+    return (await request(user, "POST", "/invitations/join", { code: normalizeCode(code) })).pending;
+  }
   const resident = residentOf(user);
   const data = load();
-  const household = data.households.find((item) => item.id === invitation.householdId);
+  let household;
+  try {
+    ({ household } = findValidInvitation(data, code));
+  } catch (error) {
+    await delay();
+    throw error;
+  }
 
-  if (!isMember(household, resident.id)) {
-    household.members.push({ id: resident.id, name: resident.name, roles: ["housemate"], cookies: 0 });
+  if (isMember(household, resident.id)) {
+    await delay();
+    throw new ApiError("already-housemate", INVITATION_MESSAGES.alreadyHousemate, 409);
+  }
+  household.invitees = household.invitees || [];
+  if (!household.invitees.some((item) => item.id === resident.id)) {
+    household.invitees.push({ id: resident.id, name: resident.name, joinedAt: new Date().toISOString() });
     save(data);
   }
-  return delay({ id: household.id, name: household.name });
+  return delay({ householdId: household.id, householdName: household.name, status: "invitee" });
+}
+
+/** US3 step 4: households where the resident waits for the owner ("Pending invitation"). */
+export async function listPendingInvitations(user) {
+  if (!USE_PLACEHOLDER_API) {
+    return (await request(user, "GET", "/me/pending")).pending;
+  }
+  const { id } = residentOf(user);
+  return delay(
+    load()
+      .households.filter((household) => (household.invitees || []).some((item) => item.id === id))
+      .map((household) => ({
+        householdId: household.id,
+        householdName: household.name,
+        joinedAt: household.invitees.find((item) => item.id === id).joinedAt
+      }))
+  );
 }
 
 /** Household view (HK-60): household with members and upcoming tasks. */
@@ -271,7 +343,6 @@ export async function getHousehold(user, householdId) {
   return delay({ ...household, meId: id });
 }
 
-const ONLY_OWNER_INVITES = "Only the owner can invite residents to this household.";
 const ONLY_OWNER_ROLES = "Only the owner can change roles.";
 const CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
@@ -281,10 +352,6 @@ function randomCode() {
   return `HK-${pick(4)}-${pick(2)}`;
 }
 
-export function invitationLink(code) {
-  return `${window.location.origin}/household/join?code=${encodeURIComponent(code)}`;
-}
-
 function ownerContext(user, householdId, deniedMessage) {
   const { id } = residentOf(user);
   const data = load();
@@ -292,54 +359,82 @@ function ownerContext(user, householdId, deniedMessage) {
   const me = household?.members.find((member) => member.id === id);
 
   if (!household || !me) {
-    throw new ApiError("not-found", "Household not found.");
+    throw new ApiError("not-found", "Household not found.", 404);
   }
   if (!me.roles.includes("owner")) {
-    throw new ApiError("not-owner", deniedMessage);
+    throw new ApiError("not-owner", deniedMessage, 403);
   }
   return { data, household, me };
 }
 
-function toPending(invitation) {
+function invitationState(data, household) {
+  const now = new Date();
+  const current = data.invitations
+    .filter((item) => item.householdId === household.id && new Date(item.expiresAt) > now)
+    .sort((a, b) => new Date(b.expiresAt) - new Date(a.expiresAt))[0];
   return {
-    code: invitation.code,
-    kind: invitation.kind || "code",
-    link: invitationLink(invitation.code),
-    expiresAt: invitation.expiresAt
+    invitation: current ? { code: current.code, expiresAt: current.expiresAt } : null,
+    invitees: household.invitees || []
   };
 }
 
-/** US2 step 8: pending (not expired) invitations of a household. Owner only. */
-export async function listInvitations(user, householdId) {
-  const { data } = ownerContext(user, householdId, ONLY_OWNER_INVITES);
-  const now = new Date();
-  return delay(
-    data.invitations
-      .filter((item) => item.householdId === householdId && new Date(item.expiresAt) > now)
-      .sort((a, b) => new Date(b.expiresAt) - new Date(a.expiresAt))
-      .map(toPending)
-  );
+/** US2 step 8 / US3 step 5: the current code and the residents who used it. Owner only. */
+export async function getInvitationState(user, householdId) {
+  if (!USE_PLACEHOLDER_API) {
+    return request(user, "GET", `/households/${encodeURIComponent(householdId)}/invitation`);
+  }
+  const { data, household } = ownerContext(user, householdId, INVITATION_MESSAGES.onlyOwner);
+  return delay(invitationState(data, household));
 }
 
-/** US2 steps 3–6: create a link or code invitation valid for 7 days. Owner only (5a). */
-export async function createInvitation(user, householdId, kind) {
-  const { data, me } = ownerContext(user, householdId, ONLY_OWNER_INVITES);
+/** US2 6a: text for the validity field, null when it is fine. */
+export function validateValidDays(value) {
+  const days = Number(value);
+  const valid = String(value).trim() !== "" && Number.isInteger(days) && days >= INVITATION_DAYS.min && days <= INVITATION_DAYS.max;
+  return valid ? null : INVITATION_MESSAGES.validity;
+}
+
+/** US2 steps 3–8: new code valid for 1–14 days; the previous code stops being valid. Owner only (5a). */
+export async function createInvitation(user, householdId, validDays = INVITATION_VALID_DAYS) {
+  if (!USE_PLACEHOLDER_API) {
+    const path = `/households/${encodeURIComponent(householdId)}/invitation`;
+    return (await request(user, "POST", path, { validDays: Number(validDays) })).invitation;
+  }
+  const { data, me } = ownerContext(user, householdId, INVITATION_MESSAGES.onlyOwner);
+  const validityError = validateValidDays(validDays);
+  if (validityError) {
+    throw new ApiError("invalid", validityError, 400, { validDays: validityError });
+  }
+
   const usedCodes = new Set(data.invitations.map((item) => item.code));
   let code = randomCode();
   while (usedCodes.has(code)) {
     code = randomCode();
   }
 
-  const invitation = {
-    code,
-    kind: kind === "link" ? "link" : "code",
-    householdId,
-    invitedBy: me.name,
-    expiresAt: daysFromNow(INVITATION_VALID_DAYS)
-  };
-  data.invitations.push(invitation);
+  const invitation = { code, householdId, invitedBy: me.name, expiresAt: daysFromNow(Number(validDays)) };
+  data.invitations = data.invitations.filter((item) => item.householdId !== householdId).concat(invitation);
   save(data);
-  return delay(toPending(invitation));
+  return delay({ code, expiresAt: invitation.expiresAt });
+}
+
+/** US3 steps 6–7 / 6a–6b: the owner accepts (→ housemate) or rejects (→ removed) an Invitee. */
+export async function answerInvitee(user, householdId, inviteeId, answer) {
+  if (!USE_PLACEHOLDER_API) {
+    const path = `/households/${encodeURIComponent(householdId)}/invitees/${encodeURIComponent(inviteeId)}/${answer}`;
+    return request(user, "POST", path);
+  }
+  const { data, household } = ownerContext(user, householdId, INVITATION_MESSAGES.onlyOwner);
+  const invitee = (household.invitees || []).find((item) => item.id === inviteeId);
+  if (!invitee) {
+    throw new ApiError("not-found", "This resident is not waiting for your answer anymore.", 404);
+  }
+  household.invitees = household.invitees.filter((item) => item.id !== inviteeId);
+  if (answer === "accept") {
+    household.members.push({ id: invitee.id, name: invitee.name, roles: ["housemate"], cookies: 0 });
+  }
+  save(data);
+  return delay(invitationState(data, household));
 }
 
 function withRole(roles, role) {

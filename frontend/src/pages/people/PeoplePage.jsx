@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getHousehold, listInvitations } from "../../api/households";
+import { answerInvitee, getHousehold, getInvitationState } from "../../api/households";
 import { ErrorState, LoadingState } from "../../components/states";
 import { Toast } from "../../components/forms";
 import { useCurrentHousehold } from "../../logic/CurrentHousehold";
@@ -13,7 +13,8 @@ import RoleChips from "../../components/ui/RoleChips";
 
 /*
  * People tab (design HK-47 / HK-50):
- * - HK-48 Manage invitations (US2) — owner: pending invitations + Invite resident;
+ * - HK-48 / HK-49 / HK-268 Manage invitations (US2, US3 as updated on 20.11.) — owner: the household's code,
+ *   residents who used it (Invitee) with Accept / Reject, Invite resident / New code;
  *   everybody else: "Only the owner can invite residents to this household" (US2 5a).
  * - HK-51 Manage roles (US4) — owner: "Change role" on every housemate (RoleSheet).
  */
@@ -70,41 +71,79 @@ function Housemates({ household, userId, isOwner, renderAction }) {
   );
 }
 
-function Invitations({ invitations, onInvite, onCopy }) {
+function Invitations({ state, busyId, onInvite, onCopy, onAnswer }) {
+  const { invitation, invitees } = state;
   return (
     <section className="hk-card" aria-labelledby="invitations-heading">
       <h3 className="hk-card__title" id="invitations-heading">
         Invitations
       </h3>
-      {invitations.length === 0 && <p className="hk-muted">No pending invitations.</p>}
-      {invitations.map((invitation) => {
-        const value = invitation.kind === "link" ? invitation.link : invitation.code;
-        return (
-          <div key={invitation.code} className="hk-row">
-            <span className="hk-avatar hk-inv__kind" aria-hidden="true">
-              {invitation.kind === "link" ? "↗" : "#"}
-            </span>
-            <div>
-              <span className="hk-inv__value">{value}</span>
-              <span className="hk-inv__meta">
-                {invitation.kind === "link" ? "Link" : "Code"} · {expiresLabel(invitation.expiresAt)}
+
+      {invitees.length > 0 && (
+        <>
+          <h4 className="hk-group-label">Waiting for your answer ({invitees.length})</h4>
+          {invitees.map((invitee) => (
+            <div key={invitee.id} className="hk-row hk-invitee">
+              <span className="hk-avatar" aria-hidden="true">
+                {initials(invitee.name)}
               </span>
+              <div>
+                <span className="hk-member__name">{invitee.name}</span>
+                <span className="hk-inv__meta">Invitee · used the code {new Date(invitee.joinedAt).toLocaleDateString()}</span>
+              </div>
+              <div className="hk-invitee__actions">
+                <button
+                  type="button"
+                  className="hk-btn hk-btn--secondary"
+                  aria-label={`Reject ${invitee.name}`}
+                  disabled={busyId === invitee.id}
+                  onClick={() => onAnswer(invitee, "reject")}
+                >
+                  Reject
+                </button>
+                <button
+                  type="button"
+                  className="hk-btn hk-btn--primary"
+                  aria-label={`Accept ${invitee.name}`}
+                  disabled={busyId === invitee.id}
+                  onClick={() => onAnswer(invitee, "accept")}
+                >
+                  Accept
+                </button>
+              </div>
             </div>
-            <button
-              type="button"
-              className="hk-btn hk-btn--secondary"
-              aria-label={`Copy ${invitation.kind} ${invitation.code}`}
-              onClick={() => onCopy(value, invitation.kind === "link" ? "Link" : "Code")}
-            >
-              Copy
-            </button>
+          ))}
+          <h4 className="hk-group-label">Invitation code</h4>
+        </>
+      )}
+
+      {invitation ? (
+        <div className="hk-row">
+          <span className="hk-avatar hk-inv__kind" aria-hidden="true">
+            #
+          </span>
+          <div>
+            <span className="hk-inv__value">{invitation.code}</span>
+            <span className="hk-inv__meta">Code · {expiresLabel(invitation.expiresAt)}</span>
           </div>
-        );
-      })}
-      <p className="hk-muted">Invitations are valid for 7 days. Anyone with the link or code can join as a housemate.</p>
+          <button
+            type="button"
+            className="hk-btn hk-btn--secondary"
+            aria-label={`Copy code ${invitation.code}`}
+            onClick={() => onCopy(invitation.code, "Code")}
+          >
+            Copy
+          </button>
+        </div>
+      ) : (
+        <p className="hk-muted">No valid invitation code.</p>
+      )}
+      <p className="hk-muted">
+        One code per household, valid 1 to 14 days. Residents who use it wait until you accept them.
+      </p>
       <div className="hk-card__actions">
         <button type="button" className="hk-btn hk-btn--primary" onClick={onInvite}>
-          Invite resident
+          {invitation ? "New code" : "Invite resident"}
         </button>
       </div>
     </section>
@@ -122,7 +161,7 @@ function OwnerOnlyInvitations({ ownerName }) {
           <LockIcon />
         </span>
         <p>
-          <strong>Only the owner can invite residents to this household.</strong>
+          <strong>Only the owner can invite residents to this household</strong>
         </p>
         {ownerName && <p>Ask {ownerName} to send an invitation to the person you want to add.</p>}
       </div>
@@ -134,7 +173,8 @@ function PeoplePage() {
   const { user } = useResident();
   const { current } = useCurrentHousehold();
   const [household, setHousehold] = useState(null);
-  const [invitations, setInvitations] = useState([]);
+  const [invitationState, setInvitationState] = useState({ invitation: null, invitees: [] });
+  const [answeringId, setAnsweringId] = useState(null);
   const [error, setError] = useState(null);
   const [reloadKey, setReloadKey] = useState(0);
   const [inviteOpen, setInviteOpen] = useState(false);
@@ -161,10 +201,12 @@ function PeoplePage() {
       try {
         const data = await getHousehold(user, currentId);
         const me = data.members.find((member) => member.id === data.meId);
-        const pending = me?.roles.includes("owner") ? await listInvitations(user, currentId) : [];
+        const state = me?.roles.includes("owner")
+          ? await getInvitationState(user, currentId)
+          : { invitation: null, invitees: [] };
         if (active) {
           setHousehold(data);
-          setInvitations(pending);
+          setInvitationState(state);
         }
       } catch (loadError) {
         if (active) {
@@ -186,6 +228,20 @@ function PeoplePage() {
       setToast("Couldn’t copy — select it and copy manually");
     }
   }, []);
+
+  // US3 steps 6–7 / 6a–6b
+  const answer = async (invitee, verb) => {
+    setAnsweringId(invitee.id);
+    try {
+      await answerInvitee(user, currentId, invitee.id, verb);
+      setToast(verb === "accept" ? `${invitee.name} is now a housemate` : `${invitee.name} was rejected`);
+    } catch (answerError) {
+      setToast(answerError.message || "We couldn’t save your answer. Please try again.");
+    } finally {
+      setAnsweringId(null);
+      reload();
+    }
+  };
 
   if (error) {
     return <ErrorState text="We couldn’t load the housemates. Check your connection and try again." onRetry={reload} homePath={null} />;
@@ -227,14 +283,27 @@ function PeoplePage() {
           }
         />
         {isOwner ? (
-          <Invitations invitations={invitations} onInvite={() => setInviteOpen(true)} onCopy={copy} />
+          <Invitations
+            state={invitationState}
+            busyId={answeringId}
+            onInvite={() => setInviteOpen(true)}
+            onCopy={copy}
+            onAnswer={answer}
+          />
         ) : (
           <OwnerOnlyInvitations ownerName={owner?.name} />
         )}
       </div>
 
       {isOwner && (
-        <InviteSheet open={inviteOpen} householdId={household.id} onClose={closeInvite} onCreated={reload} onCopy={copy} />
+        <InviteSheet
+          open={inviteOpen}
+          householdId={household.id}
+          hasCode={Boolean(invitationState.invitation)}
+          onClose={closeInvite}
+          onCreated={reload}
+          onCopy={copy}
+        />
       )}
       {isOwner && (
         <RoleSheet

@@ -1,9 +1,12 @@
+import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { useUser } from "@clerk/react";
 import homeIcon from "../../assets/home-green.svg";
 import membersIcon from "../../assets/members-green.svg";
 import GuestLayout from "../../components/auth/GuestLayout";
 import { LoadingState } from "../../components/states";
+import { FormBanner } from "../../components/forms";
+import { listPendingInvitations } from "../../api/households";
+import useResident from "../../logic/useResident";
 import { initials } from "../../logic/format";
 
 /*
@@ -11,9 +14,30 @@ import { initials } from "../../logic/format";
  * Shown after Google sign-in. A brand-new account gets "Your account is ready";
  * a returning resident gets "Welcome back". Both can create or join a household.
  *
- * TODO(HK-58): when the backend tells us the resident's households, send residents
- * who already belong to a household straight to /home instead of this screen.
+ * US3 step 4 (HK-268): a resident who joined with a code sees "Pending invitation" here
+ * until the owner accepts or rejects them.
  */
+
+/** Households where the resident waits for the owner's answer; empty when it cannot be loaded. */
+function usePendingInvitations() {
+  const { user } = useResident();
+  const [pending, setPending] = useState([]);
+
+  useEffect(() => {
+    if (!user) {
+      return undefined;
+    }
+    let active = true;
+    listPendingInvitations(user)
+      .then((list) => active && setPending(list))
+      .catch(() => active && setPending([]));
+    return () => {
+      active = false;
+    };
+  }, [user]);
+
+  return pending;
+}
 
 const NEW_ACCOUNT_WINDOW_MS = 10 * 60 * 1000;
 
@@ -46,12 +70,14 @@ function Choice({ to, icon, title, text }) {
 }
 
 function WelcomePage() {
-  const { isLoaded, user } = useUser();
+  // Clerk user, or the demo resident in development without a Clerk key.
+  const { isLoaded, user } = useResident();
   const [searchParams] = useSearchParams();
   const preview = process.env.NODE_ENV !== "production" ? searchParams.get("preview") : null;
 
   const resident = preview ? PREVIEW_USER : user;
   const isNew = preview ? preview === "new" : isNewAccount(user);
+  const pending = usePendingInvitations();
 
   if (!preview && (!isLoaded || !user)) {
     return (
@@ -87,6 +113,13 @@ function WelcomePage() {
           <span className="hk-profile-card__via">via Google</span>
         </div>
 
+        {pending.length > 0 && (
+          <FormBanner tone="info" title="Pending invitation">
+            {pending.map((item) => item.householdName).join(", ")} — waiting for the owner to accept you. You’ll see the
+            household as soon as you’re accepted.
+          </FormBanner>
+        )}
+
         <p className="hk-auth-card__text">
           {isNew ? "You’re not in a household yet. What would you like to do?" : "Pick up where you left off, or start something new."}
         </p>
@@ -94,7 +127,7 @@ function WelcomePage() {
         <div className="hk-choices">
           {!isNew && <Choice to="/home" icon={homeIcon} title="Go to my household" text="Open your tasks and cookies." />}
           <Choice to="/household/new" icon={homeIcon} title="Create a household" text="You’ll be the owner and can invite others." />
-          <Choice to="/household/join" icon={membersIcon} title="Join with an invitation" text="Got a link or code from a housemate? Use it here." />
+          <Choice to="/household/join" icon={membersIcon} title="Join with an invitation" text="Got an invitation code from the owner? Enter it here." />
         </div>
       </section>
     </GuestLayout>

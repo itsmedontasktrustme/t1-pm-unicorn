@@ -192,7 +192,7 @@ function HouseholdPage() {
           {household.members.length === 1 && (
             <div className="hk-lonely">
               <span className="hk-lonely__hello">It’s just you for now</span>
-              <p>Send an invitation link or code — it’s valid for 7 days.</p>
+              <p>Create an invitation code and send it to them — you’ll accept them in People.</p>
             </div>
           )}
           {isOwner && (

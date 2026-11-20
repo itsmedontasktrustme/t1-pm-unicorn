@@ -1,4 +1,17 @@
-import { changeRole, createHousehold, getHousehold, getMemberProfile, listMyHouseholds, listMyMemberships } from "./households";
+import {
+  answerInvitee,
+  changeRole,
+  createHousehold,
+  createInvitation,
+  getInvitation,
+  getInvitationState,
+  joinWithCode,
+  listPendingInvitations,
+  getHousehold,
+  getMemberProfile,
+  listMyHouseholds,
+  listMyMemberships
+} from "./households";
 import { request } from "./client";
 
 // The same functions with the backend switched on (no placeholder).
@@ -37,4 +50,26 @@ test("HK-52: a role change calls the backend and returns the updated household",
   request.mockResolvedValueOnce({ household: { id: "2", meId: "7", members: [] } });
   await expect(changeRole(user, "2", "9", "hand-over-owner")).resolves.toMatchObject({ id: "2" });
   expect(request).toHaveBeenLastCalledWith(user, "POST", "/households/2/members/9/role", { action: "hand-over-owner" });
+});
+
+test("HK-49 / HK-268: invitation functions call the backend", async () => {
+  request.mockResolvedValue({ invitation: {}, pending: [], invitees: [] });
+
+  await getInvitationState(user, "2");
+  expect(request).toHaveBeenLastCalledWith(user, "GET", "/households/2/invitation");
+
+  await createInvitation(user, "2", "3");
+  expect(request).toHaveBeenLastCalledWith(user, "POST", "/households/2/invitation", { validDays: 3 });
+
+  await getInvitation(user, "hk7k2m5p");
+  expect(request).toHaveBeenLastCalledWith(user, "GET", "/invitations/HK-7K2M-5P");
+
+  await joinWithCode(user, " hk-7k2m-5p ");
+  expect(request).toHaveBeenLastCalledWith(user, "POST", "/invitations/join", { code: "HK-7K2M-5P" });
+
+  await listPendingInvitations(user);
+  expect(request).toHaveBeenLastCalledWith(user, "GET", "/me/pending");
+
+  await answerInvitee(user, "2", "9", "accept");
+  expect(request).toHaveBeenLastCalledWith(user, "POST", "/households/2/invitees/9/accept");
 });
