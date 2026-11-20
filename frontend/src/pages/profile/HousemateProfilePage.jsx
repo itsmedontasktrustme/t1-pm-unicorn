@@ -3,7 +3,7 @@ import { Link, Navigate, useParams } from "react-router-dom";
 import cookieIcon from "../../assets/cookie.svg";
 import { getMemberProfile } from "../../api/households";
 import { Toast } from "../../components/forms";
-import { ErrorState, LoadingState } from "../../components/states";
+import { ApiErrorState, LoadingState } from "../../components/states";
 import { useCurrentHousehold } from "../../logic/CurrentHousehold";
 import usePageLoadTracking from "../../logic/usePageLoadTracking";
 import useResident from "../../logic/useResident";
@@ -70,7 +70,8 @@ function HousemateProfilePage() {
     };
   }, [currentId, memberId, user, reloadKey]);
 
-  if (user && memberId === user.id) {
+  // Own profile: the demo knows it from the Clerk id, the backend from meId in the answer.
+  if ((user && memberId === user.id) || (profile && profile.member.id === profile.meId)) {
     return <Navigate to="/profile" replace />;
   }
 
@@ -84,15 +85,12 @@ function HousemateProfilePage() {
     return (
       <div className="hk-household">
         {back}
-        <ErrorState
-          title={error.code === "not-found" ? "This housemate isn’t here" : undefined}
-          text={
-            error.code === "not-found"
-              ? "They may have left the household, or the link belongs to another household."
-              : "We couldn’t load this profile. Check your connection and try again."
-          }
-          onRetry={error.code === "not-found" ? null : () => setReloadKey((key) => key + 1)}
-          homePath={null}
+        <ApiErrorState
+          error={error}
+          text="We couldn’t load this profile. Check your connection and try again."
+          onRetry={() => setReloadKey((key) => key + 1)}
+          notFoundTitle="This housemate isn’t here"
+          notFoundText="They may have left the household, or the link belongs to another household."
         />
       </div>
     );

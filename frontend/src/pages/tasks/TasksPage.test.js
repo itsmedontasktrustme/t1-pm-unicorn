@@ -94,7 +94,7 @@ test("HK-75 / US5 7a: the form shows the errors from the test cases", async () =
   await settle(1);
 
   expect(screen.getByText("Please fix 1 field")).toBeInTheDocument();
-  expect(screen.getByText("Enter a task name.")).toBeInTheDocument();
+  expect(screen.getByText("Please enter a task name (max 100 characters)")).toBeInTheDocument();
 });
 
 test("HK-75 / US5: a manager creates an Available task", async () => {
@@ -108,11 +108,33 @@ test("HK-75 / US5: a manager creates an Available task", async () => {
   expect(screen.getByText("Nobody yet")).toBeInTheDocument();
 });
 
-test("HK-81: a Done task offers Return task instead of Edit / Delete", async () => {
-  await renderTasks("hh-gryffindor", "/tasks/gc1");
+test("HK-81: a DONE task offers Return task to the responsible manager instead of Edit / Delete", async () => {
+  await renderTasks("hh-gryffindor", "/tasks/gc2");
 
-  expect(screen.getByText(/A task with the status Done cannot be edited/)).toBeInTheDocument();
+  expect(screen.getByText(/A task with the status DONE cannot be edited/)).toBeInTheDocument();
   expect(screen.getByRole("button", { name: "Return task" })).toBeInTheDocument();
   expect(screen.queryByRole("link", { name: "Edit task" })).not.toBeInTheDocument();
   expect(screen.queryByRole("button", { name: "Delete task" })).not.toBeInTheDocument();
+});
+
+test("US6 / US9: another manager's task shows who is responsible and offers no changes", async () => {
+  await renderTasks("hh-gryffindor", "/tasks/g2");
+
+  expect(screen.getByText("Responsible")).toBeInTheDocument();
+  expect(screen.getAllByText("Ron W.").length).toBeGreaterThan(0);
+  expect(screen.getByText("Only the responsible manager can hand this task over to someone else.")).toBeInTheDocument();
+  expect(screen.queryByRole("link", { name: "Edit task" })).not.toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: "Reassign" })).not.toBeInTheDocument();
+});
+
+test("US6 4c–4d: the responsible manager hands the task over to another manager", async () => {
+  await renderTasks("hh-gryffindor", "/tasks/g1");
+
+  userEvent.click(screen.getByRole("button", { name: "Hand over responsibility" }));
+  userEvent.click(screen.getByRole("radio", { name: /Ron W\./ }));
+  userEvent.click(screen.getByRole("button", { name: "Hand over to Ron" }));
+  await settle();
+
+  expect(screen.getByText("Ron W. is now responsible for this task")).toBeInTheDocument();
+  expect(screen.queryByRole("link", { name: "Edit task" })).not.toBeInTheDocument();
 });

@@ -109,6 +109,13 @@
   margin: 0;
 }
 
+/* US1: optional household description under the name. */
+.hk-household__description {
+  margin: calc(var(--space-2) * -1) 0 var(--space-4);
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
+}
+
 .hk-stats {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

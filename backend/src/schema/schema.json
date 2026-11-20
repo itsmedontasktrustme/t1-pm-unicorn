@@ -27,6 +27,10 @@
     {
       "name": "Housemate",
       "description": "Operations for managing household's residents (housemates)"
+    },
+    {
+      "name": "Auth",
+      "description": "Google sign-in (through Clerk): current identity and sign-in / sign-out audit log"
     }
   ],
   "security": [
@@ -35,6 +39,186 @@
     }
   ],
   "paths": {
+    "/auth/me": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Identity of the signed-in resident",
+        "description": "Verifies the Clerk session token and returns the user and session it belongs to.",
+        "operationId": "getCurrentAuth",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "userId": {
+                      "type": "string"
+                    },
+                    "sessionId": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  }
+                },
+                "example": {
+                  "ok": true,
+                  "userId": "user_2abc",
+                  "sessionId": "sess_2xyz"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/auth/sign-in": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Log a sign-in",
+        "description": "Called by the frontend once a Clerk session is active after Google sign-in. Logged once per session (auth_log + history).",
+        "operationId": "logSignIn",
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "user": {
+                    "type": "object",
+                    "description": "Only used for a readable log line; identity comes from the token.",
+                    "properties": {
+                      "fullName": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      }
+                    }
+                  }
+                }
+              },
+              "example": {
+                "user": {
+                  "fullName": "Harry Potter"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Event logged (or already logged for this session)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthEvent"
+                },
+                "example": {
+                  "ok": true,
+                  "event": "sign-in",
+                  "userId": "user_2abc",
+                  "sessionId": "sess_2xyz",
+                  "recorded": true,
+                  "persisted": true
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/auth/sign-out": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Log a sign-out",
+        "description": "Called by the frontend right before signing out of Clerk, while the token is still valid. Logged once per session.",
+        "operationId": "logSignOut",
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "user": {
+                    "type": "object",
+                    "description": "Only used for a readable log line; identity comes from the token.",
+                    "properties": {
+                      "fullName": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      }
+                    }
+                  }
+                }
+              },
+              "example": {
+                "user": {
+                  "fullName": "Harry Potter"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Event logged (or already logged for this session)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthEvent"
+                },
+                "example": {
+                  "ok": true,
+                  "event": "sign-in",
+                  "userId": "user_2abc",
+                  "sessionId": "sess_2xyz",
+                  "recorded": true,
+                  "persisted": true
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
     "/household": {
       "post": {
         "tags": [
@@ -962,6 +1146,35 @@
       }
     },
     "schemas": {
+      "AuthEvent": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "event": {
+            "type": "string",
+            "enum": [
+              "sign-in",
+              "sign-out"
+            ]
+          },
+          "userId": {
+            "type": "string"
+          },
+          "sessionId": {
+            "type": "string"
+          },
+          "recorded": {
+            "type": "boolean",
+            "description": "false when this event of the session was already logged"
+          },
+          "persisted": {
+            "type": "boolean",
+            "description": "false when the database write failed (the event is still in the server log)"
+          }
+        }
+      },
       "Household": {
         "type": "object",
         "required": [

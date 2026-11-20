@@ -4,13 +4,15 @@ import cookieIcon from "../../assets/cookie.svg";
 import Sheet from "../../components/Sheet";
 import { FormBanner } from "../../components/forms";
 import { initials } from "../../logic/format";
-import { assignTask, deleteTask, giveBackTask, markTaskDone, pickUpTask, returnTask } from "../../api/tasks";
+import { assignTask, deleteTask, giveBackTask, handOverTask, markTaskDone, pickUpTask, returnTask } from "../../api/tasks";
 import { StatusChip } from "./TaskCard";
 import { announceCookiesChanged, completedText, detailDue, doneToast, isOverdue } from "./taskFormat";
 
 /*
  * HK-78 Task detail (design HK-77) and HK-84 status / assignment controls (design HK-83).
- * Actions follow US7–US9 and the Permission Matrix; actions the resident may not take are not offered.
+ * Actions follow US6–US9 as updated on 20.11.: the responsible manager edits, deletes, assigns,
+ * hands over and returns the task; only the assignee marks it as done.
+ * Actions the resident may not take are not offered.
  */
 
 function Avatar({ name, size }) {
@@ -91,6 +93,39 @@ function AssignSheet({ open, task, members, meId, busy, onCancel, onAssign }) {
   );
 }
 
+/** US6 4c–4d: choose another manager of the household who becomes responsible for the task. */
+function HandOverSheet({ open, task, managers, busy, onCancel, onHandOver }) {
+  const [choice, setChoice] = useState(null);
+  const chosen = managers.find((member) => member.id === choice);
+
+  return (
+    <Sheet open={open} onClose={onCancel} labelledBy="task-handover-title">
+      <h2 id="task-handover-title">Hand over responsibility</h2>
+      <div className="hk-tasks__sheet-task">
+        <strong>{task.title}</strong>
+      </div>
+      <div className="hk-people-pick" role="radiogroup" aria-label="Manager">
+        {managers.map((member) => (
+          <label key={member.id} className={choice === member.id ? "hk-person hk-person--on" : "hk-person"}>
+            <input type="radio" name="manager" value={member.id} checked={choice === member.id} onChange={() => setChoice(member.id)} />
+            <Avatar name={member.name} size="medium" />
+            <span>{member.name}</span>
+          </label>
+        ))}
+      </div>
+      <p className="hk-hint">They will edit, assign and return this task instead of you.</p>
+      <div className="hk-sheet__actions hk-sheet__actions--two">
+        <button type="button" className="hk-btn hk-btn--secondary" onClick={onCancel}>
+          Cancel
+        </button>
+        <button type="button" className="hk-btn hk-btn--primary" disabled={busy || !chosen} onClick={() => onHandOver(chosen)}>
+          {chosen ? `Hand over to ${chosen.name.split(" ")[0]}` : "Hand over"}
+        </button>
+      </div>
+    </Sheet>
+  );
+}
+
 function Fact({ label, children, extra }) {
   return (
     <div className="hk-fact">
@@ -113,7 +148,7 @@ function TaskDetail() {
   const backTo = `/tasks${query}`;
 
   const task = data.tasks.find((item) => item.id === taskId);
-  const { me, isManager, members } = data;
+  const { me, members } = data;
 
   if (!task) {
     return (
@@ -127,6 +162,8 @@ function TaskDetail() {
   }
 
   const isMine = task.assigneeId === me.id;
+  const isResponsible = task.managerId === me.id;
+  const otherManagers = members.filter((member) => member.roles.includes("manager") && member.id !== task.managerId);
   const overdue = isOverdue(task);
 
   const run = async (action, after) => {
@@ -158,23 +195,15 @@ function TaskDetail() {
 
   let actions = null;
   if (task.status === "available") {
-    actions = isManager ? (
-      <>
-        <div className="hk-tasks__actions hk-tasks__actions--two">
-          <button type="button" className="hk-btn hk-btn--secondary" onClick={() => setSheet("assign")}>
-            Assign
-          </button>
-          <button type="button" className="hk-btn hk-btn--primary" disabled={busy} onClick={pickUp}>
-            Pick up task
-          </button>
-        </div>
-        <div className="hk-tasks__inline">
-          <button type="button" className="hk-link-btn" disabled={busy} onClick={markDone}>
-            Mark as done without assignee
-          </button>
-          <span className="hk-hint">Nobody gets cookies for it.</span>
-        </div>
-      </>
+    actions = isResponsible ? (
+      <div className="hk-tasks__actions hk-tasks__actions--two">
+        <button type="button" className="hk-btn hk-btn--secondary" onClick={() => setSheet("assign")}>
+          Assign
+        </button>
+        <button type="button" className="hk-btn hk-btn--primary" disabled={busy} onClick={pickUp}>
+          Pick up task
+        </button>
+      </div>
     ) : (
       <div className="hk-tasks__actions">
         <button type="button" className="hk-btn hk-btn--primary" disabled={busy} onClick={pickUp}>
@@ -182,33 +211,33 @@ function TaskDetail() {
         </button>
       </div>
     );
-  } else if (task.status === "assigned" && (isMine || isManager)) {
+  } else if (task.status === "assigned" && isMine) {
     actions = (
       <>
-        <div className={isMine ? "hk-tasks__actions hk-tasks__actions--two" : "hk-tasks__actions"}>
-          {isMine && (
-            <button type="button" className="hk-btn hk-btn--secondary" onClick={() => setSheet("giveback")}>
-              Give back
-            </button>
-          )}
+        <div className="hk-tasks__actions hk-tasks__actions--two">
+          <button type="button" className="hk-btn hk-btn--secondary" onClick={() => setSheet("giveback")}>
+            Give back
+          </button>
           <button type="button" className="hk-btn hk-btn--primary" disabled={busy} onClick={markDone}>
             Mark as done
           </button>
         </div>
-        {overdue && (
-          <p className="hk-hint">
-            It can still be marked as done, but {isMine ? "you get" : `${task.assigneeName} gets`} no cookies for it.
-          </p>
-        )}
-        {!overdue && !isMine && <p className="hk-hint">{task.assigneeName} gets the cookies when it’s marked as done.</p>}
+        {overdue && <p className="hk-hint">It can still be marked as done, but you get no cookies for it.</p>}
       </>
     );
   } else if (task.status === "assigned") {
-    actions = <div className="hk-tasks__note">Only a manager can hand this task over to someone else.</div>;
-  } else if (task.status === "done" && isManager) {
+    // US9 5a: only the assignee marks it as done; the responsible manager can still reassign it.
+    actions = (
+      <div className="hk-tasks__note">
+        {isResponsible
+          ? `Only ${task.assigneeName} can mark this task as done.`
+          : "Only the responsible manager can hand this task over to someone else."}
+      </div>
+    );
+  } else if (task.status === "done" && isResponsible) {
     actions = (
       <>
-        <div className="hk-tasks__note">A task with the status Done cannot be edited. Return it first to make changes.</div>
+        <div className="hk-tasks__note">A task with the status DONE cannot be edited. Return it first to make changes.</div>
         <div className="hk-tasks__actions">
           <button type="button" className="hk-btn hk-btn--secondary" onClick={() => setSheet("return")}>
             Return task
@@ -219,7 +248,7 @@ function TaskDetail() {
   }
 
   const assigneeExtra =
-    isManager && task.status === "assigned" ? (
+    isResponsible && task.status === "assigned" ? (
       <button type="button" className="hk-link-btn" onClick={() => setSheet("assign")}>
         Reassign
       </button>
@@ -257,6 +286,19 @@ function TaskDetail() {
                   <small>Anyone can pick it up</small>
                 </span>
               </>
+            )}
+          </Fact>
+          <Fact label="Responsible">
+            {task.managerName ? (
+              <>
+                <Avatar name={task.managerName} />
+                <span>
+                  {task.managerName}
+                  {isResponsible && <small>you</small>}
+                </span>
+              </>
+            ) : (
+              <span>—</span>
             )}
           </Fact>
           {task.status === "done" ? (
@@ -300,11 +342,16 @@ function TaskDetail() {
 
         {actions}
 
-        {isManager && task.status !== "done" && (
+        {isResponsible && task.status !== "done" && (
           <div className="hk-tasks__manage">
             <Link className="hk-link-btn" to={`/tasks/${task.id}/edit${query}`}>
               Edit task
             </Link>
+            {otherManagers.length > 0 && (
+              <button type="button" className="hk-link-btn" onClick={() => setSheet("handover")}>
+                Hand over responsibility
+              </button>
+            )}
             <button type="button" className="hk-link-btn hk-link-btn--quiet" onClick={() => setSheet("delete")}>
               Delete task
             </button>
@@ -328,10 +375,25 @@ function TaskDetail() {
           }
         />
       )}
+      {sheet === "handover" && (
+        <HandOverSheet
+          open
+          task={task}
+          managers={otherManagers}
+          busy={busy}
+          onCancel={() => setSheet(null)}
+          onHandOver={(manager) =>
+            run(
+              () => handOverTask(user, householdId, task.id, manager.id),
+              () => showToast(`${manager.name} is now responsible for this task`)
+            )
+          }
+        />
+      )}
       <ConfirmSheet
         open={sheet === "giveback"}
         title="Give this task back?"
-        text={`“${task.title}” becomes Available again. Anyone can pick it up, or a manager can assign it.`}
+        text={`“${task.title}” becomes Available again. Anyone can pick it up, or the responsible manager can assign it.`}
         cancel="Keep it"
         confirm="Give back"
         busy={busy}
@@ -341,7 +403,7 @@ function TaskDetail() {
       <ConfirmSheet
         open={sheet === "return"}
         title="Return this task?"
-        text={`“${task.title}” goes back to ${task.assigneeName ? `Assigned for ${task.assigneeName}` : "Available"}. Its cookies are no longer counted.`}
+        text={`“${task.title}” goes back to TO DO${task.assigneeName ? ` and stays with ${task.assigneeName}` : ""}. Its cookies are no longer counted.`}
         cancel="Cancel"
         confirm="Return task"
         busy={busy}

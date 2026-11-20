@@ -14,6 +14,12 @@ const morgan = require("morgan");
 
 const database = require("./database");
 const { registerHistoryActionEndpoint } = require("./endpoints/history");
+const { registerAuthEndpoints } = require("./endpoints/auth");
+const { registerResidentEndpoints } = require("./endpoints/residents");
+const { registerHouseholdEndpoints } = require("./endpoints/households");
+const { registerInvitationEndpoints } = require("./endpoints/invitations");
+const { registerTaskEndpoints } = require("./endpoints/tasks");
+const { isAuthConfigured } = require("./logic/auth");
 
 function logServerError(context, error, extra = {}) {
   const details = {
@@ -28,6 +34,14 @@ function logServerError(context, error, extra = {}) {
 
 // Appi
 const app = express();
+
+// The backend runs behind nginx / the dev proxy (Docker networks), so req.ip is taken
+// from X-Forwarded-For set by those private-network proxies only.
+app.set("trust proxy", "loopback, linklocal, uniquelocal");
+
+if (!isAuthConfigured() && process.env.NODE_ENV !== "test") {
+  console.warn("[Auth] CLERK_SECRET_KEY or CLERK_JWT_KEY is not set: every protected /api endpoint will answer 401.");
+}
 
 app.use(express.json());
 app.use(morgan("common"));
@@ -57,7 +71,12 @@ app.get("/healthz", function(req, res) {
   res.send("I am happy and healthy\n");
 });
 
+registerAuthEndpoints(app);
 registerHistoryActionEndpoint(app);
+registerResidentEndpoints(app);
+registerHouseholdEndpoints(app);
+registerInvitationEndpoints(app);
+registerTaskEndpoints(app);
 
 app.use(function(req, res) {
   logServerError("Route not found", new Error(`Unhandled route: ${req.method} ${req.originalUrl}`), {
@@ -81,6 +100,11 @@ app.use(function(err, req, res, _next) {
   });
 
   const status = err.status || 500;
+
+  // HK-97: a broken request body (invalid JSON) is the client's mistake, not a server error.
+  if (err.type === "entity.parse.failed") {
+    return res.status(400).json({ ok: false, code: "invalid", error: "The request is not valid JSON." });
+  }
 
   return res.status(status).json({
     ok: false,

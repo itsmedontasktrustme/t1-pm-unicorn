@@ -48,6 +48,26 @@
   margin-left: auto;
 }
 
+/* Invitee waiting for the owner's answer (US3, HK-268): Reject / Accept on the right,
+   under the name on narrow phones. */
+.hk-inv__meta {
+  display: block;
+}
+
+.hk-invitee {
+  flex-wrap: wrap;
+}
+
+.hk-invitee__actions {
+  display: flex;
+  gap: var(--space-2);
+  margin-left: auto;
+}
+
+.hk-invitee__actions .hk-btn {
+  margin-left: 0;
+}
+
 /* Link | Code choice */
 .hk-choice-pair {
   display: grid;

@@ -37,6 +37,9 @@
   .hk-tasks__side {
     position: sticky;
     top: 0;
+    /* sticky makes its own layer: keep it (and the dialogs opened in it) above the
+       quick-action buttons of the task cards (z-index 1). */
+    z-index: 2;
   }
 
   .hk-tasks__placeholder {
@@ -425,11 +428,21 @@
 
 .hk-tasks__manage {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: var(--space-2);
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
   padding-top: var(--space-2);
   border-top: 1px solid var(--color-border);
+}
+
+/* Edit / Hand over responsibility / Delete: one per line on phones, one row from tablet width. */
+@media (min-width: 600px) {
+  .hk-tasks__manage {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-2);
+  }
 }
 
 .hk-tasks__manage .hk-link-btn {

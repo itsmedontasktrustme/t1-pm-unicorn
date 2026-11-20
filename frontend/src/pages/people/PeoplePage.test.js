@@ -41,24 +41,58 @@ beforeEach(() => {
 test("US2 5a: a housemate cannot invite and sees who can", async () => {
   await renderPeople("hh-private-drive");
 
-  expect(screen.getByText("Only the owner can invite residents to this household.")).toBeInTheDocument();
+  expect(screen.getByText("Only the owner can invite residents to this household")).toBeInTheDocument();
   expect(screen.getByText(/Ask Vernon D\./)).toBeInTheDocument();
   expect(screen.queryByRole("button", { name: /Invite resident/i })).not.toBeInTheDocument();
 });
 
-test("US2: the owner sees pending invitations and can create a new one", async () => {
+test("US2: the owner sees the household's code and creates a new one for 1–14 days", async () => {
   await renderPeople("hh-gryffindor");
 
   expect(screen.getByText("HK-Q3T8-1X")).toBeInTheDocument();
 
-  userEvent.click(screen.getByRole("button", { name: /Invite resident/i }));
-  userEvent.click(screen.getByLabelText(/Code/));
+  userEvent.click(screen.getByRole("button", { name: /New code/i }));
+  const days = screen.getByLabelText(/Valid for/i);
+  expect(days).toHaveValue(7);
+
+  // US2 6a
+  userEvent.clear(days);
+  userEvent.type(days, "15");
+  userEvent.click(screen.getByRole("button", { name: /Create invitation/i }));
+  expect(screen.getByText("An invitation must be valid for 1 to 14 days")).toBeInTheDocument();
+
+  userEvent.clear(days);
+  userEvent.type(days, "3");
   userEvent.click(screen.getByRole("button", { name: /Create invitation/i }));
   await settle();
 
   expect(screen.getByRole("heading", { name: "Invitation ready" })).toBeInTheDocument();
   expect(screen.getByRole("button", { name: "Copy code" })).toBeInTheDocument();
   expect(screen.getByText(/Expires on/)).toBeInTheDocument();
+  // The previous code stopped being valid.
+  expect(screen.queryByText("HK-Q3T8-1X")).not.toBeInTheDocument();
+});
+
+test("US3 6–7: the owner accepts a resident who used the code", async () => {
+  await renderPeople("hh-gryffindor");
+
+  expect(screen.getByText("Waiting for your answer (1)")).toBeInTheDocument();
+  userEvent.click(screen.getByRole("button", { name: "Accept Neville L." }));
+  await settle();
+
+  expect(screen.getByText("Neville L. is now a housemate")).toBeInTheDocument();
+  expect(screen.queryByText(/Waiting for your answer/)).not.toBeInTheDocument();
+  expect(screen.getByText("Housemates (4)")).toBeInTheDocument();
+});
+
+test("US3 6a–6b: the owner rejects a resident who used the code", async () => {
+  await renderPeople("hh-gryffindor");
+
+  userEvent.click(screen.getByRole("button", { name: "Reject Neville L." }));
+  await settle();
+
+  expect(screen.getByText("Neville L. was rejected")).toBeInTheDocument();
+  expect(screen.getByText("Housemates (3)")).toBeInTheDocument();
 });
 
 test("US4 6a/6b: the owner's own role actions are disabled with the reasons", async () => {
@@ -67,9 +101,9 @@ test("US4 6a/6b: the owner's own role actions are disabled with the reasons", as
   userEvent.click(screen.getByRole("button", { name: "Change role of Harry Potter" }));
 
   expect(screen.getByRole("button", { name: /Remove manager role/i })).toBeDisabled();
-  expect(screen.getByText("The owner must always be a manager.")).toBeInTheDocument();
+  expect(screen.getByText("The owner must always be a manager")).toBeInTheDocument();
   expect(screen.getByRole("button", { name: /Give up owner role/i })).toBeDisabled();
-  expect(screen.getByText("Hand over the owner role to another housemate first.")).toBeInTheDocument();
+  expect(screen.getByText("Hand over the owner role to another housemate first")).toBeInTheDocument();
 });
 
 test("US4: the owner grants the manager role", async () => {
@@ -83,7 +117,7 @@ test("US4: the owner grants the manager role", async () => {
   expect(screen.getAllByText("Manager")).toHaveLength(3);
 });
 
-test("US4: handing over ownership makes the previous owner a housemate", async () => {
+test("US4: after handing over ownership the previous owner stays a manager", async () => {
   await renderPeople("hh-gryffindor");
 
   userEvent.click(screen.getByRole("button", { name: "Change role of Ron W." }));
@@ -94,6 +128,9 @@ test("US4: handing over ownership makes the previous owner a housemate", async (
 
   expect(screen.getByText("Ron W. is now the owner")).toBeInTheDocument();
   // The former owner no longer manages invitations or roles.
-  expect(screen.getByText("Only the owner can invite residents to this household.")).toBeInTheDocument();
+  expect(screen.getByText("Only the owner can invite residents to this household")).toBeInTheDocument();
   expect(screen.queryByRole("button", { name: /Change role of/ })).not.toBeInTheDocument();
+  // Harry and Ron are managers, Ron is the owner.
+  expect(screen.getAllByText("Manager")).toHaveLength(2);
+  expect(screen.getAllByText("Owner")).toHaveLength(1);
 });

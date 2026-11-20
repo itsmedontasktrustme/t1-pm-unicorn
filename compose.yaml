@@ -6,6 +6,10 @@ services:
       context: backend
       target: development
     command: npm run start-watch
+    # Clerk keys for verifying Google sign-in tokens (see backend/.env.example).
+    env_file:
+      - path: ./backend/.env.local
+        required: false
     environment:
       - DATABASE_DB=homekeeper
       - DATABASE_USER=root

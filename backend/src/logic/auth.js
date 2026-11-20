@@ -1,5 +1,25 @@
+/*
+ * Authentication and authorization.
+ *
+ * Residents sign in with Google through Clerk (frontend: pages/auth/SignInPage.jsx).
+ * Every API call carries the Clerk session token: "Authorization: Bearer <JWT>".
+ * Here the token signature, expiry and authorized party are verified, so the user id
+ * cannot be forged by the client (the old code only base64-decoded the payload).
+ */
+
+const { verifyToken } = require("@clerk/backend");
+const { auth: authConfig } = require("../config");
+
+class AuthError extends Error {
+  constructor(status, code, message) {
+    super(message);
+    this.status = status;
+    this.code = code;
+  }
+}
+
 function getAuthorizationToken(req) {
-  const authorizationHeader = req.headers.authorization || req.headers.Authorization;
+  const authorizationHeader = req.headers.authorization;
 
   if (!authorizationHeader || typeof authorizationHeader !== "string") {
     return null;
@@ -9,53 +29,92 @@ function getAuthorizationToken(req) {
   return match ? match[1].trim() : null;
 }
 
-function decodeJwtPayload(token) {
-  if (!token || typeof token !== "string") {
-    return null;
+function isAuthConfigured(config = authConfig) {
+  return Boolean(config.jwtKey || config.secretKey);
+}
+
+/**
+ * Verifies a Clerk session token and returns { userId, sessionId, claims }.
+ * Throws AuthError(401) when the token is missing, malformed, expired or not signed by Clerk.
+ */
+async function verifySessionToken(token, config = authConfig) {
+  if (!token) {
+    throw new AuthError(401, "unauthorized", "Authentication required");
   }
 
-  const parts = token.split(".");
-  if (parts.length < 2) {
-    return null;
+  if (!isAuthConfigured(config)) {
+    // Fail closed: without a key nothing can be verified.
+    throw new AuthError(401, "unauthorized", "Authentication is not configured on the server");
   }
 
-  const encodedPayload = parts[1];
-  const base64 = encodedPayload.replace(/-/g, "+").replace(/_/g, "/");
-  const padded = base64 + "=".repeat((4 - (base64.length % 4)) % 4);
-
+  let claims;
   try {
-    return JSON.parse(Buffer.from(padded, "base64").toString("utf8"));
+    claims = await verifyToken(token, {
+      ...(config.jwtKey ? { jwtKey: config.jwtKey } : { secretKey: config.secretKey }),
+      ...(config.authorizedParties.length > 0 ? { authorizedParties: config.authorizedParties } : {})
+    });
   } catch (error) {
-    console.error("Failed to decode JWT payload", error);
-    return null;
+    throw new AuthError(401, "unauthorized", `Invalid session token${error?.reason ? ` (${error.reason})` : ""}`);
+  }
+
+  if (!claims?.sub) {
+    throw new AuthError(401, "unauthorized", "Session token has no user");
+  }
+
+  return {
+    userId: String(claims.sub),
+    sessionId: claims.sid ? String(claims.sid) : null,
+    claims
+  };
+}
+
+/** Verifies the request's token once and caches the result on req.auth. */
+async function authenticateRequest(req) {
+  if (!req.auth) {
+    req.auth = await verifySessionToken(getAuthorizationToken(req));
+  }
+  return req.auth;
+}
+
+function sendAuthError(res, error) {
+  return res.status(error.status).json({
+    ok: false,
+    code: error.code,
+    error: error.message
+  });
+}
+
+/** Express middleware: only signed-in residents get through; sets req.auth. */
+async function requireAuth(req, res, next) {
+  try {
+    await authenticateRequest(req);
+    return next();
+  } catch (error) {
+    if (error instanceof AuthError) {
+      return sendAuthError(res, error);
+    }
+    return next(error);
   }
 }
 
-function getAuthenticatedUserId(req) {
-  const token = getAuthorizationToken(req);
+/**
+ * Express middleware (after requireAuth): the resident may only access their own data,
+ * identified by the route parameter `paramName`.
+ */
+function requireSelf(paramName = "userId") {
+  return function requireSelfMiddleware(req, res, next) {
+    const requestedUserId = req.params[paramName];
 
-  if (!token) {
-    return null;
-  }
-
-  const payload = decodeJwtPayload(token);
-  if (payload) {
-    const inferredUserId = [
-      payload.sub,
-      payload.userId,
-      payload.user_id,
-      payload.clerkUserId,
-      payload.id,
-      payload.user?.id,
-      payload.user?.userId
-    ].find((candidate) => candidate !== undefined && candidate !== null && candidate !== "");
-
-    if (inferredUserId) {
-      return String(inferredUserId);
+    if (!requestedUserId) {
+      return sendAuthError(res, new AuthError(400, "validationError", `${paramName} is required`));
     }
-  }
 
-  return String(token);
+    if (String(requestedUserId) !== req.auth.userId) {
+      return sendAuthError(res, new AuthError(403, "forbidden", "Forbidden: you can only access your own records"));
+    }
+
+    return next();
+  };
 }
 
 function normalizeUserId(user) {
@@ -68,37 +127,13 @@ function normalizeUserId(user) {
   return String(rawUserId);
 }
 
-function assertAuthenticatedUserMatches(req, userId) {
-  const authenticatedUserId = getAuthenticatedUserId(req);
-
-  if (!authenticatedUserId) {
-    return {
-      status: 401,
-      error: "Authentication required"
-    };
-  }
-
-  if (!userId) {
-    return {
-      status: 400,
-      error: "user id is required"
-    };
-  }
-
-  if (String(userId) !== String(authenticatedUserId)) {
-    return {
-      status: 403,
-      error: "Forbidden: history records can only be accessed by the authenticated user"
-    };
-  }
-
-  return null;
-}
-
 module.exports = {
+  AuthError,
   getAuthorizationToken,
-  decodeJwtPayload,
-  getAuthenticatedUserId,
-  normalizeUserId,
-  assertAuthenticatedUserMatches
+  isAuthConfigured,
+  verifySessionToken,
+  authenticateRequest,
+  requireAuth,
+  requireSelf,
+  normalizeUserId
 };

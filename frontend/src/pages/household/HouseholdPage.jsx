@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, Navigate, useSearchParams } from "react-router-dom";
 import cookieIcon from "../../assets/cookie.svg";
 import { getHousehold } from "../../api/households";
-import { ErrorState, LoadingState } from "../../components/states";
+import { ApiErrorState, LoadingState } from "../../components/states";
 import { useCurrentHousehold } from "../../logic/CurrentHousehold";
 import usePageLoadTracking from "../../logic/usePageLoadTracking";
 import useResident from "../../logic/useResident";
@@ -58,7 +58,7 @@ function HouseholdPage() {
   }, [currentId, user, reloadKey]);
 
   if (listError) {
-    return <ErrorState text="We couldn’t load your households. Check your connection and try again." onRetry={refresh} homePath={null} />;
+    return <ApiErrorState error={listError} text="We couldn’t load your households. Check your connection and try again." onRetry={refresh} />;
   }
 
   if (!isLoading && households?.length === 0) {
@@ -68,10 +68,13 @@ function HouseholdPage() {
 
   if (error) {
     return (
-      <ErrorState
+      <ApiErrorState
+        error={error}
         text="We couldn’t load this household. Check your connection and try again."
         onRetry={() => setReloadKey((key) => key + 1)}
-        homePath={null}
+        notFoundTitle="This household isn’t available"
+        notFoundText="You may no longer be a housemate there. Open one of your households instead."
+        onNotFound={refresh}
       />
     );
   }
@@ -80,10 +83,10 @@ function HouseholdPage() {
     return <LoadingState label="Loading your household…" count={2} />;
   }
 
-  const me = household.members.find((member) => member.id === user?.id);
+  const me = household.members.find((member) => member.id === household.meId);
   const isOwner = me?.roles.includes("owner");
   const openTasks = household.tasks.filter((task) => task.status !== "done");
-  const myTasks = openTasks.filter((task) => task.assigneeName && task.assigneeName === me?.name);
+  const myTasks = openTasks.filter((task) => task.assigneeId === household.meId);
   const dueSoon = openTasks
     .filter((task) => task.due)
     .sort((a, b) => new Date(a.due) - new Date(b.due))
@@ -110,6 +113,7 @@ function HouseholdPage() {
         <h2>{household.name}</h2>
         {me && <RoleChips roles={me.roles} />}
       </div>
+      {household.description && <p className="hk-household__description">{household.description}</p>}
 
       <div className="hk-page-grid">
         <div>
@@ -175,7 +179,7 @@ function HouseholdPage() {
                 </span>
                 <div>
                   <span className="hk-member__name">
-                    {member.name} {member.id === user?.id && <span className="hk-member__you">(you)</span>}
+                    {member.name} {member.id === household.meId && <span className="hk-member__you">(you)</span>}
                   </span>
                   <span className="hk-member__roles">
                     <RoleChips roles={member.roles} />
@@ -191,7 +195,7 @@ function HouseholdPage() {
           {household.members.length === 1 && (
             <div className="hk-lonely">
               <span className="hk-lonely__hello">It’s just you for now</span>
-              <p>Send an invitation link or code — it’s valid for 7 days.</p>
+              <p>Create an invitation code and send it to them — you’ll accept them in People.</p>
             </div>
           )}
           {isOwner && (

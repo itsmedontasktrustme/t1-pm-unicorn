@@ -3,26 +3,13 @@ const {
   saveHistoryEntry,
   writeHistoryLog
 } = require("../logic/history");
-const {
-  assertAuthenticatedUserMatches,
-  getAuthenticatedUserId,
-  normalizeUserId
-} = require("../logic/auth");
+const { normalizeUserId, requireAuth, requireSelf } = require("../logic/auth");
 
 function registerHistoryActionEndpoint(app) {
-  app.get("/api/history/action/:userId", async function(req, res) {
-    const requestedUserId = req.params.userId;
-    const authCheck = assertAuthenticatedUserMatches(req, requestedUserId);
-
-    if (authCheck) {
-      return res.status(authCheck.status).json({
-        ok: false,
-        error: authCheck.error
-      });
-    }
-
+  // A resident can only read their own activity log.
+  app.get("/api/history/action/:userId", requireAuth, requireSelf("userId"), async function(req, res) {
     try {
-      const result = await fetchHistoryEntriesForUser(requestedUserId, req.query.page, req.query.limit);
+      const result = await fetchHistoryEntriesForUser(req.auth.userId, req.query.page, req.query.limit);
 
       return res.status(200).json({
         ok: true,
@@ -38,7 +25,7 @@ function registerHistoryActionEndpoint(app) {
     }
   });
 
-  app.post("/api/history/action", async function(req, res) {
+  app.post("/api/history/action", requireAuth, async function(req, res) {
     const { component, user, action } = req.body || {};
 
     if (!component || !action) {
@@ -47,17 +34,17 @@ function registerHistoryActionEndpoint(app) {
       });
     }
 
-    const requestUserId = normalizeUserId(user) || getAuthenticatedUserId(req);
-    const authCheck = assertAuthenticatedUserMatches(req, requestUserId);
-
-    if (authCheck) {
-      return res.status(authCheck.status).json({
+    // The user id always comes from the verified token; a different id in the body is rejected.
+    const bodyUserId = normalizeUserId(user);
+    if (bodyUserId && bodyUserId !== req.auth.userId) {
+      return res.status(403).json({
         ok: false,
-        error: authCheck.error
+        code: "forbidden",
+        error: "Forbidden: history records can only be stored for the authenticated user"
       });
     }
 
-    const effectiveUser = { ...(user || {}), id: requestUserId };
+    const effectiveUser = { ...(user || {}), id: req.auth.userId };
     const message = writeHistoryLog({ component, user: effectiveUser, action });
 
     try {

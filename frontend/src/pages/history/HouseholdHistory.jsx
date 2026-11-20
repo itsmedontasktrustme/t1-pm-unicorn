@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import cookieIcon from "../../assets/cookie.svg";
 import historyIcon from "../../assets/book-green.svg";
 import { listHouseholdHistory } from "../../api/households";
-import { EmptyState, ErrorState, LoadingState } from "../../components/states";
+import { ApiErrorState, EmptyState, LoadingState } from "../../components/states";
 import { groupByDay } from "./historyFormat";
 import { initials } from "../../logic/format";
 
@@ -35,7 +35,15 @@ function HouseholdHistory({ user, householdId }) {
   }, [householdId, user, reloadKey]);
 
   if (error) {
-    return <ErrorState text="We couldn’t load the history. Check your connection and try again." onRetry={() => setReloadKey((key) => key + 1)} homePath={null} />;
+    return (
+      <ApiErrorState
+        error={error}
+        text="We couldn’t load the history. Check your connection and try again."
+        onRetry={() => setReloadKey((key) => key + 1)}
+        notFoundTitle="This household isn’t available"
+        notFoundText="You may no longer be a housemate there. Open one of your households instead."
+      />
+    );
   }
 
   if (!data || data.householdId !== householdId) {
@@ -84,7 +92,7 @@ function HouseholdHistory({ user, householdId }) {
               </span>
               <div>
                 <span className="hk-bar-row__name">
-                  {item.name} {item.id === user?.id && <span className="hk-member__you">(you)</span>}
+                  {item.name} {item.id === data.meId && <span className="hk-member__you">(you)</span>}
                 </span>
                 <div className="hk-bar" aria-hidden="true">
                   <span style={{ width: `${Math.max(2, Math.round((item.cookies / maxCookies) * 100))}%` }} />
@@ -118,7 +126,7 @@ function HouseholdHistory({ user, householdId }) {
                           {initials(task.assigneeName)}
                         </span>
                         <span>
-                          {task.assigneeName} · marked done by {task.markedById === user?.id ? "you" : task.markedByName}
+                          {task.assigneeName} · marked done by {task.markedById === data.meId ? "you" : task.markedByName}
                         </span>
                       </span>
                     </div>

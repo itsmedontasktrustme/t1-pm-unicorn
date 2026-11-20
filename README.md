@@ -53,6 +53,23 @@ Make sure port 3000 on the host is not already being in use.
 $ docker compose up -d
 ```
 
+## Authentication (Google sign-in)
+
+Residents sign in with Google through [Clerk](https://clerk.com). Google is enabled as the SSO connection in the Clerk Dashboard; the app renders its own "Continue with Google" button (`frontend/src/pages/auth/SignInPage.jsx`).
+
+- **Frontend** — `REACT_APP_CLERK_PUBLISHABLE_KEY` (in `frontend/.env.local` as `VITE_CLERK_PUBLISHABLE_KEY` for compose). Every API call sends the Clerk session token as `Authorization: Bearer <token>`.
+- **Backend** — verifies the token's signature, expiry and authorized party with `@clerk/backend` (`backend/src/logic/auth.js`). Copy `backend/.env.example` to `backend/.env.local` and set `CLERK_SECRET_KEY` (or `CLERK_JWT_KEY`). Without a key every protected endpoint answers `401`.
+- **Authorization** — `requireAuth` lets only signed-in residents through; `requireSelf` limits personal data (e.g. the activity log) to its owner.
+
+### Sign-in / sign-out log
+
+| Event | When | Endpoint |
+| --- | --- | --- |
+| `sign-in` | first time the app sees a new Clerk session after Google sign-in | `POST /api/auth/sign-in` |
+| `sign-out` | the resident clicks *Sign out* on the profile page (before the session ends) | `POST /api/auth/sign-out` |
+
+Each event is written to the backend log (stdout) and to the database: `auth_log` (user, session, IP address, user agent; one row per session and event) and `history` (component `Auth`, shown in the resident's activity log). Sessions that only expire or are revoked in Clerk are not logged as a sign-out.
+
 ## Database migrations
 
 Database setup scripts live in `db/schema` and are loaded once during the initial database creation.

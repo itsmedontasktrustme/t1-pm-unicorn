@@ -34,7 +34,7 @@ test("US1 5a: creating without a name shows the error from the user story", asyn
 
   userEvent.click(screen.getByRole("button", { name: /Create household/i }));
 
-  expect(await screen.findByText("Please enter a household name.")).toBeInTheDocument();
+  expect(await screen.findByText("Please enter a household name (max 20 characters)")).toBeInTheDocument();
   expect(screen.getByLabelText(/Household name/i)).toHaveAttribute("aria-invalid", "true");
 });
 
@@ -47,17 +47,27 @@ test("US1: creating a household opens the household home", async () => {
   expect(await screen.findByText("Household home")).toBeInTheDocument();
 });
 
-test("US3: a valid invitation link shows the invitation and can be accepted", async () => {
-  renderAt("/household/join?code=HK-7K2M-5P");
+test("US3 1–4: a valid code shows the household; joining makes the resident wait for the owner", async () => {
+  renderAt("/household/join?code=hk-b7rw-3x");
 
-  expect(await screen.findByText("Private Drive No. 4")).toBeInTheDocument();
-  expect(screen.getByText(/Invited by Vernon D\./i)).toBeInTheDocument();
+  expect(await screen.findByText("The Burrow")).toBeInTheDocument();
+  expect(screen.getByText(/Invited by Molly W\./i)).toBeInTheDocument();
 
-  userEvent.click(screen.getByRole("button", { name: /Accept invitation/i }));
-  expect(await screen.findByText("Household home")).toBeInTheDocument();
+  userEvent.click(screen.getByRole("button", { name: /Join household/i }));
+  expect(await screen.findByRole("heading", { name: "Pending invitation" })).toBeInTheDocument();
+  expect(screen.getByText(/Molly W\. \(owner\) will accept or reject you/)).toBeInTheDocument();
 });
 
-test("US3 3a: an expired invitation is rejected", async () => {
+test("US3 1: the code can be typed by hand", async () => {
+  renderAt("/household/join");
+
+  userEvent.type(screen.getByLabelText(/Invitation code/i), "HK-B7RW-3X");
+  userEvent.click(screen.getByRole("button", { name: /Check code/i }));
+  userEvent.click(await screen.findByRole("button", { name: /Join household/i }));
+  expect(await screen.findByRole("heading", { name: "Pending invitation" })).toBeInTheDocument();
+});
+
+test("US3 2a: an expired invitation is rejected", async () => {
   renderAt("/household/join?code=HK-4F9Q-2B");
 
   expect(await screen.findByText(/This invitation is invalid or has expired/i)).toBeInTheDocument();

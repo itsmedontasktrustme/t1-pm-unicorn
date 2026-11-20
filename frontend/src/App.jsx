@@ -23,8 +23,10 @@ import SsoCallbackPage from "./pages/auth/SsoCallbackPage";
 import WelcomePage from "./pages/auth/WelcomePage";
 import HouseholdStartPage from "./pages/household/HouseholdStartPage";
 import { CurrentHouseholdProvider, useCurrentHousehold } from "./logic/CurrentHousehold";
+import { useSignInLogging } from "./logic/authEvents";
 import CookieCounter from "./components/shell/CookieCounter";
 import ProfileLink from "./components/shell/ProfileLink";
+import SessionExpired, { useSessionExpired } from "./components/shell/SessionExpired";
 import "./App.css";
 import "./styles/auth.css";
 import "./styles/household.css";
@@ -80,6 +82,10 @@ function AppContent() {
   const { isLoaded, isSignedIn } = useUser();
   const navigate = useNavigate();
   const location = useLocation();
+  // Audit: log every new Google (Clerk) session once on the backend.
+  useSignInLogging();
+  // HK-94: the backend rejected the session (401) — ask to sign in again.
+  const sessionExpired = useSessionExpired();
   // First path segment decides the active tab; profiles live under People.
   const section = location.pathname.split("/")[1] || "home";
   const activePage = section === "profile" ? "people" : section;
@@ -91,6 +97,10 @@ function AppContent() {
         <Route path="/sso-callback" element={<SsoCallbackPage />} />
       </Routes>
     );
+  }
+
+  if (sessionExpired) {
+    return <SessionExpired />;
   }
 
   // Guests are sent to the sign-in page; the app shell is for signed-in residents only.

@@ -4,7 +4,7 @@ import cookieIcon from "../../assets/cookie.svg";
 import { FormBanner, FormField } from "../../components/forms";
 import { AccessDeniedState } from "../../components/states";
 import { initials } from "../../logic/format";
-import { createTask, TASK_DESCRIPTION_MAX, TASK_NAME_MAX, updateTask, validateTask } from "../../api/tasks";
+import { createTask, TASK_COOKIES, TASK_DESCRIPTION_MAX, TASK_NAME_MAX, updateTask, validateTask } from "../../api/tasks";
 import { joinDue, splitDue } from "./taskFormat";
 
 /*
@@ -17,7 +17,7 @@ function Stepper({ value, onChange, invalid, describedBy }) {
   const number = Number.isInteger(Number(value)) ? Number(value) : 0;
   return (
     <div className={invalid ? "hk-stepper hk-stepper--invalid" : "hk-stepper"}>
-      <button type="button" aria-label="Fewer cookies" onClick={() => onChange(String(Math.max(0, number - 1)))}>
+      <button type="button" aria-label="Fewer cookies" onClick={() => onChange(String(Math.min(TASK_COOKIES.max, Math.max(TASK_COOKIES.min, number - 1))))}>
         −
       </button>
       <label className="hk-stepper__value">
@@ -32,7 +32,7 @@ function Stepper({ value, onChange, invalid, describedBy }) {
           onChange={(event) => onChange(event.target.value)}
         />
       </label>
-      <button type="button" aria-label="More cookies" onClick={() => onChange(String(number + 1))}>
+      <button type="button" aria-label="More cookies" onClick={() => onChange(String(Math.min(TASK_COOKIES.max, Math.max(TASK_COOKIES.min, number + 1))))}>
         +
       </button>
     </div>
@@ -53,7 +53,7 @@ function TaskForm({ mode }) {
   const [description, setDescription] = useState(existing?.description || "");
   const [dueDate, setDueDate] = useState(initialDue.date);
   const [dueTime, setDueTime] = useState(initialDue.time || "20:00");
-  const [cookies, setCookies] = useState(existing ? String(existing.cookies ?? 0) : "1");
+  const [cookies, setCookies] = useState(existing ? String(existing.cookies ?? 1) : "1");
   const [assigneeId, setAssigneeId] = useState("");
   const [errors, setErrors] = useState({});
   const [banner, setBanner] = useState(null);
@@ -69,13 +69,27 @@ function TaskForm({ mode }) {
     );
   }
 
+  if (isEdit && existing && existing.managerId !== data.me.id) {
+    // US6 7a
+    return (
+      <div className="hk-card hk-tasks__panel">
+        <AccessDeniedState
+          title="Only the responsible manager can edit this task"
+          text={existing.managerName ? `Ask ${existing.managerName}.` : "Ask a manager of this household."}
+          backPath={backTo}
+          backLabel="Back to the task"
+        />
+      </div>
+    );
+  }
+
   if (isEdit && (!existing || existing.status === "done")) {
     return (
       <div className="hk-card hk-tasks__panel">
         <Link className="hk-back" to={backTo}>
           Task
         </Link>
-        <FormBanner title={existing ? "A task with the status Done cannot be edited" : "This task no longer exists."} />
+        <FormBanner title={existing ? "A task with the status DONE cannot be edited" : "This task no longer exists."} />
       </div>
     );
   }
@@ -193,7 +207,7 @@ function TaskForm({ mode }) {
         </fieldset>
 
         <div className="hk-field">
-          <span className="hk-field__label">Cookies (optional)</span>
+          <span className="hk-field__label">Cookies</span>
           <Stepper value={cookies} onChange={setCookies} invalid={Boolean(errors.cookies)} describedBy="task-cookies-note" />
           {errors.cookies ? (
             <div className="hk-field__error" id="task-cookies-note">
@@ -202,7 +216,7 @@ function TaskForm({ mode }) {
             </div>
           ) : (
             <div className="hk-field__hint" id="task-cookies-note">
-              A whole number
+              A whole number from {TASK_COOKIES.min} to {TASK_COOKIES.max}
             </div>
           )}
         </div>
