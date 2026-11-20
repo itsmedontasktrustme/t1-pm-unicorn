@@ -2,15 +2,6 @@
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-export function initials(name) {
-  return (name || "?")
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0].toUpperCase())
-    .join("");
-}
-
 function startOfDay(value) {
   const date = new Date(value);
   date.setHours(0, 0, 0, 0);

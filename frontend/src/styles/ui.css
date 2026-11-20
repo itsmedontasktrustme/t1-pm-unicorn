@@ -184,14 +184,6 @@
   color: var(--color-text-muted);
 }
 
-.hk-state__badge {
-  padding: var(--space-1) var(--space-3);
-  border-radius: var(--radius-pill);
-  background: var(--color-surface-soft);
-  font-size: var(--font-size-small);
-  font-weight: var(--font-weight-bold);
-}
-
 .hk-state__actions {
   display: flex;
   flex-direction: column;
@@ -199,12 +191,6 @@
   width: 100%;
   max-width: 320px;
   margin-top: var(--space-2);
-}
-
-.hk-state .hk-state__note {
-  margin: 0;
-  font-size: var(--font-size-small);
-  color: var(--color-text-muted);
 }
 
 @media (max-width: 767px) {
@@ -468,4 +454,225 @@ textarea.hk-field__control {
   .hk-sheet__actions--two {
     grid-template-columns: 1fr 1fr;
   }
+}
+
+/* =====================================================================
+   Shared building blocks used by several screens (one definition each).
+   ===================================================================== */
+
+/* ---------- Avatar with initials ---------- */
+.hk-avatar {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--color-surface-soft);
+  color: var(--hk-ink);
+  font-weight: var(--font-weight-bold);
+}
+
+.hk-avatar--medium {
+  width: 32px;
+  height: 32px;
+  font-size: 12px;
+}
+
+.hk-avatar--small {
+  width: 28px;
+  height: 28px;
+  font-size: 12px;
+}
+
+.hk-avatar--tiny {
+  width: 22px;
+  height: 22px;
+  font-size: 10px;
+}
+
+/* ---------- Role chips ---------- */
+.hk-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: var(--font-weight-bold);
+}
+
+.hk-chip--owner {
+  background: var(--hk-forest);
+  color: var(--hk-white);
+}
+
+.hk-chip--manager {
+  background: var(--hk-lime);
+  color: var(--hk-ink);
+}
+
+.hk-chip--housemate {
+  background: var(--color-surface-soft);
+  color: var(--hk-ink);
+}
+
+/* ---------- Badge ---------- */
+.hk-badge {
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-soft);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-bold);
+}
+
+/* ---------- List row: icon / avatar, text, value on the right, divider ---------- */
+.hk-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0;
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--color-border);
+  list-style: none;
+}
+
+.hk-row:last-of-type {
+  border-bottom: none;
+}
+
+.hk-row > div {
+  min-width: 0;
+}
+
+.hk-row--top {
+  align-items: flex-start;
+}
+
+.hk-row--roomy {
+  padding: var(--space-3) 0;
+}
+
+.hk-row__end {
+  margin-left: auto;
+}
+
+/* ---------- Cookie amount (number + cookie icon) ---------- */
+.hk-cookies {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--hk-ink);
+  font-weight: var(--font-weight-bold);
+  white-space: nowrap;
+}
+
+.hk-cookies img {
+  width: 18px;
+  height: 18px;
+}
+
+.hk-cookies--small {
+  font-size: var(--font-size-small);
+}
+
+.hk-cookies--small img {
+  width: 16px;
+  height: 16px;
+}
+
+/* ---------- Two-column page on desktop (main column first) ---------- */
+.hk-page-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-5);
+}
+
+@media (min-width: 1024px) {
+  .hk-page-grid {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .hk-page-grid--balanced {
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  }
+
+  .hk-page-grid--side-first {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  }
+}
+
+/* ---------- Segmented control (Create | Join, Household | Mine | Audit) ---------- */
+.hk-segmented {
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  padding: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-soft);
+}
+
+.hk-segmented--inline {
+  display: inline-grid;
+  min-width: 360px;
+}
+
+.hk-segmented__item {
+  padding: var(--space-2) var(--space-4);
+  border: none;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-text-muted);
+  font: inherit;
+  font-weight: var(--font-weight-bold);
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.hk-segmented__item[aria-current="page"],
+.hk-segmented__item[aria-pressed="true"] {
+  background: var(--color-surface);
+  color: var(--color-primary);
+  box-shadow: var(--shadow-card);
+}
+
+/* ---------- Back link (top-left, 44 px tap target) ---------- */
+.hk-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: var(--tap-target-min);
+  margin: 0 0 var(--space-2) calc(var(--space-2) * -1);
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-md);
+  color: var(--color-primary);
+  font-weight: var(--font-weight-bold);
+  text-decoration: none;
+}
+
+.hk-back::before {
+  content: "←";
+  font-size: 20px;
+}
+
+/* ---------- Small muted text ---------- */
+.hk-hint {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+}
+
+/* ---------- Group label above a list ("Yesterday", "Later") ---------- */
+.hk-group-label {
+  margin: var(--space-4) 0 var(--space-2);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.hk-group-label:first-of-type {
+  margin-top: 0;
 }

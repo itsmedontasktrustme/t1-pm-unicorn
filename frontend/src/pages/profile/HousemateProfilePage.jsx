@@ -8,6 +8,8 @@ import { useCurrentHousehold } from "../../logic/CurrentHousehold";
 import usePageLoadTracking from "../../logic/usePageLoadTracking";
 import useResident from "../../logic/useResident";
 import RoleSheet from "../people/RoleSheet";
+import { initials } from "../../logic/format";
+import RoleChips from "../../components/ui/RoleChips";
 
 /*
  * HK-69 Housemate profile view (design HK-68): /people/:memberId.
@@ -15,17 +17,7 @@ import RoleSheet from "../people/RoleSheet";
  * The owner can change the housemate's role (same sheet as on People, HK-51).
  */
 
-const ROLE_LABELS = { owner: "Owner", manager: "Manager", housemate: "Housemate" };
 const DAY_MS = 24 * 60 * 60 * 1000;
-
-function initials(name) {
-  return (name || "?")
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0].toUpperCase())
-    .join("");
-}
 
 function startOfDay(date) {
   const copy = new Date(date);
@@ -83,8 +75,8 @@ function HousemateProfilePage() {
   }
 
   const back = (
-    <Link to="/people" className="hk-profile__back">
-      <span aria-hidden="true">‹</span> People
+    <Link to="/people" className="hk-back">
+      People
     </Link>
   );
 
@@ -122,18 +114,14 @@ function HousemateProfilePage() {
   return (
     <div className="hk-household hk-profile">
       {back}
-      <div className="hk-profile__grid">
+      <div className="hk-page-grid hk-page-grid--side-first">
         <section className="hk-card hk-id-card" aria-labelledby="housemate-name">
           <span className="hk-id-card__avatar" aria-hidden="true">
             {initials(member.name)}
           </span>
           <h2 id="housemate-name">{member.name}</h2>
           <span className="hk-id-card__roles">
-            {member.roles.map((role) => (
-              <span key={role} className={`hk-chip hk-chip--${role}`}>
-                {ROLE_LABELS[role] || role}
-              </span>
-            ))}
+            <RoleChips roles={member.roles} />
           </span>
           <span className="hk-cookie-total">
             <img src={cookieIcon} alt="" />
@@ -172,12 +160,12 @@ function HousemateProfilePage() {
                 {currentTasks.map((task) => {
                   const due = dueLabel(task.due);
                   return (
-                    <li key={task.id}>
+                    <li key={task.id} className="hk-row">
                       <div>
                         <span className="hk-task-list__title">{task.title}</span>
                         {task.description && <span className="hk-task-list__sub">{task.description}</span>}
                       </div>
-                      <span className="hk-task-list__right">
+                      <span className="hk-row__end">
                         <span className={due.urgent ? "hk-due__when hk-due__when--today" : "hk-due__when"}>{due.text}</span>
                       </span>
                     </li>
@@ -199,7 +187,7 @@ function HousemateProfilePage() {
             {completed.length > 0 ? (
               <ul className="hk-task-list">
                 {completed.map((task) => (
-                  <li key={task.id}>
+                  <li key={task.id} className="hk-row">
                     <span className="hk-done-mark" aria-hidden="true">
                       ✓
                     </span>
@@ -207,7 +195,7 @@ function HousemateProfilePage() {
                       <span className="hk-task-list__title">{task.title}</span>
                       <span className="hk-task-list__sub">{agoLabel(task.completedAt)}</span>
                     </div>
-                    <span className="hk-task-list__right" aria-label={`${task.cookies} cookies earned`}>
+                    <span className="hk-cookies hk-cookies--small hk-row__end" aria-label={`${task.cookies} cookies earned`}>
                       <img src={cookieIcon} alt="" />+{task.cookies}
                     </span>
                   </li>

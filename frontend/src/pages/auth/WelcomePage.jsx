@@ -4,6 +4,7 @@ import homeIcon from "../../assets/home-green.svg";
 import membersIcon from "../../assets/members-green.svg";
 import GuestLayout from "../../components/auth/GuestLayout";
 import { LoadingState } from "../../components/states";
+import { initials } from "../../logic/format";
 
 /*
  * HK-57 Register view (design HK-56, US0 steps 8–9).
@@ -23,15 +24,6 @@ const PREVIEW_USER = {
   primaryEmailAddress: { emailAddress: "harry.potter@gmail.com" },
   imageUrl: null
 };
-
-function initials(name) {
-  return (name || "?")
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0].toUpperCase())
-    .join("");
-}
 
 function isNewAccount(user) {
   const created = user?.createdAt ? new Date(user.createdAt).getTime() : 0;

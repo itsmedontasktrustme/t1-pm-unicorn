@@ -4,7 +4,8 @@ import cookieIcon from "../../assets/cookie.svg";
 import historyIcon from "../../assets/book-green.svg";
 import { listHouseholdHistory } from "../../api/households";
 import { EmptyState, ErrorState, LoadingState } from "../../components/states";
-import { groupByDay, initials } from "./historyFormat";
+import { groupByDay } from "./historyFormat";
+import { initials } from "../../logic/format";
 
 /*
  * HK-90 Household history view (design HK-89, US10 steps 2–5):
@@ -71,7 +72,7 @@ function HouseholdHistory({ user, householdId }) {
   return (
     <>
       {lead}
-      <div className="hk-history__grid">
+      <div className="hk-page-grid">
         <section className="hk-card hk-history__totals" aria-labelledby="totals-heading">
           <h3 className="hk-card__title" id="totals-heading">
             Cookies by housemate
@@ -89,7 +90,7 @@ function HouseholdHistory({ user, householdId }) {
                   <span style={{ width: `${Math.max(2, Math.round((item.cookies / maxCookies) * 100))}%` }} />
                 </div>
               </div>
-              <span className="hk-bar-row__cookies" aria-label={`${item.cookies} cookies`}>
+              <span className="hk-cookies" aria-label={`${item.cookies} cookies`}>
                 <img src={cookieIcon} alt="" />
                 {item.cookies}
               </span>
@@ -103,17 +104,17 @@ function HouseholdHistory({ user, householdId }) {
           </h3>
           {groupByDay(data.completed).map((group) => (
             <div key={group.label}>
-              <div className="hk-history__day">{group.label}</div>
+              <div className="hk-group-label">{group.label}</div>
               <ul className="hk-day-list">
                 {group.items.map((task) => (
-                  <li key={task.id} className="hk-done">
+                  <li key={task.id} className="hk-row hk-row--top">
                     <span className="hk-done-mark" aria-hidden="true">
                       ✓
                     </span>
                     <div>
                       <span className="hk-done__title">{task.title}</span>
                       <span className="hk-done__who">
-                        <span className="hk-avatar" style={{ background: colourOf(task.memberId) }} aria-hidden="true">
+                        <span className="hk-avatar hk-avatar--tiny" style={{ background: colourOf(task.memberId) }} aria-hidden="true">
                           {initials(task.assigneeName)}
                         </span>
                         <span>
@@ -121,7 +122,7 @@ function HouseholdHistory({ user, householdId }) {
                         </span>
                       </span>
                     </div>
-                    <span className="hk-done__cookies" aria-label={`${task.cookies} cookies`}>
+                    <span className="hk-cookies hk-row__end" aria-label={`${task.cookies} cookies`}>
                       <img src={cookieIcon} alt="" />+{task.cookies}
                     </span>
                   </li>

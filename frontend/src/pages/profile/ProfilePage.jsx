@@ -8,6 +8,8 @@ import { ErrorState, LoadingState } from "../../components/states";
 import { useCurrentHousehold } from "../../logic/CurrentHousehold";
 import usePageLoadTracking from "../../logic/usePageLoadTracking";
 import useResident from "../../logic/useResident";
+import { initials } from "../../logic/format";
+import RoleChips from "../../components/ui/RoleChips";
 
 /*
  * HK-66 Resident profile view (design HK-65): the signed-in resident's own profile.
@@ -15,16 +17,6 @@ import useResident from "../../logic/useResident";
  * Total cookies across all households follows US10.
  */
 
-const ROLE_LABELS = { owner: "Owner", manager: "Manager", housemate: "Housemate" };
-
-function initials(name) {
-  return (name || "?")
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0].toUpperCase())
-    .join("");
-}
 
 function GoogleMark() {
   return (
@@ -85,7 +77,7 @@ function ProfilePage() {
 
   return (
     <div className="hk-household hk-profile">
-      <div className="hk-profile__grid">
+      <div className="hk-page-grid hk-page-grid--side-first">
         <section className="hk-card hk-id-card" aria-labelledby="profile-name">
           <span className="hk-id-card__avatar" aria-hidden="true">
             {user.imageUrl ? <img src={user.imageUrl} alt="" /> : initials(name)}
@@ -114,21 +106,17 @@ function ProfilePage() {
           {memberships.map((membership) => {
             const isCurrent = membership.id === current?.id;
             return (
-              <div key={membership.id} className="hk-hh-row">
-                <span className="hk-hh-row__icon" aria-hidden="true">
+              <div key={membership.id} className="hk-row hk-row--roomy">
+                <span className="hk-avatar hk-hh-row__icon" aria-hidden="true">
                   <img src={homeIcon} alt="" />
                 </span>
                 <div>
                   <span className="hk-hh-row__name">{membership.name}</span>
                   <span className="hk-hh-row__roles">
-                    {membership.roles.map((role) => (
-                      <span key={role} className={`hk-chip hk-chip--${role}`}>
-                        {ROLE_LABELS[role] || role}
-                      </span>
-                    ))}
+                    <RoleChips roles={membership.roles} />
                   </span>
                 </div>
-                <span className="hk-hh-row__cookies" aria-label={`${membership.cookies} cookies`}>
+                <span className="hk-cookies hk-row__end" aria-label={`${membership.cookies} cookies`}>
                   <img src={cookieIcon} alt="" />
                   {membership.cookies}
                 </span>

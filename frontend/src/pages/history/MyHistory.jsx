@@ -40,7 +40,7 @@ function MyHistory({ user }) {
   return (
     <>
       <p className="hk-history__lead">Your completed tasks and cookies across all your households.</p>
-      <div className="hk-history__grid">
+      <div className="hk-page-grid">
         <section className="hk-card hk-mine-total hk-history__totals" aria-label="Your cookies">
           <span className="hk-mine-total__value">
             <img src={cookieIcon} alt="" />
@@ -75,10 +75,10 @@ function MyHistory({ user }) {
           ) : (
             groupByDay(data.completed).map((group) => (
               <div key={group.label}>
-                <div className="hk-history__day">{group.label}</div>
+                <div className="hk-group-label">{group.label}</div>
                 <ul className="hk-day-list">
                   {group.items.map((task) => (
-                    <li key={task.id} className="hk-done">
+                    <li key={task.id} className="hk-row hk-row--top">
                       <span className="hk-done-mark" aria-hidden="true">
                         ✓
                       </span>
@@ -89,7 +89,7 @@ function MyHistory({ user }) {
                           <span>marked done by {task.markedById === user?.id ? "you" : task.markedByName}</span>
                         </span>
                       </div>
-                      <span className="hk-done__cookies" aria-label={`${task.cookies} cookies`}>
+                      <span className="hk-cookies hk-row__end" aria-label={`${task.cookies} cookies`}>
                         <img src={cookieIcon} alt="" />+{task.cookies}
                       </span>
                     </li>

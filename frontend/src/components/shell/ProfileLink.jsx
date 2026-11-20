@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import useResident from "../../logic/useResident";
-import { initials } from "../../pages/history/historyFormat";
+import { initials } from "../../logic/format";
 
 /*
  * HK-264: own avatar in the header (phone) / at the bottom of the sidebar (desktop).

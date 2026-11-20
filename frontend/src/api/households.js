@@ -15,14 +15,15 @@
  * Shapes:
  *   Household  { id, name, members: Member[], tasks: TaskSummary[] }
  *   Member     { id, name, roles: ("owner"|"manager"|"housemate")[], cookies }
- *   TaskSummary{ id, title, assigneeName|null, due: ISO date, status: "available"|"assigned"|"done" }
+ *   Task       { id, title, description, assigneeId|null, assigneeName|null, due: ISO date-time|null,
+ *                cookies, status: "available"|"assigned"|"done", creditedCookies? }  — see api/tasks.js
  *   Invitation { code, householdId, householdName, invitedBy, memberCount, expiresAt }
  *   PendingInvitation { code, kind: "link"|"code", link, expiresAt }
  *   Membership { id, name, roles, cookies }  — one per household of the resident
  *   CompletedTask { id, title, memberId, markedById, completedAt: ISO, cookies }
  */
 
-const STORAGE_KEY = "homekeeper.placeholder.households.v4";
+const STORAGE_KEY = "homekeeper.placeholder.households.v5";
 // Simulated network latency so loading states are visible; none in tests.
 const LATENCY_MS = process.env.NODE_ENV === "test" ? 0 : 350;
 const INVITATION_VALID_DAYS = 7;
@@ -40,8 +41,43 @@ function daysFromNow(days) {
   return date.toISOString();
 }
 
+// Due date at a fixed time of day, `days` from today (negative = in the past).
+function dueAt(days, hours, minutes = 0) {
+  const date = new Date();
+  date.setDate(date.getDate() + days);
+  date.setHours(hours, minutes, 0, 0);
+  return date.toISOString();
+}
+
+function task(id, title, assigneeId, assigneeName, due, cookies, description = "") {
+  return { id, title, description, assigneeId, assigneeName, due, cookies, status: assigneeId ? "assigned" : "available" };
+}
+
+// Completed demo tasks also appear in the task list with the status Done (Done filter, HK-72).
+function withDoneTasks(data) {
+  data.households.forEach((household) => {
+    household.completed.forEach((item) => {
+      const assignee = household.members.find((member) => member.id === item.memberId);
+      household.tasks.push({
+        id: item.id,
+        title: item.title,
+        description: "",
+        assigneeId: item.memberId,
+        assigneeName: assignee?.name || null,
+        due: null,
+        cookies: item.cookies,
+        status: "done",
+        creditedCookies: item.cookies,
+        completedAt: item.completedAt,
+        markedById: item.markedById
+      });
+    });
+  });
+  return data;
+}
+
 function demoData() {
-  return {
+  return withDoneTasks({
     households: [
       {
         id: "hh-private-drive",
@@ -54,10 +90,10 @@ function demoData() {
           { id: "dev-demo-resident", name: "Harry Potter", roles: ["housemate"], cookies: 64 }
         ],
         tasks: [
-          { id: "t1", title: "Make roast for dinner", assigneeName: "Petunia D.", due: daysFromNow(0), status: "assigned" },
-          { id: "t2", title: "Clean the toy room", assigneeName: null, due: daysFromNow(1), status: "available" },
-          { id: "t3", title: "Vacuum the 1st floor", assigneeName: "Harry Potter", due: daysFromNow(3), status: "assigned" },
-          { id: "t4", title: "Repaint the shed", assigneeName: null, due: daysFromNow(6), status: "available" }
+          task("t1", "Make roast for dinner", "demo-petunia", "Petunia D.", dueAt(0, 23, 30), 2, "Don’t forget the dessert."),
+          task("t2", "Clean the toy room", null, null, dueAt(1, 20), 4, "Broken toys go in the box by the door."),
+          task("t3", "Vacuum the 1st floor", "dev-demo-resident", "Harry Potter", dueAt(3, 20), 2, "Under the beds too, please."),
+          task("t4", "Repaint the shed", null, null, dueAt(6, 20), 6)
         ],
         completed: [
           { id: "c1", title: "Water the plants", memberId: "demo-petunia", markedById: "demo-petunia", completedAt: daysFromNow(-1), cookies: 2 },
@@ -77,8 +113,11 @@ function demoData() {
           { id: "demo-hermione", name: "Hermione G.", roles: ["housemate"], cookies: 0 }
         ],
         tasks: [
-          { id: "g1", title: "Tidy the common room", assigneeName: null, due: daysFromNow(2), status: "available" },
-          { id: "g2", title: "Feed the owls", assigneeName: "Ron W.", due: daysFromNow(1), status: "assigned" }
+          task("g1", "Tidy the common room", null, null, dueAt(2, 20), 3, "Put the chess pieces away and fold the blankets by the fire."),
+          task("g2", "Feed the owls", "demo-ron", "Ron W.", dueAt(1, 20), 2, "Owl treats are in the blue tin on the windowsill."),
+          task("g3", "Return library books", "dev-demo-resident", "Harry Potter", dueAt(0, 23, 30), 4, "Madam Pince wants them back before the library closes."),
+          task("g4", "Scrub the cauldrons", "demo-ron", "Ron W.", dueAt(-1, 18), 5),
+          task("g5", "Water the Mandrakes", null, null, null, 1, "Earmuffs on!")
         ],
         completed: [
           { id: "gc1", title: "Sort the library books", memberId: "demo-ron", markedById: "demo-ron", completedAt: daysFromNow(-1), cookies: 3 },
@@ -92,7 +131,7 @@ function demoData() {
       { code: "HK-4F9Q-2B", householdId: "hh-private-drive", invitedBy: "Vernon D.", expiresAt: daysFromNow(-2) },
       { code: "HK-Q3T8-1X", kind: "code", householdId: "hh-gryffindor", invitedBy: "Harry Potter", expiresAt: daysFromNow(2) }
     ]
-  };
+  });
 }
 
 function load() {
@@ -368,6 +407,9 @@ export async function getMemberProfile(user, householdId, memberId) {
 }
 
 function nameOf(household, memberId) {
+  if (!memberId) {
+    return "No assignee";
+  }
   return household.members.find((member) => member.id === memberId)?.name || "Former housemate";
 }
 
@@ -428,6 +470,9 @@ export async function listMyHistory(user) {
     completed
   });
 }
+
+/** Shared with api/tasks.js (same placeholder storage). Not part of the future HTTP API. */
+export const placeholderStore = { load, save, delay, residentOf, isMember };
 
 /** Development helper: forget all placeholder data. */
 export function resetPlaceholderData() {

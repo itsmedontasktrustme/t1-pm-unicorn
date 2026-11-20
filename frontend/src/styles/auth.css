@@ -167,12 +167,6 @@
   color: var(--color-text-muted);
 }
 
-.hk-auth-card__small {
-  margin: 0;
-  font-size: var(--font-size-small);
-  color: var(--color-text-muted);
-}
-
 .hk-auth-card .hk-banner {
   text-align: left;
 }

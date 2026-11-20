@@ -8,6 +8,8 @@ import usePageLoadTracking from "../../logic/usePageLoadTracking";
 import useResident from "../../logic/useResident";
 import InviteSheet from "./InviteSheet";
 import RoleSheet from "./RoleSheet";
+import { AVATAR_COLOURS, initials } from "../../logic/format";
+import RoleChips from "../../components/ui/RoleChips";
 
 /*
  * People tab (design HK-47 / HK-50):
@@ -16,18 +18,7 @@ import RoleSheet from "./RoleSheet";
  * - HK-51 Manage roles (US4) — owner: "Change role" on every housemate (RoleSheet).
  */
 
-const ROLE_LABELS = { owner: "Owner", manager: "Manager", housemate: "Housemate" };
-const AVATAR_COLOURS = ["var(--hk-orange)", "var(--hk-lime)", "var(--hk-peach)", "#e9dcc8"];
 const DAY_MS = 24 * 60 * 60 * 1000;
-
-function initials(name) {
-  return (name || "?")
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0].toUpperCase())
-    .join("");
-}
 
 function expiresLabel(iso) {
   const days = Math.max(0, Math.ceil((new Date(iso) - new Date()) / DAY_MS));
@@ -51,7 +42,7 @@ function Housemates({ household, userId, isOwner, renderAction }) {
         Housemates ({household.members.length})
       </h3>
       {household.members.map((member, index) => (
-        <div key={member.id} className="hk-member-row">
+        <div key={member.id} className="hk-row">
           <span className="hk-avatar" style={{ background: AVATAR_COLOURS[index % AVATAR_COLOURS.length] }} aria-hidden="true">
             {initials(member.name)}
           </span>
@@ -68,11 +59,7 @@ function Housemates({ household, userId, isOwner, renderAction }) {
               </Link>
             )}
             <span className="hk-member__roles">
-              {member.roles.map((role) => (
-                <span key={role} className={`hk-chip hk-chip--${role}`}>
-                  {ROLE_LABELS[role] || role}
-                </span>
-              ))}
+              <RoleChips roles={member.roles} />
             </span>
           </div>
           {renderAction && renderAction(member)}
@@ -93,11 +80,11 @@ function Invitations({ invitations, onInvite, onCopy }) {
       {invitations.map((invitation) => {
         const value = invitation.kind === "link" ? invitation.link : invitation.code;
         return (
-          <div key={invitation.code} className="hk-inv">
-            <span className="hk-inv__kind" aria-hidden="true">
+          <div key={invitation.code} className="hk-row">
+            <span className="hk-avatar hk-inv__kind" aria-hidden="true">
               {invitation.kind === "link" ? "↗" : "#"}
             </span>
-            <div className="hk-inv__main">
+            <div>
               <span className="hk-inv__value">{value}</span>
               <span className="hk-inv__meta">
                 {invitation.kind === "link" ? "Link" : "Code"} · {expiresLabel(invitation.expiresAt)}
@@ -219,7 +206,7 @@ function PeoplePage() {
       </div>
       <p className="hk-people__lead">Housemates of {household.name} and their roles.</p>
 
-      <div className="hk-people__grid">
+      <div className="hk-page-grid hk-page-grid--balanced">
         <Housemates
           household={household}
           userId={user?.id}
