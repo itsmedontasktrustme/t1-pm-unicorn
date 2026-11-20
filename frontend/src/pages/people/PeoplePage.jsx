@@ -24,7 +24,7 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 function expiresLabel(iso) {
   const days = Math.max(0, Math.ceil((new Date(iso) - new Date()) / DAY_MS));
   const when = days <= 1 ? "expires today" : `expires in ${days} days`;
-  return `${when} (${new Date(iso).toLocaleDateString()})`;
+  return `${when} (${new Date(iso).toLocaleDateString("en-GB")})`;
 }
 
 function LockIcon() {
@@ -89,7 +89,7 @@ function Invitations({ state, busyId, onInvite, onCopy, onAnswer }) {
               </span>
               <div>
                 <span className="hk-member__name">{invitee.name}</span>
-                <span className="hk-inv__meta">Invitee · used the code {new Date(invitee.joinedAt).toLocaleDateString()}</span>
+                <span className="hk-inv__meta">Invitee · used the code {new Date(invitee.joinedAt).toLocaleDateString("en-GB")}</span>
               </div>
               <div className="hk-invitee__actions">
                 <button

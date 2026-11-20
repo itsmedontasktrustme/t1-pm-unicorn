@@ -24,7 +24,7 @@ import { initials } from "../../logic/format";
  */
 
 function formatDate(iso) {
-  return new Date(iso).toLocaleDateString();
+  return new Date(iso).toLocaleDateString("en-GB");
 }
 
 function Tabs({ mode }) {

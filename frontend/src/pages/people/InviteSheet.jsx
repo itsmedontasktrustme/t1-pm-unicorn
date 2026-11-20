@@ -10,7 +10,7 @@ import useResident from "../../logic/useResident";
  */
 
 function formatDate(iso) {
-  return new Date(iso).toLocaleDateString();
+  return new Date(iso).toLocaleDateString("en-GB");
 }
 
 function InviteSheet({ open, householdId, hasCode, onClose, onCreated, onCopy }) {

@@ -2,6 +2,7 @@ const { handle } = require("../logic/errors");
 const { requireResident } = require("../logic/residents");
 const households = require("../logic/households");
 const roles = require("../logic/roles");
+const history = require("../logic/history-overview");
 
 function registerHouseholdEndpoints(app) {
   const meId = (req) => Number(req.resident.id);
@@ -52,6 +53,20 @@ function registerHouseholdEndpoints(app) {
       await roles.changeRole(req.params.householdId, req.params.memberId, req.body?.action, meId(req));
       return { household: await households.getHousehold(req.params.householdId, meId(req)) };
     })
+  );
+
+  // HK-91 (US10): completed tasks of the household and every housemate's cookies.
+  app.get(
+    "/api/households/:householdId/history",
+    requireResident,
+    handle(async (req) => ({ history: await history.householdHistory(req.params.householdId, meId(req)) }))
+  );
+
+  // HK-88 (US10 2a–2b): the resident's own completed tasks and cookies in all households.
+  app.get(
+    "/api/me/history",
+    requireResident,
+    handle(async (req) => ({ history: await history.myHistory(meId(req)) }))
   );
 }
 

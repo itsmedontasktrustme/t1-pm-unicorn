@@ -84,7 +84,7 @@ function HouseholdHistory({ user, householdId }) {
               </span>
               <div>
                 <span className="hk-bar-row__name">
-                  {item.name} {item.id === user?.id && <span className="hk-member__you">(you)</span>}
+                  {item.name} {item.id === data.meId && <span className="hk-member__you">(you)</span>}
                 </span>
                 <div className="hk-bar" aria-hidden="true">
                   <span style={{ width: `${Math.max(2, Math.round((item.cookies / maxCookies) * 100))}%` }} />
@@ -118,7 +118,7 @@ function HouseholdHistory({ user, householdId }) {
                           {initials(task.assigneeName)}
                         </span>
                         <span>
-                          {task.assigneeName} · marked done by {task.markedById === user?.id ? "you" : task.markedByName}
+                          {task.assigneeName} · marked done by {task.markedById === data.meId ? "you" : task.markedByName}
                         </span>
                       </span>
                     </div>

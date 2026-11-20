@@ -86,7 +86,7 @@ function MyHistory({ user }) {
                         <span className="hk-done__title">{task.title}</span>
                         <span className="hk-done__who">
                           <span className="hk-hh-tag">{task.householdName}</span>
-                          <span>marked done by {task.markedById === user?.id ? "you" : task.markedByName}</span>
+                          <span>marked done by {task.markedById === data.meId ? "you" : task.markedByName}</span>
                         </span>
                       </div>
                       <span className="hk-cookies hk-row__end" aria-label={`${task.cookies} cookies`}>

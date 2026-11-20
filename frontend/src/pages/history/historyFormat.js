@@ -12,7 +12,7 @@ export function dayLabel(iso) {
   const days = Math.round((startOfDay(new Date()) - startOfDay(iso)) / DAY_MS);
   if (days <= 0) return "Today";
   if (days === 1) return "Yesterday";
-  return new Date(iso).toLocaleDateString(undefined, { day: "numeric", month: "short" });
+  return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 }
 
 /** Groups items (already sorted newest first) into [{ label, items }] by completion day. */

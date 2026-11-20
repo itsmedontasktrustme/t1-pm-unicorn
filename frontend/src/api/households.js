@@ -6,8 +6,7 @@
  * Connected to the backend:
  *   HK-64 Create household · HK-61 Household view · HK-67 Resident / housemate profile
  *   HK-52 Roles · HK-49 / HK-268 Invitations (code, Invitee, accept / reject)
- * Still on the placeholder only (next steps):
- *   HK-88 / HK-91 history
+ *   HK-88 / HK-91 History overview (completed tasks and cookies)
  *
  * Shapes:
  *   Household  { id, name, description, meId, members: Member[], tasks: Task[] }
@@ -108,10 +107,10 @@ function demoData() {
         ],
         completed: [
           { id: "c1", title: "Water the plants", memberId: "demo-petunia", markedById: "demo-petunia", completedAt: daysFromNow(-1), cookies: 2 },
-          { id: "c2", title: "Clean the kitchen", memberId: "demo-petunia", markedById: "demo-vernon", completedAt: daysFromNow(-2), cookies: 4 },
+          { id: "c2", title: "Clean the kitchen", memberId: "demo-petunia", markedById: "demo-petunia", completedAt: daysFromNow(-2), cookies: 4 },
           { id: "c3", title: "Take out the bins", memberId: "demo-petunia", markedById: "demo-petunia", completedAt: daysFromNow(-5), cookies: 1 },
           { id: "c4", title: "Mow the lawn", memberId: "dev-demo-resident", markedById: "dev-demo-resident", completedAt: daysFromNow(-3), cookies: 5 },
-          { id: "c5", title: "Wash the car", memberId: "demo-dudley", markedById: "demo-petunia", completedAt: daysFromNow(-12), cookies: 3 }
+          { id: "c5", title: "Wash the car", memberId: "demo-dudley", markedById: "demo-dudley", completedAt: daysFromNow(-12), cookies: 3 }
         ]
       },
       {
@@ -134,7 +133,7 @@ function demoData() {
         invitees: [{ id: "demo-neville", name: "Neville L.", joinedAt: daysFromNow(-1) }],
         completed: [
           { id: "gc1", title: "Sort the library books", memberId: "demo-ron", markedById: "demo-ron", completedAt: daysFromNow(-1), cookies: 3 },
-          { id: "gc2", title: "Sweep the common room", memberId: "dev-demo-resident", markedById: "demo-ron", completedAt: daysFromNow(-6), cookies: 3 }
+          { id: "gc2", title: "Sweep the common room", memberId: "dev-demo-resident", markedById: "dev-demo-resident", completedAt: daysFromNow(-6), cookies: 3 }
         ]
       },
       {
@@ -574,6 +573,9 @@ function nameOf(household, memberId) {
  * who marked it done and cookies, plus every housemate's total cookies.
  */
 export async function listHouseholdHistory(user, householdId) {
+  if (!USE_PLACEHOLDER_API) {
+    return (await request(user, "GET", `/households/${encodeURIComponent(householdId)}/history`)).history;
+  }
   const { id } = residentOf(user);
   const household = load().households.find((item) => item.id === householdId);
 
@@ -594,11 +596,14 @@ export async function listHouseholdHistory(user, householdId) {
     .map((member) => ({ id: member.id, name: member.name, cookies: member.cookies }))
     .sort((a, b) => b.cookies - a.cookies);
 
-  return delay({ householdName: household.name, completed, totals });
+  return delay({ meId: id, householdName: household.name, completed, totals });
 }
 
 /** US10 2a–2b (HK-87): the resident's own completed tasks and cookies across all households. */
 export async function listMyHistory(user) {
+  if (!USE_PLACEHOLDER_API) {
+    return (await request(user, "GET", "/me/history")).history;
+  }
   const { id } = residentOf(user);
   const households = load().households.filter((household) => isMember(household, id));
 
@@ -621,6 +626,7 @@ export async function listMyHistory(user) {
     .sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt));
 
   return delay({
+    meId: id,
     totalCookies: perHousehold.reduce((sum, item) => sum + item.cookies, 0),
     perHousehold,
     completed

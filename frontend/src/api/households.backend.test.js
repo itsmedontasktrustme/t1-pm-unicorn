@@ -9,6 +9,8 @@ import {
   listPendingInvitations,
   getHousehold,
   getMemberProfile,
+  listHouseholdHistory,
+  listMyHistory,
   listMyHouseholds,
   listMyMemberships
 } from "./households";
@@ -72,4 +74,14 @@ test("HK-49 / HK-268: invitation functions call the backend", async () => {
 
   await answerInvitee(user, "2", "9", "accept");
   expect(request).toHaveBeenLastCalledWith(user, "POST", "/households/2/invitees/9/accept");
+});
+
+test("HK-88 / HK-91: history functions call the backend", async () => {
+  request.mockResolvedValue({ history: { meId: "7" } });
+
+  await expect(listHouseholdHistory(user, "2")).resolves.toEqual({ meId: "7" });
+  expect(request).toHaveBeenLastCalledWith(user, "GET", "/households/2/history");
+
+  await listMyHistory(user);
+  expect(request).toHaveBeenLastCalledWith(user, "GET", "/me/history");
 });
