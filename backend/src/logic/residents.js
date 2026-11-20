@@ -63,13 +63,13 @@ const requireResident = [
     try {
       const row = await findByAuthUserId(req.auth.userId);
       if (!row) {
-        throw new ApiError(401, "residentMissing", "Please sign in again.");
+        throw new ApiError(401, "resident-missing", "Please sign in again.");
       }
       req.resident = toResident(row);
       return next();
     } catch (error) {
       if (error instanceof ApiError) {
-        return res.status(error.status).json({ ok: false, code: error.code, error: error.message });
+        return res.status(error.status).json(error.toJSON());
       }
       return next(error);
     }

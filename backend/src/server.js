@@ -16,6 +16,7 @@ const database = require("./database");
 const { registerHistoryActionEndpoint } = require("./endpoints/history");
 const { registerAuthEndpoints } = require("./endpoints/auth");
 const { registerResidentEndpoints } = require("./endpoints/residents");
+const { registerHouseholdEndpoints } = require("./endpoints/households");
 const { isAuthConfigured } = require("./logic/auth");
 
 function logServerError(context, error, extra = {}) {
@@ -71,6 +72,7 @@ app.get("/healthz", function(req, res) {
 registerAuthEndpoints(app);
 registerHistoryActionEndpoint(app);
 registerResidentEndpoints(app);
+registerHouseholdEndpoints(app);
 
 app.use(function(req, res) {
   logServerError("Route not found", new Error(`Unhandled route: ${req.method} ${req.originalUrl}`), {

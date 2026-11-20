@@ -1,19 +1,16 @@
 /*
  * Household API.
  *
- * TEMPORARY PLACEHOLDER — there is no backend for households yet.
- * Data lives in the browser (localStorage) so the screens can be built and tested.
- * Replace the bodies with fetch() calls when the endpoints exist:
- *   HK-64 Web-Backend Connection — Create / join household view
- *   HK-61 Web-Backend Connection — Household view
- *   HK-49 Web-Backend Connection — Manage invitations
- *   HK-52 Web-Backend Connection — Manage roles
- *   HK-67 / HK-70 Web-Backend Connection — Resident / Housemate profile view
- *   HK-88 / HK-91 Web-Backend Connection — Resident / Household history view
- * Keep the function names, arguments and return shapes so the screens do not change.
+ * Calls the backend (/api, see api/client.js). Without a Clerk key (local demo) and in unit tests
+ * the same functions work on placeholder data in the browser (localStorage), see USE_PLACEHOLDER_API.
+ * Connected to the backend:
+ *   HK-64 Create household · HK-61 Household view · HK-67 Resident / housemate profile
+ * Still on the placeholder only (next steps):
+ *   HK-49 / HK-268 invitations · HK-52 roles · HK-88 / HK-91 history
  *
  * Shapes:
- *   Household  { id, name, members: Member[], tasks: TaskSummary[] }
+ *   Household  { id, name, description, meId, members: Member[], tasks: Task[] }
+ *              meId = id of the signed-in resident among the members (compare with it, not with the Clerk id)
  *   Member     { id, name, roles: ("owner"|"manager"|"housemate")[], cookies }
  *   Task       { id, title, description, assigneeId|null, assigneeName|null, due: ISO date-time|null,
  *                cookies, status: "available"|"assigned"|"done", creditedCookies? }  — see api/tasks.js
@@ -23,7 +20,7 @@
  *   CompletedTask { id, title, memberId, markedById, completedAt: ISO, cookies }
  */
 
-import { ApiError } from "./client";
+import { ApiError, request, USE_PLACEHOLDER_API } from "./client";
 
 export { ApiError };
 
@@ -169,23 +166,52 @@ function isMember(household, residentId) {
 
 /** Households the resident belongs to (a resident can be in several). */
 export async function listMyHouseholds(user) {
+  if (!USE_PLACEHOLDER_API) {
+    return (await request(user, "GET", "/households")).households;
+  }
   const { id } = residentOf(user);
   const data = load();
   return delay(data.households.filter((household) => isMember(household, id)).map(({ id: hid, name }) => ({ id: hid, name })));
 }
 
-/** US1: create a household; the creator becomes owner and manager. */
-export async function createHousehold(user, name) {
+export const HOUSEHOLD_NAME_MAX = 20;
+export const HOUSEHOLD_DESCRIPTION_MAX = 255;
+export const HOUSEHOLD_MESSAGES = {
+  name: "Please enter a household name (max 20 characters)",
+  description: "The description can have at most 255 characters"
+};
+
+/** US1 5a / 5b: texts per field, empty object when the household can be created. */
+export function validateHousehold(name, description = "") {
+  const fields = {};
   const trimmed = (name || "").trim();
-  if (!trimmed) {
-    throw new ApiError("name-required", "Please enter a household name.");
+  if (!trimmed || trimmed.length > HOUSEHOLD_NAME_MAX) {
+    fields.name = HOUSEHOLD_MESSAGES.name;
   }
+  if ((description || "").trim().length > HOUSEHOLD_DESCRIPTION_MAX) {
+    fields.description = HOUSEHOLD_MESSAGES.description;
+  }
+  return fields;
+}
+
+/** US1: create a household; the creator becomes owner and manager. */
+export async function createHousehold(user, name, description = "") {
+  if (!USE_PLACEHOLDER_API) {
+    return (await request(user, "POST", "/households", { name, description })).household;
+  }
+
+  const fields = validateHousehold(name, description);
+  if (Object.keys(fields).length > 0) {
+    throw new ApiError("invalid", fields.name || fields.description, 400, fields);
+  }
+  const trimmed = name.trim();
 
   const resident = residentOf(user);
   const data = load();
   const household = {
     id: `hh-${Date.now().toString(36)}`,
     name: trimmed,
+    description: (description || "").trim(),
     members: [{ id: resident.id, name: resident.name, roles: ["owner", "manager"], cookies: 0 }],
     tasks: []
   };
@@ -232,6 +258,9 @@ export async function acceptInvitation(user, code) {
 
 /** Household view (HK-60): household with members and upcoming tasks. */
 export async function getHousehold(user, householdId) {
+  if (!USE_PLACEHOLDER_API) {
+    return (await request(user, "GET", `/households/${encodeURIComponent(householdId)}`)).household;
+  }
   const { id } = residentOf(user);
   const household = load().households.find((item) => item.id === householdId);
 
@@ -239,7 +268,7 @@ export async function getHousehold(user, householdId) {
     await delay();
     throw new ApiError("not-found", "Household not found.");
   }
-  return delay(household);
+  return delay({ ...household, meId: id });
 }
 
 const ONLY_OWNER_INVITES = "Only the owner can invite residents to this household.";
@@ -360,6 +389,9 @@ export async function changeRole(user, householdId, memberId, action) {
 
 /** Resident profile (HK-66): the resident's role and cookies in each household. */
 export async function listMyMemberships(user) {
+  if (!USE_PLACEHOLDER_API) {
+    return (await request(user, "GET", "/me/households")).memberships;
+  }
   const { id } = residentOf(user);
   const memberships = load()
     .households.map((household) => {
@@ -372,6 +404,10 @@ export async function listMyMemberships(user) {
 
 /** Housemate profile (HK-69): member, current tasks, recently completed, counts and whether the viewer is the owner. */
 export async function getMemberProfile(user, householdId, memberId) {
+  if (!USE_PLACEHOLDER_API) {
+    const path = `/households/${encodeURIComponent(householdId)}/members/${encodeURIComponent(memberId)}`;
+    return (await request(user, "GET", path)).profile;
+  }
   const { id } = residentOf(user);
   const household = load().households.find((item) => item.id === householdId);
   const member = household?.members.find((item) => item.id === memberId);
@@ -392,6 +428,7 @@ export async function getMemberProfile(user, householdId, memberId) {
   const viewer = household.members.find((item) => item.id === id);
 
   return delay({
+    meId: id,
     member,
     viewerIsOwner: Boolean(viewer?.roles.includes("owner")),
     currentTasks,

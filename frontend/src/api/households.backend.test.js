@@ -1,0 +1,34 @@
+import { createHousehold, getHousehold, getMemberProfile, listMyHouseholds, listMyMemberships } from "./households";
+import { request } from "./client";
+
+// The same functions with the backend switched on (no placeholder).
+jest.mock("./client", () => {
+  const actual = jest.requireActual("./client");
+  return { ...actual, USE_PLACEHOLDER_API: false, request: jest.fn() };
+});
+
+const user = { id: "user_1", fullName: "Hermione Granger" };
+
+beforeEach(() => request.mockReset());
+
+test("HK-61 / HK-64 / HK-67: household functions call the backend", async () => {
+  request.mockResolvedValueOnce({ households: [{ id: "1", name: "The Burrow" }] });
+  await expect(listMyHouseholds(user)).resolves.toEqual([{ id: "1", name: "The Burrow" }]);
+  expect(request).toHaveBeenLastCalledWith(user, "GET", "/households");
+
+  request.mockResolvedValueOnce({ household: { id: "2", name: "Shell Cottage" } });
+  await createHousehold(user, "Shell Cottage", "By the sea");
+  expect(request).toHaveBeenLastCalledWith(user, "POST", "/households", { name: "Shell Cottage", description: "By the sea" });
+
+  request.mockResolvedValueOnce({ household: { id: "2", meId: "7", members: [], tasks: [] } });
+  await expect(getHousehold(user, "2")).resolves.toMatchObject({ meId: "7" });
+  expect(request).toHaveBeenLastCalledWith(user, "GET", "/households/2");
+
+  request.mockResolvedValueOnce({ memberships: [] });
+  await listMyMemberships(user);
+  expect(request).toHaveBeenLastCalledWith(user, "GET", "/me/households");
+
+  request.mockResolvedValueOnce({ profile: { meId: "7" } });
+  await getMemberProfile(user, "2", "9");
+  expect(request).toHaveBeenLastCalledWith(user, "GET", "/households/2/members/9");
+});

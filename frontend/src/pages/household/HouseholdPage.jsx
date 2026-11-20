@@ -80,10 +80,10 @@ function HouseholdPage() {
     return <LoadingState label="Loading your household…" count={2} />;
   }
 
-  const me = household.members.find((member) => member.id === user?.id);
+  const me = household.members.find((member) => member.id === household.meId);
   const isOwner = me?.roles.includes("owner");
   const openTasks = household.tasks.filter((task) => task.status !== "done");
-  const myTasks = openTasks.filter((task) => task.assigneeName && task.assigneeName === me?.name);
+  const myTasks = openTasks.filter((task) => task.assigneeId === household.meId);
   const dueSoon = openTasks
     .filter((task) => task.due)
     .sort((a, b) => new Date(a.due) - new Date(b.due))
@@ -110,6 +110,7 @@ function HouseholdPage() {
         <h2>{household.name}</h2>
         {me && <RoleChips roles={me.roles} />}
       </div>
+      {household.description && <p className="hk-household__description">{household.description}</p>}
 
       <div className="hk-page-grid">
         <div>
@@ -175,7 +176,7 @@ function HouseholdPage() {
                 </span>
                 <div>
                   <span className="hk-member__name">
-                    {member.name} {member.id === user?.id && <span className="hk-member__you">(you)</span>}
+                    {member.name} {member.id === household.meId && <span className="hk-member__you">(you)</span>}
                   </span>
                   <span className="hk-member__roles">
                     <RoleChips roles={member.roles} />

@@ -4,7 +4,14 @@ import homeIcon from "../../assets/home-green.svg";
 import membersIcon from "../../assets/members-green.svg";
 import GuestLayout from "../../components/auth/GuestLayout";
 import { FormBanner, FormField } from "../../components/forms";
-import { acceptInvitation, createHousehold, getInvitation } from "../../api/households";
+import {
+  acceptInvitation,
+  createHousehold,
+  getInvitation,
+  HOUSEHOLD_DESCRIPTION_MAX,
+  HOUSEHOLD_NAME_MAX,
+  validateHousehold
+} from "../../api/households";
 import { useCurrentHousehold } from "../../logic/CurrentHousehold";
 import useResident from "../../logic/useResident";
 import { initials } from "../../logic/format";
@@ -35,7 +42,8 @@ function Tabs({ mode }) {
 function CreateForm({ onDone }) {
   const { user } = useResident();
   const [name, setName] = useState("");
-  const [error, setError] = useState(null);
+  const [description, setDescription] = useState("");
+  const [errors, setErrors] = useState({});
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
 
@@ -43,19 +51,24 @@ function CreateForm({ onDone }) {
     event.preventDefault();
     setFailed(false);
 
-    if (!name.trim()) {
-      setError("Please enter a household name."); // US1 5a
+    // US1 5a / 5b
+    const fieldErrors = validateHousehold(name, description);
+    setErrors(fieldErrors);
+    if (Object.keys(fieldErrors).length > 0) {
       return;
     }
 
-    setError(null);
     setBusy(true);
     try {
-      const household = await createHousehold(user, name);
+      const household = await createHousehold(user, name, description);
       onDone(household, "created");
     } catch (createError) {
-      console.error("Unable to create household", createError);
-      setFailed(true);
+      if (createError.fields) {
+        setErrors(createError.fields);
+      } else {
+        console.error("Unable to create household", createError);
+        setFailed(true);
+      }
       setBusy(false);
     }
   };
@@ -71,9 +84,23 @@ function CreateForm({ onDone }) {
           label="Household name"
           required
           hint="For example “Flat Vinohrady” or “The Dursleys”."
-          error={error}
+          error={errors.name}
         >
-          <input type="text" value={name} maxLength={80} onChange={(event) => setName(event.target.value)} placeholder="e.g. Flat Vinohrady" />
+          <input type="text" value={name} maxLength={HOUSEHOLD_NAME_MAX} onChange={(event) => setName(event.target.value)} placeholder="e.g. Flat Vinohrady" />
+        </FormField>
+        <FormField
+          id="household-description"
+          label="Description"
+          hint={`Optional, up to ${HOUSEHOLD_DESCRIPTION_MAX} characters.`}
+          error={errors.description}
+        >
+          <textarea
+            rows={3}
+            value={description}
+            maxLength={HOUSEHOLD_DESCRIPTION_MAX}
+            onChange={(event) => setDescription(event.target.value)}
+            placeholder="e.g. Third floor, the door with the blue mat"
+          />
         </FormField>
         <div className="hk-note">
           <img src={membersIcon} alt="" />

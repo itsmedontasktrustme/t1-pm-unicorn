@@ -34,7 +34,7 @@ test("US1 5a: creating without a name shows the error from the user story", asyn
 
   userEvent.click(screen.getByRole("button", { name: /Create household/i }));
 
-  expect(await screen.findByText("Please enter a household name.")).toBeInTheDocument();
+  expect(await screen.findByText("Please enter a household name (max 20 characters)")).toBeInTheDocument();
   expect(screen.getByLabelText(/Household name/i)).toHaveAttribute("aria-invalid", "true");
 });
 

@@ -70,7 +70,8 @@ function HousemateProfilePage() {
     };
   }, [currentId, memberId, user, reloadKey]);
 
-  if (user && memberId === user.id) {
+  // Own profile: the demo knows it from the Clerk id, the backend from meId in the answer.
+  if ((user && memberId === user.id) || (profile && profile.member.id === profile.meId)) {
     return <Navigate to="/profile" replace />;
   }
 

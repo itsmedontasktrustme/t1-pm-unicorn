@@ -160,7 +160,7 @@ function PeoplePage() {
     (async () => {
       try {
         const data = await getHousehold(user, currentId);
-        const me = data.members.find((member) => member.id === user.id);
+        const me = data.members.find((member) => member.id === data.meId);
         const pending = me?.roles.includes("owner") ? await listInvitations(user, currentId) : [];
         if (active) {
           setHousehold(data);
@@ -195,7 +195,7 @@ function PeoplePage() {
     return <LoadingState label="Loading housemates…" variant="rows" count={4} />;
   }
 
-  const me = household.members.find((member) => member.id === user?.id);
+  const me = household.members.find((member) => member.id === household.meId);
   const isOwner = Boolean(me?.roles.includes("owner"));
   const owner = household.members.find((member) => member.roles.includes("owner"));
 
@@ -209,7 +209,7 @@ function PeoplePage() {
       <div className="hk-page-grid hk-page-grid--balanced">
         <Housemates
           household={household}
-          userId={user?.id}
+          userId={household.meId}
           isOwner={isOwner}
           renderAction={
             isOwner
@@ -240,7 +240,7 @@ function PeoplePage() {
         <RoleSheet
           open={Boolean(roleMemberId)}
           member={household.members.find((member) => member.id === roleMemberId)}
-          isSelf={roleMemberId === user?.id}
+          isSelf={roleMemberId === household.meId}
           householdId={household.id}
           householdName={household.name}
           onClose={closeRole}

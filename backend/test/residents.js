@@ -54,7 +54,7 @@ describe("HK-55 / HK-58 resident on sign-in (/api/me)", () => {
     it("GET /api/me before the first sign-in asks to sign in again", async () => {
       const res = await chai.request(app).get("/api/me").set("Authorization", bearer({ sub: uniqueUserId("none") }));
       expect(res).to.have.status(401);
-      expect(res.body).to.include({ ok: false, code: "residentMissing" });
+      expect(res.body).to.include({ ok: false, code: "resident-missing" });
     });
   });
 });

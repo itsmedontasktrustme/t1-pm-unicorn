@@ -20,10 +20,12 @@ export const USE_PLACEHOLDER_API =
 const API_BASE = "/api";
 
 export class ApiError extends Error {
-  constructor(code, message, status = null) {
+  constructor(code, message, status = null, fields = null) {
     super(message);
     this.code = code;
     this.status = status;
+    // Texts per form field from the backend, e.g. { name: "Please enter a household name (max 20 characters)" }.
+    this.fields = fields;
   }
 }
 
@@ -63,7 +65,7 @@ async function send(method, path, body) {
     if (status >= 500 || !payload) {
       throw new ApiError("server", SERVER_MESSAGE, status);
     }
-    throw new ApiError(payload.code || "error", payload.error || SERVER_MESSAGE, status);
+    throw new ApiError(payload.code || "error", payload.error || SERVER_MESSAGE, status, payload.fields || null);
   }
 
   return payload;
