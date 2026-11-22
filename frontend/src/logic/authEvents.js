@@ -35,6 +35,7 @@ function writeLoggedSession(sessionId) {
 
 async function postAuthEvent(event, user, token) {
   if (!token) {
+    console.warn(`[Frontend Auth] No token available for ${event} event`);
     return false;
   }
 
@@ -48,6 +49,7 @@ async function postAuthEvent(event, user, token) {
       body: JSON.stringify({ user: { fullName: user?.fullName || user?.firstName || null } }),
       signal: controller?.signal
     });
+
     return response.ok;
   } catch (error) {
     if (process.env.NODE_ENV === "development") {

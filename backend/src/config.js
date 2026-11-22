@@ -2,13 +2,6 @@ const fs = require("fs");
 
 const readFileSync = filename => fs.readFileSync(filename).toString("utf8");
 
-// Comma separated list -> array without empty items.
-const readList = value =>
-  (value || "")
-    .split(",")
-    .map(item => item.trim())
-    .filter(Boolean);
-
 // Constants
 module.exports = {
   database: {
@@ -27,10 +20,7 @@ module.exports = {
     secretKey: process.env.CLERK_SECRET_KEY || null,
     // Optional PEM public key (Clerk Dashboard -> API keys -> JWT public key).
     // When set, tokens are verified without any network call. "\n" escapes are allowed.
-    jwtKey: process.env.CLERK_JWT_KEY ? process.env.CLERK_JWT_KEY.replace(/\n/g, "\n") : null,
-    // Origins of the frontend allowed to use the tokens (checked against the "azp" claim),
-    // e.g. "https://t1-pm-unicorn.cloud,http://localhost". Empty = not checked.
-    authorizedParties: readList(process.env.CLERK_AUTHORIZED_PARTIES)
+    jwtKey: process.env.CLERK_JWT_KEY ? process.env.CLERK_JWT_KEY.replace(/\\n/g, "\n") : null
   },
   port: process.env.PORT || 81
   // if you're not using docker compose for local development, this will default to 81

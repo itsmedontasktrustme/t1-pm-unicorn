@@ -66,6 +66,12 @@ async function send(method, path, body) {
   if (!response.ok || payload?.ok === false) {
     const status = response.status;
     if (status === 401) {
+      console.error("[Frontend API] 401 Unauthorized response", {
+        path,
+        method,
+        payload,
+        hasToken: Boolean(token)
+      });
       window.dispatchEvent(new Event(SESSION_EXPIRED_EVENT));
     }
     if (status >= 500 || !payload) {

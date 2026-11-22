@@ -49,15 +49,50 @@ async function verifySessionToken(token, config = authConfig) {
 
   let claims;
   try {
-    claims = await verifyToken(token, {
-      ...(config.jwtKey ? { jwtKey: config.jwtKey } : { secretKey: config.secretKey }),
-      ...(config.authorizedParties.length > 0 ? { authorizedParties: config.authorizedParties } : {})
+    const verifyOptions = {
+      ...(config.jwtKey ? { jwtKey: config.jwtKey } : { secretKey: config.secretKey })
+    };
+
+    // Decode token to see what we're working with
+    const tokenParts = token.split('.');
+    if (tokenParts.length === 3) {
+      try {
+        const payload = JSON.parse(Buffer.from(tokenParts[1], 'base64').toString());
+        console.log("[Auth] Token payload:", {
+          sub: payload.sub,
+          sid: payload.sid,
+          exp: payload.exp,
+          iat: payload.iat,
+          aud: payload.aud,
+          azp: payload.azp
+        });
+      } catch (e) {
+        console.log("[Auth] Could not decode token payload" + e);
+      }
+    }
+
+    claims = await verifyToken(token, verifyOptions);
+
+    console.log("[Auth] Token verified successfully", {
+      userId: claims?.sub,
+      sessionId: claims?.sid,
+      exp: claims?.exp,
+      iat: claims?.iat,
+      aud: claims?.aud
     });
   } catch (error) {
+    console.error("[Auth] Token verification failed", {
+      error: error?.message,
+      reason: error?.reason,
+      code: error?.code,
+      status: error?.status,
+      fullError: JSON.stringify(error, null, 2)
+    });
     throw new AuthError(401, "unauthorized", `Invalid session token${error?.reason ? ` (${error.reason})` : ""}`);
   }
 
   if (!claims?.sub) {
+    console.error("[Auth] Token missing user claim (sub)");
     throw new AuthError(401, "unauthorized", "Session token has no user");
   }
 
@@ -71,7 +106,19 @@ async function verifySessionToken(token, config = authConfig) {
 /** Verifies the request's token once and caches the result on req.auth. */
 async function authenticateRequest(req) {
   if (!req.auth) {
-    req.auth = await verifySessionToken(getAuthorizationToken(req));
+    const authToken = getAuthorizationToken(req);
+    console.log("[Auth] Authenticating request", {
+      path: req.path,
+      method: req.method,
+      hasAuthToken: Boolean(authToken),
+      authHeader: req.headers.authorization ? "(present)" : "(missing)"
+    });
+    req.auth = await verifySessionToken(authToken);
+    console.log("[Auth] Request authentication successful", {
+      userId: req.auth.userId,
+      sessionId: req.auth.sessionId,
+      path: req.path
+    });
   }
   return req.auth;
 }
@@ -91,6 +138,13 @@ async function requireAuth(req, res, next) {
     return next();
   } catch (error) {
     if (error instanceof AuthError) {
+      console.error("[Auth] Auth middleware rejected request", {
+        status: error.status,
+        code: error.code,
+        message: error.message,
+        path: req.path,
+        method: req.method
+      });
       return sendAuthError(res, error);
     }
     return next(error);
