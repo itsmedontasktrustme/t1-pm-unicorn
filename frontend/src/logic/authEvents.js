@@ -39,8 +39,6 @@ async function postAuthEvent(event, user, token) {
     return false;
   }
 
-  console.log(`[Frontend Auth] Posting ${event} event with token`);
-
   const controller = typeof AbortController === "function" ? new AbortController() : null;
   const timer = controller ? setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS) : null;
 
@@ -51,13 +49,6 @@ async function postAuthEvent(event, user, token) {
       body: JSON.stringify({ user: { fullName: user?.fullName || user?.firstName || null } }),
       signal: controller?.signal
     });
-
-    if (!response.ok) {
-      console.error(`[Frontend Auth] ${event} request failed`, {
-        status: response.status,
-        statusText: response.statusText
-      });
-    }
 
     return response.ok;
   } catch (error) {

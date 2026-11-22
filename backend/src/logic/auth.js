@@ -53,14 +53,6 @@ async function verifySessionToken(token, config = authConfig) {
       ...(config.jwtKey ? { jwtKey: config.jwtKey } : { secretKey: config.secretKey })
     };
 
-    console.log("[Auth] Verifying token with options:", {
-      hasJwtKey: Boolean(config.jwtKey),
-      hasSecretKey: Boolean(config.secretKey),
-      usingMethod: config.jwtKey ? "jwtKey" : "secretKey",
-      jwtKeyLength: config.jwtKey ? config.jwtKey.length : 0,
-      jwtKeyStart: config.jwtKey ? config.jwtKey.substring(0, 50) : "N/A"
-    });
-
     // Decode token to see what we're working with
     const tokenParts = token.split('.');
     if (tokenParts.length === 3) {
