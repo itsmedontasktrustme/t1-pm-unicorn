@@ -1,9 +1,23 @@
 const app = require("./server");
 const { port } = require("./config");
+const { isAuthConfigured } = require("./logic/auth");
 
 const server = app.listen(port, function() {
   console.log("Webserver is ready");
 });
+
+// Log auth configuration on startup
+if (!isAuthConfigured()) {
+  console.warn("[Auth] ⚠️  CLERK_SECRET_KEY or CLERK_JWT_KEY is not set: every protected /api endpoint will answer 401.");
+} else {
+  const { auth: authConfig } = require("./config");
+  console.log("[Auth] ✅ Authentication is configured:", {
+    hasSecretKey: Boolean(authConfig.secretKey),
+    hasJwtKey: Boolean(authConfig.jwtKey),
+    jwtKeyLength: authConfig.jwtKey ? authConfig.jwtKey.length : 0,
+    jwtKeyFirstLine: authConfig.jwtKey ? authConfig.jwtKey.split('\n')[0] : "N/A"
+  });
+}
 
 //
 // need this in docker container to properly exit since node doesn't handle SIGINT/SIGTERM

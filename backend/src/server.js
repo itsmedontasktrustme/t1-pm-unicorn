@@ -19,7 +19,6 @@ const { registerResidentEndpoints } = require("./endpoints/residents");
 const { registerHouseholdEndpoints } = require("./endpoints/households");
 const { registerInvitationEndpoints } = require("./endpoints/invitations");
 const { registerTaskEndpoints } = require("./endpoints/tasks");
-const { isAuthConfigured } = require("./logic/auth");
 
 function logServerError(context, error, extra = {}) {
   const details = {
@@ -38,10 +37,6 @@ const app = express();
 // The backend runs behind nginx / the dev proxy (Docker networks), so req.ip is taken
 // from X-Forwarded-For set by those private-network proxies only.
 app.set("trust proxy", "loopback, linklocal, uniquelocal");
-
-if (!isAuthConfigured() && process.env.NODE_ENV !== "test") {
-  console.warn("[Auth] CLERK_SECRET_KEY or CLERK_JWT_KEY is not set: every protected /api endpoint will answer 401.");
-}
 
 app.use(express.json());
 app.use(morgan("common"));

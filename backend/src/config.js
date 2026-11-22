@@ -27,7 +27,7 @@ module.exports = {
     secretKey: process.env.CLERK_SECRET_KEY || null,
     // Optional PEM public key (Clerk Dashboard -> API keys -> JWT public key).
     // When set, tokens are verified without any network call. "\n" escapes are allowed.
-    jwtKey: process.env.CLERK_JWT_KEY ? process.env.CLERK_JWT_KEY.replace(/\n/g, "\n") : null
+    jwtKey: process.env.CLERK_JWT_KEY ? process.env.CLERK_JWT_KEY.replace(/\\n/g, "\n") : null
   },
   port: process.env.PORT || 81
   // if you're not using docker compose for local development, this will default to 81

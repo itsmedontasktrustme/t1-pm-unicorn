@@ -55,8 +55,29 @@ async function verifySessionToken(token, config = authConfig) {
 
     console.log("[Auth] Verifying token with options:", {
       hasJwtKey: Boolean(config.jwtKey),
-      hasSecretKey: Boolean(config.secretKey)
+      hasSecretKey: Boolean(config.secretKey),
+      usingMethod: config.jwtKey ? "jwtKey" : "secretKey",
+      jwtKeyLength: config.jwtKey ? config.jwtKey.length : 0,
+      jwtKeyStart: config.jwtKey ? config.jwtKey.substring(0, 50) : "N/A"
     });
+
+    // Decode token to see what we're working with
+    const tokenParts = token.split('.');
+    if (tokenParts.length === 3) {
+      try {
+        const payload = JSON.parse(Buffer.from(tokenParts[1], 'base64').toString());
+        console.log("[Auth] Token payload:", {
+          sub: payload.sub,
+          sid: payload.sid,
+          exp: payload.exp,
+          iat: payload.iat,
+          aud: payload.aud,
+          azp: payload.azp
+        });
+      } catch (e) {
+        console.log("[Auth] Could not decode token payload");
+      }
+    }
 
     claims = await verifyToken(token, verifyOptions);
 
@@ -72,7 +93,8 @@ async function verifySessionToken(token, config = authConfig) {
       error: error?.message,
       reason: error?.reason,
       code: error?.code,
-      status: error?.status
+      status: error?.status,
+      fullError: JSON.stringify(error, null, 2)
     });
     throw new AuthError(401, "unauthorized", `Invalid session token${error?.reason ? ` (${error.reason})` : ""}`);
   }
