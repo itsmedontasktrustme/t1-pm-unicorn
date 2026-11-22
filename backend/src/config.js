@@ -2,13 +2,6 @@ const fs = require("fs");
 
 const readFileSync = filename => fs.readFileSync(filename).toString("utf8");
 
-// Comma separated list -> array without empty items.
-const readList = value =>
-  (value || "")
-    .split(",")
-    .map(item => item.trim())
-    .filter(Boolean);
-
 // Constants
 module.exports = {
   database: {

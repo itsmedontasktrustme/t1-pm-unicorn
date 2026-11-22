@@ -67,7 +67,7 @@ async function verifySessionToken(token, config = authConfig) {
           azp: payload.azp
         });
       } catch (e) {
-        console.log("[Auth] Could not decode token payload");
+        console.log("[Auth] Could not decode token payload" + e);
       }
     }
 
