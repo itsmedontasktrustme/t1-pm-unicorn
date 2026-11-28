@@ -1,0 +1,8 @@
+{
+  "cucumber.features": [
+    "bdd-tests/features/**/*.feature"
+  ],
+  "cucumber.glue": [
+    "bdd-tests/steps/**/*.js"
+  ]
+}

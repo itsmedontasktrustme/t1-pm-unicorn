@@ -1,0 +1,16 @@
+{
+  "name": "homekeeper-bdd-tests",
+  "private": true,
+  "version": "1.0.0",
+  "description": "BDD end-to-end tests for HomeKeeper using Cucumber.js and Playwright",
+  "scripts": {
+    "test": "cucumber-js",
+    "test:resident": "cucumber-js features/resident/resident_sign-in.feature"
+  },
+  "devDependencies": {
+    "@cucumber/cucumber": "^11.2.0",
+    "@playwright/test": "^1.50.0",
+    "mysql2": "^3.11.5",
+    "playwright": "^1.50.0"
+  }
+}
