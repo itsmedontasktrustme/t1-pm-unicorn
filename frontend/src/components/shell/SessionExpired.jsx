@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useClerk } from "@clerk/react";
+import { useClerk } from "../../logic/clerk";
 import { useNavigate } from "react-router-dom";
 import GuestLayout from "../auth/GuestLayout";
 import { StatePanel } from "../states";

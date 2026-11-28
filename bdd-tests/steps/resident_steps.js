@@ -6,27 +6,35 @@ const LOGGED_SESSION_KEY = "homekeeper.auth.loggedSignInSession";
 async function signInWithGoogle(world, alias) {
   const account = world.getAccount(alias);
 
-  await world.selectOidcAccount(account);
+  const signedInUserId = await world.page.evaluate(
+    () => JSON.parse(window.sessionStorage.getItem("homekeeper.e2e.auth"))?.user?.id || null
+  );
+  if (signedInUserId && signedInUserId !== account.sub) {
+    await world.page.evaluate(() => window.sessionStorage.removeItem("homekeeper.e2e.auth"));
+    await world.page.goto(`${world.baseUrl}/sign-in`);
+  } else if (!world.page.url().includes("/sign-in")) {
+    await world.page.goto(`${world.baseUrl}/sign-in`);
+  }
+  await expect(world.page.getByRole("heading", { name: "Sign in to HomeKeeper" })).toBeVisible();
+
+  await world.selectOidcAccount({
+    ...account,
+    createdAt: account.residentExists === false ? new Date().toISOString() : "2000-01-01T00:00:00.000Z"
+  });
 
   const meResponsePromise = world.page.waitForResponse(
-    (res) => res.url().includes("/api/me") && res.request().method() === "POST"
-  );
-  const signInLogPromise = world.page.waitForResponse(
-    (res) => res.url().includes("/api/auth/sign-in") && res.request().method() === "POST"
+    (response) => response.url().endsWith("/api/me") &&
+      response.request().method() === "POST" && response.ok()
   );
 
-  await world.page.getByRole("button", { name: /Continue with Google/i }).click();
+  await world.page.getByRole("button", { name: /Continue with Google/i }).click({ noWaitAfter: true });
+  await meResponsePromise;
+  await expect(world.page).toHaveURL(/\/welcome$/);
 
-  const [meResponse, signInLogResponse] = await Promise.all([
-    meResponsePromise,
-    signInLogPromise
-  ]);
-  expect(meResponse.status()).toBe(200);
-  expect(signInLogResponse.status()).toBe(200);
-
-  const signInLogBody = await signInLogResponse.json();
   world.currentAccount = account;
-  world.currentSessionId = signInLogBody.sessionId || null;
+  world.currentSessionId = await world.page.evaluate(
+    () => JSON.parse(window.sessionStorage.getItem("homekeeper.e2e.auth"))?.sessionId || null
+  );
 }
 
 // --- Background ---
@@ -54,6 +62,7 @@ Given("user is on the sign-in page", async function () {
 
 Given("resident {string} does not exist", async function (alias) {
   const account = this.getAccount(alias);
+  account.residentExists = false;
   this.currentAccount = account;
   await this.db.execute(
     "DELETE FROM resident WHERE auth_user_id = ? OR email = ?",
@@ -63,6 +72,7 @@ Given("resident {string} does not exist", async function (alias) {
 
 Given("resident {string} exists", async function (alias) {
   const account = this.getAccount(alias);
+  account.residentExists = true;
   this.currentAccount = account;
   const dbName = account.name || account.alternativeName;
   await this.db.execute(
@@ -76,6 +86,7 @@ Given("resident {string} exists", async function (alias) {
     "SELECT id FROM resident WHERE auth_user_id = ?",
     [account.sub]
   );
+  await this.db.execute("DELETE FROM housemate WHERE resident_id = ?", [rows[0].id]);
   this.residentIds.set(alias, rows[0].id);
 });
 
@@ -85,7 +96,7 @@ Given("Google profile for {string} has updated name {string}", function (alias, 
 });
 
 Given("Google OAuth provider is unavailable", async function () {
-  await this.page.route(`${this.oidcAdminUrl}/**`, (route) => route.abort("failed"));
+  await this.page.route("**/oidc/test/token", (route) => route.abort("failed"));
 });
 
 Given("the resident's session token is expired or invalid", async function () {
@@ -118,10 +129,11 @@ When("{string} cancels signing in with Google", async function (alias) {
   const account = this.getAccount(alias);
   this.currentAccount = account;
 
-  await this.page.route(`${this.oidcAdminUrl}/**`, (route) =>
+  await this.page.route("**/oidc/test/token", (route) =>
     route.fulfill({
-      status: 302,
-      headers: { location: `${this.baseUrl}/sign-in?status=cancelled` }
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ cancelled: true })
     })
   );
 

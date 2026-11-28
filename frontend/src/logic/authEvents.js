@@ -5,7 +5,7 @@
  */
 
 import { useEffect } from "react";
-import { useAuth, useUser } from "@clerk/react";
+import { useAuth, useUser } from "./clerk";
 import { getClerkToken } from "./auth";
 
 const AUTH_API_URL = "/api/auth";

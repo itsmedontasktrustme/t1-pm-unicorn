@@ -1,4 +1,4 @@
-import { useUser } from "@clerk/react";
+import { useUser } from "./clerk";
 
 /*
  * The signed-in resident.

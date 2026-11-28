@@ -1,6 +1,8 @@
 const { setWorldConstructor, World } = require("@cucumber/cucumber");
 const { chromium } = require("playwright");
 const mysql = require("mysql2/promise");
+const fs = require("fs");
+const path = require("path");
 
 class HomekeeperWorld extends World {
   constructor(options) {
@@ -29,7 +31,7 @@ class HomekeeperWorld extends World {
       host: process.env.DATABASE_HOST || "127.0.0.1",
       port: Number(process.env.DATABASE_PORT || 3306),
       user: process.env.DATABASE_USER || "root",
-      password: process.env.DATABASE_PASSWORD || "secret",
+      password: process.env.DATABASE_PASSWORD || fs.readFileSync(path.join(__dirname, "../../db/password.txt"), "utf8").trim(),
       database: process.env.DATABASE_DB || "homekeeper"
     });
   }
@@ -84,7 +86,8 @@ class HomekeeperWorld extends World {
       body: JSON.stringify({
         sub: account.sub,
         name: account.name || null,
-        email: account.email
+        email: account.email,
+        createdAt: account.createdAt || null
       })
     });
     if (!res.ok) {

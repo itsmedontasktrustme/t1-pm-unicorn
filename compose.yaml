@@ -17,6 +17,7 @@ services:
       - DATABASE_HOST=db
       - NODE_ENV=development
       - PORT=81
+      - CLERK_JWT_KEY_FILE=/run/oidc/public.pem
     ports:
       - "81:81"
       - "9229:9229"
@@ -28,11 +29,19 @@ services:
       - ./backend/package.json:/code/package.json
       - ./backend/package-lock.json:/code/package-lock.json
       - back-notused:/opt/app/node_modules
+      - ./bdd-tests/oidc-mock/public.pem:/run/oidc/public.pem:ro
     networks:
       - public
       - private
     depends_on:
       - db
+      - oidc-mock
+  oidc-mock:
+    build: bdd-tests/oidc-mock
+    ports:
+      - "8080:8080"
+    networks:
+      - public
   db:
     # We use a mariadb image which supports both amd64 & arm64 architecture
     image: mariadb:10.6.4-focal
@@ -53,6 +62,8 @@ services:
           wait "$${mysql_pid}"
         fi
     restart: always
+    ports:
+      - "3306:3306"
     secrets:
       - db-password
     volumes:
@@ -76,10 +87,13 @@ services:
       - PORT=80
       - REACT_APP_BACKEND_URL=http://backend:81
       - REACT_APP_HISTORY_API_URL=/api/history/action
+      - REACT_APP_E2E_AUTH=true
     ports:
       - "80:80"
     volumes:
       - ./frontend/src:/code/src
+      - ./bdd-tests/test-assets/frontend/clerk.js:/code/src/logic/clerk.js:ro
+      - ./bdd-tests/test-assets/frontend/setupProxy.js:/code/src/setupProxy.js:ro
       - /code/node_modules
     networks:
       - public

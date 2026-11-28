@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useClerk } from "@clerk/react";
+import { useClerk } from "../../logic/clerk";
 import cookieIcon from "../../assets/cookie.svg";
 import homeIcon from "../../assets/home-green.svg";
 import { listMyMemberships } from "../../api/households";

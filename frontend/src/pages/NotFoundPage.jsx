@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useUser } from "@clerk/react";
+import { useUser } from "../logic/clerk";
 import cookieIcon from "../assets/cookie.svg";
 import usePageLoadTracking from "../logic/usePageLoadTracking";
 import { EmptyState } from "../components/states";

@@ -1,4 +1,4 @@
-import { useUser } from "@clerk/react";
+import { useUser } from "./logic/clerk";
 import { Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import wordmark from "./assets/wordmark.svg";
 import homeIcon from "./assets/home-green.svg";
