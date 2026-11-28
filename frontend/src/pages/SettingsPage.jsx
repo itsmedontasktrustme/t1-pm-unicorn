@@ -1,4 +1,4 @@
-import { useUser } from "@clerk/react";
+import { useUser } from "../logic/clerk";
 import usePageLoadTracking from "../logic/usePageLoadTracking";
 
 function SettingsPage() {

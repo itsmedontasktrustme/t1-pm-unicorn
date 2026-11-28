@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Navigate, useSearchParams } from "react-router-dom";
-import { useSignIn, useUser } from "@clerk/react";
+import { useSignIn, useUser } from "../../logic/clerk";
 import wordmark from "../../assets/wordmark.svg";
 import GuestLayout, { TAGLINE } from "../../components/auth/GuestLayout";
 import GoogleButton from "../../components/auth/GoogleButton";

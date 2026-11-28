@@ -1,0 +1,9 @@
+{
+  "name": "homekeeper-oidc-mock",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Local Clerk-compatible identity mock for HomeKeeper E2E tests",
+  "scripts": {
+    "start": "node server.js"
+  }
+}

@@ -38,7 +38,8 @@ services:
     - 3000:3000
     ...
 ```
-The compose file defines an application with three services `frontend`, `backend` and `db`.
+The compose file defines an application plus a local OIDC test identity service. The `oidc-mock` service supplies selected Google-like profiles and locally signed session tokens, so local Docker sign-in never contacts Google or Clerk. It is only enabled by `REACT_APP_E2E_AUTH=true` in the development compose file.
+
 When deploying the application, docker compose maps port 3000 of the frontend service container to port 3000 of the host as specified in the file.
 Make sure port 3000 on the host is not already being in use.
 
@@ -52,6 +53,18 @@ Make sure port 3000 on the host is not already being in use.
 ```
 $ docker compose up -d
 ```
+
+## Local browser tests
+
+Run the complete local browser test setup from the repository root:
+
+```bash
+make browser-tests
+```
+
+The Makefile target builds and starts the Docker Compose stack, waits for the frontend, installs the BDD dependencies and Playwright Chromium, and runs the scenarios.
+
+`When "Resident 1" signs in with Google`, they still clicks the real HomeKeeper button, but the click is completed by the local identity provider instead of accounts.google.com. The committed fake RSA key pair under `bdd-tests/oidc-mock/` is test-only and must never be used outside local development. Mock frontend adapters are kept under `bdd-tests/test-assets/` and mounted only by the development Compose service; application source contains no mock implementation. Set `REACT_APP_E2E_AUTH` to anything other than `true` and remove the mock backend key to use real Clerk authentication.
 
 ## Authentication (Google sign-in)
 

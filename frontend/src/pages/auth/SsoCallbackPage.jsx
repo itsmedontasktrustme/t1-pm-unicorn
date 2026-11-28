@@ -1,4 +1,4 @@
-import { HandleSSOCallback } from "@clerk/react";
+import { HandleSSOCallback } from "../../logic/clerk";
 import { useNavigate } from "react-router-dom";
 import GuestLayout from "../../components/auth/GuestLayout";
 import { LoadingState } from "../../components/states";

@@ -7,6 +7,7 @@ import { LoadingState } from "../../components/states";
 import { FormBanner } from "../../components/forms";
 import { listPendingInvitations } from "../../api/households";
 import useResident from "../../logic/useResident";
+import { useCurrentHousehold } from "../../logic/CurrentHousehold";
 import { initials } from "../../logic/format";
 
 /*
@@ -72,6 +73,7 @@ function Choice({ to, icon, title, text }) {
 function WelcomePage() {
   // Clerk user, or the demo resident in development without a Clerk key.
   const { isLoaded, user } = useResident();
+  const { households } = useCurrentHousehold();
   const [searchParams] = useSearchParams();
   const preview = process.env.NODE_ENV !== "production" ? searchParams.get("preview") : null;
 
@@ -125,7 +127,7 @@ function WelcomePage() {
         </p>
 
         <div className="hk-choices">
-          {!isNew && <Choice to="/home" icon={homeIcon} title="Go to my household" text="Open your tasks and cookies." />}
+          {!isNew && households?.length > 0 && <Choice to="/home" icon={homeIcon} title="Go to my household" text="Open your tasks and cookies." />}
           <Choice to="/household/new" icon={homeIcon} title="Create a household" text="You’ll be the owner and can invite others." />
           <Choice to="/household/join" icon={membersIcon} title="Join with an invitation" text="Got an invitation code from the owner? Enter it here." />
         </div>

@@ -62,6 +62,15 @@ jobs:
         run: |
           docker compose -f compose.prod.yaml build
 
+      - name: Run local browser tests
+        run: |
+          touch frontend/.env.local
+          make browser-tests
+
+      - name: Stop local browser test stack
+        if: always()
+        run: docker compose down --volumes
+
       - name: Lint backend
         working-directory: ./backend
         run: npm run lint --max-warnings=0
